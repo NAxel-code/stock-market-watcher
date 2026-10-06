@@ -20,6 +20,12 @@ export interface StockQuote {
   tick_size?: number
   lot_size?: number
   fifty_two_week_position?: number
+  // CoinGecko domain enhancements
+  sector?: string
+  industry?: string
+  distance_from_52w_high?: number
+  distance_from_52w_low?: number
+  sparkline_7d?: number[]
 }
 
 export interface HistoryPoint {

@@ -23,6 +23,12 @@ class StockQuoteResponse(BaseModel):
     tick_size: int | None = None
     lot_size: int = 100
     fifty_two_week_position: float | None = None
+    # CoinGecko Enhancements
+    sector: str | None = None
+    industry: str | None = None
+    distance_from_52w_high: float | None = None
+    distance_from_52w_low: float | None = None
+    sparkline_7d: list[float] = Field(default_factory=list)
 
 
 class HistoryPoint(BaseModel):

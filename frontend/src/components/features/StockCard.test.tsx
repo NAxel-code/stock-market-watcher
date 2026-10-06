@@ -85,4 +85,17 @@ describe('StockCard component', () => {
     render(<StockCard quote={staleQuote} />)
     expect(screen.getByText('Delayed')).toBeInTheDocument()
   })
+
+  it('renders CoinGecko features: sector badge, peak distance, and sparkline', () => {
+    const coingeckoQuote: StockQuote = {
+      ...mockPositiveQuote,
+      sector: 'Technology',
+      distance_from_52w_high: -12.5,
+      sparkline_7d: [140, 142, 145, 148, 150.25],
+    }
+    render(<StockCard quote={coingeckoQuote} />)
+    expect(screen.getByText('Technology')).toBeInTheDocument()
+    expect(screen.getByText('Puncak: -12.5%')).toBeInTheDocument()
+    expect(screen.getByTestId('sparkline-chart')).toBeInTheDocument()
+  })
 })

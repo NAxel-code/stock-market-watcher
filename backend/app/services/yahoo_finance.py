@@ -32,11 +32,23 @@ _quote_cache: TTLCache[str, dict[str, Any]] = TTLCache(maxsize=500, ttl=60)
 _history_cache: TTLCache[str, dict[str, Any]] = TTLCache(maxsize=200, ttl=3600)
 _search_cache: TTLCache[str, list[dict[str, Any]]] = TTLCache(maxsize=100, ttl=600)
 _market_cache: TTLCache[str, dict[str, Any]] = TTLCache(maxsize=10, ttl=60)
+_sparkline_cache: TTLCache[str, list[float]] = TTLCache(maxsize=500, ttl=3600)
 
 # Stale cache fallback
 _stale_quote_cache: dict[str, dict[str, Any]] = {}
 
 _finnhub_provider = FinnhubProvider()
+
+DEFAULT_SECTORS: dict[str, tuple[str, str]] = {
+    "AAPL": ("Technology", "Consumer Electronics"),
+    "MSFT": ("Technology", "Software—Infrastructure"),
+    "TSLA": ("Consumer Cyclical", "Auto Manufacturers"),
+    "NVDA": ("Technology", "Semiconductors"),
+    "GOOGL": ("Communication Services", "Internet Content & Information"),
+    "BBCA.JK": ("Financial Services", "Banks—Regional"),
+    "TLKM.JK": ("Communication Services", "Telecom Services"),
+    "GOTO.JK": ("Technology", "Internet Content & Information"),
+}
 
 US_INDICES = [
     {"ticker": "^GSPC", "name": "S&P 500"},
@@ -106,6 +118,29 @@ def _enrich_quote_metadata(data: dict[str, Any], ticker: str) -> None:
         data["arb_price"] = None
         data["tick_size"] = None
 
+    # CoinGecko Distance from 52W High / Low (Percentage)
+    if high_52 and high_52 > 0 and current_price is not None:
+        data["distance_from_52w_high"] = round(((current_price - high_52) / high_52) * 100, 2)
+    else:
+        data["distance_from_52w_high"] = None
+
+    if low_52 and low_52 > 0 and current_price is not None:
+        data["distance_from_52w_low"] = round(((current_price - low_52) / low_52) * 100, 2)
+    else:
+        data["distance_from_52w_low"] = None
+
+    # CoinGecko Sector & Industry Tagging
+    t_upper = ticker.upper()
+    if not data.get("sector") and t_upper in DEFAULT_SECTORS:
+        data["sector"], data["industry"] = DEFAULT_SECTORS[t_upper]
+
+    # CoinGecko 7-Day Sparkline
+    if t_upper in _sparkline_cache:
+        data["sparkline_7d"] = _sparkline_cache[t_upper]
+    else:
+        prev_close = data.get("previous_close", current_price)
+        data["sparkline_7d"] = [prev_close, current_price] if prev_close else [current_price]
+
 
 def get_quote(ticker: str) -> StockQuoteResponse:
     """Get real-time stock quote with multi-level fallback and caching."""
@@ -156,6 +191,8 @@ def get_quote(ticker: str) -> StockQuoteResponse:
                 "fifty_two_week_high": None,
                 "fifty_two_week_low": None,
                 "currency": "USD",
+                "sector": None,
+                "industry": None,
             }
         else:
             current_price = _safe_float(info.get("regularMarketPrice") or info.get("currentPrice"))
@@ -177,7 +214,20 @@ def get_quote(ticker: str) -> StockQuoteResponse:
                 "fifty_two_week_high": info.get("fiftyTwoWeekHigh"),
                 "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
                 "currency": info.get("currency", "USD"),
+                "sector": info.get("sector"),
+                "industry": info.get("industry"),
             }
+
+        # Fetch 7-day sparkline if not cached
+        if cache_key not in _sparkline_cache:
+            try:
+                hist_7d = t.history(period="7d", interval="1d")
+                if not hist_7d.empty and len(hist_7d) > 1:
+                    prices = [round(_safe_float(p), 2) for p in hist_7d["Close"].tolist() if _safe_float(p) > 0]
+                    if prices:
+                        _sparkline_cache[cache_key] = prices
+            except Exception as spark_err:
+                logger.debug("Failed to fetch 7d sparkline for %s: %s", ticker, spark_err)
 
         if data["current_price"] == 0.0:
             # Attempt secondary provider (Finnhub) before failing

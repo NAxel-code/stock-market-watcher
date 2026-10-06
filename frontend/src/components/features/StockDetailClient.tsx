@@ -1,11 +1,13 @@
 'use client'
 
 import { useStockData } from '@/hooks/useStockData'
+import { useStockHistory } from '@/hooks/useStockHistory'
 import { useUIStore } from '@/stores/useUIStore'
 import { PriceChart } from '@/components/features/PriceChart'
 import { FiftyTwoWeekRangeBar } from '@/components/features/FiftyTwoWeekRangeBar'
 import { IdxLotCalculator } from '@/components/features/IdxLotCalculator'
 import { PriceAlertDialog } from '@/components/features/PriceAlertDialog'
+import { MultiHorizonReturns } from '@/components/features/MultiHorizonReturns'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
@@ -15,6 +17,7 @@ import { toast } from 'sonner'
 
 export function StockDetailClient({ ticker }: { ticker: string }) {
   const { data: quote, isLoading, error } = useStockData(ticker)
+  const { data: history1y } = useStockHistory(ticker, '1y')
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useUIStore()
   const inWatchlist = isInWatchlist(ticker)
   const isIdx = isIdxTicker(ticker) || Boolean(quote?.is_idx)
@@ -68,6 +71,11 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold font-mono">{quote.ticker}</h1>
+            {quote.sector && (
+              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-950/80 text-blue-400 border border-blue-800/80">
+                {quote.sector}
+              </span>
+            )}
             {isIdx && (
               <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/80">
                 IDX (BEI)
@@ -106,7 +114,17 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
             {formatPercent(quote.change_percent)}
             <span className="text-sm">({isPositive ? '+' : ''}{formatCurrency(quote.change, quote.currency)})</span>
           </div>
-          {quote.is_stale && <div className="text-xs text-amber-400 mt-1">⚠ Showing delayed data</div>}
+          <div className="flex items-center gap-3 mt-1.5">
+            {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null && (
+              <span className="text-xs text-zinc-400">
+                Dari Rekor Tertinggi (52M):{' '}
+                <span className={quote.distance_from_52w_high < 0 ? 'text-red-400 font-mono font-medium' : 'text-green-400 font-mono font-medium'}>
+                  {quote.distance_from_52w_high > 0 ? `+${quote.distance_from_52w_high}%` : `${quote.distance_from_52w_high}%`}
+                </span>
+              </span>
+            )}
+            {quote.is_stale && <div className="text-xs text-amber-400">⚠ Showing delayed data</div>}
+          </div>
         </div>
 
         {/* IDX Auto-Rejection limits (ARA / ARB) */}
@@ -145,6 +163,13 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           currency={quote.currency}
         />
       </div>
+
+      {/* Multi-Horizon Returns Matrix (CoinGecko Style) */}
+      <MultiHorizonReturns
+        currentPrice={quote.current_price}
+        dayChangePercent={quote.change_percent}
+        history1y={history1y?.data}
+      />
 
       {/* TradingView-Style Interactive Chart with Volume */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">

@@ -6,6 +6,7 @@ import { TrendingUp, TrendingDown, X } from 'lucide-react'
 import { formatCurrency, formatPercent } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Sparkline } from '@/components/features/Sparkline'
 import type { StockQuote } from '@/types/stock'
 
 interface StockCardProps {
@@ -75,28 +76,51 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
       <Link href={`/stocks/${quote.ticker}`} className="block" aria-label={`View details for ${quote.ticker}`}>
         <div className="flex items-start justify-between">
           <div>
-            <div className="font-mono font-bold text-sm">{quote.ticker}</div>
-            <div className="text-xs text-zinc-500 truncate max-w-[120px]">{quote.company_name}</div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono font-bold text-sm">{quote.ticker}</span>
+              {quote.sector && (
+                <span className="text-[9px] text-blue-400 bg-blue-950/40 border border-blue-900/50 px-1 py-0.5 rounded font-medium truncate max-w-[85px]">
+                  {quote.sector}
+                </span>
+              )}
+            </div>
+            <div className="text-xs text-zinc-500 truncate max-w-[130px]">{quote.company_name}</div>
           </div>
           {isPositive
             ? <TrendingUp className="h-4 w-4 text-green-400" />
             : <TrendingDown className="h-4 w-4 text-red-400" />
           }
         </div>
-        <div className="mt-3">
-          <div className="text-xl font-bold font-mono">
-            {formatCurrency(quote.current_price, quote.currency)}
+
+        <div className="mt-3 flex items-end justify-between">
+          <div>
+            <div className="text-xl font-bold font-mono">
+              {formatCurrency(quote.current_price, quote.currency)}
+            </div>
+            <div
+              className={cn('text-sm font-medium mt-0.5', isPositive ? 'text-green-400' : 'text-red-400')}
+              aria-label={`Change: ${formatPercent(quote.change_percent)}`}
+            >
+              {formatPercent(quote.change_percent)}
+            </div>
           </div>
-          <div
-            className={cn('text-sm font-medium mt-0.5', isPositive ? 'text-green-400' : 'text-red-400')}
-            aria-label={`Change: ${formatPercent(quote.change_percent)}`}
-          >
-            {formatPercent(quote.change_percent)}
-          </div>
+          {quote.sparkline_7d && quote.sparkline_7d.length >= 2 && (
+            <div className="pb-1">
+              <Sparkline data={quote.sparkline_7d} width={76} height={26} />
+            </div>
+          )}
         </div>
-        {quote.is_stale && (
-          <div className="text-[10px] text-amber-400 mt-2">Delayed</div>
-        )}
+
+        <div className="mt-2.5 pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+          <span>
+            {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null
+              ? `Puncak: ${quote.distance_from_52w_high > 0 ? '+' : ''}${quote.distance_from_52w_high}%`
+              : '—'}
+          </span>
+          {quote.is_stale && (
+            <span className="text-amber-400">Delayed</span>
+          )}
+        </div>
       </Link>
     </div>
   )
