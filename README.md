@@ -2,10 +2,11 @@
 
 > Dashboard analitik saham real-time untuk pasar US & IDX (Indonesia). 100% free tier stack.
 
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2014-black?logo=next.js)](https://nextjs.org)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2016-black?logo=next.js)](https://nextjs.org)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Cloud%20Run-blue)](https://vercel.com)
+[![AI-Assisted](https://img.shields.io/badge/Development-AI--Assisted-8A2BE2)](#-ai-assisted-development)
 
 ## Features
 
@@ -154,6 +155,10 @@ NEXT_PUBLIC_API_URL=https://your-cloud-run-url
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+## 🤖 AI-Assisted Development
+
+This project was built with **AI-assisted pair programming** (Google DeepMind Antigravity) for architectural design, feature scaffolding, and test-driven verification (TDD), strictly guided by human engineering decisions to avoid over-engineering and ensure lean, production-ready code.
 
 ## Contributing
 
