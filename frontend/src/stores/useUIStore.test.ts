@@ -43,4 +43,12 @@ describe('useUIStore zustand store', () => {
     useUIStore.getState().setSidebarOpen(true)
     expect(useUIStore.getState().sidebarOpen).toBe(true)
   })
+
+  it('resets watchlist to default stocks with resetToDefaultWatchlist', () => {
+    useUIStore.getState().resetToDefaultWatchlist()
+    const state = useUIStore.getState()
+    expect(state.watchlist).toHaveLength(32)
+    expect(state.watchlist).toContain('NVDA')
+    expect(state.watchlist).toContain('BMRI.JK')
+  })
 })

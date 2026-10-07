@@ -18,10 +18,10 @@ def search_stocks(q: str = Query(..., min_length=1, max_length=50)) -> list[Stoc
 
 @router.get("/batch", response_model=list[StockQuoteResponse])
 def batch_quotes(
-    tickers: str = Query(..., description="Comma-separated ticker symbols, max 20")
+    tickers: str = Query(..., description="Comma-separated ticker symbols, max 60")
 ) -> list[StockQuoteResponse]:
     """Get batch quotes for multiple tickers."""
-    ticker_list = [t.strip().upper() for t in tickers.split(",") if t.strip()][:20]
+    ticker_list = [t.strip().upper() for t in tickers.split(",") if t.strip()][:60]
     return yf_service.get_batch_quotes(ticker_list)
 
 

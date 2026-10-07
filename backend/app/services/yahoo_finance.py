@@ -40,14 +40,40 @@ _stale_quote_cache: dict[str, dict[str, Any]] = {}
 _finnhub_provider = FinnhubProvider()
 
 DEFAULT_SECTORS: dict[str, tuple[str, str]] = {
+    # US Top Blue Chips & Most Traded
     "AAPL": ("Technology", "Consumer Electronics"),
-    "MSFT": ("Technology", "Software—Infrastructure"),
-    "TSLA": ("Consumer Cyclical", "Auto Manufacturers"),
     "NVDA": ("Technology", "Semiconductors"),
+    "MSFT": ("Technology", "Software—Infrastructure"),
+    "AMZN": ("Consumer Cyclical", "Internet Retail"),
     "GOOGL": ("Communication Services", "Internet Content & Information"),
+    "META": ("Communication Services", "Internet Content & Information"),
+    "TSLA": ("Consumer Cyclical", "Auto Manufacturers"),
+    "AMD": ("Technology", "Semiconductors"),
+    "NFLX": ("Communication Services", "Entertainment"),
+    "JPM": ("Financial Services", "Banks—Diversified"),
+    "V": ("Financial Services", "Credit Services"),
+    "WMT": ("Consumer Defensive", "Discount Stores"),
+    "DIS": ("Communication Services", "Entertainment"),
+    "XOM": ("Energy", "Oil & Gas Integrated"),
+    "JNJ": ("Healthcare", "Drug Manufacturers—General"),
+    "LLY": ("Healthcare", "Drug Manufacturers—General"),
+    # IDX (BEI) Top Blue Chips & LQ45 Liquid Stocks
     "BBCA.JK": ("Financial Services", "Banks—Regional"),
+    "BBRI.JK": ("Financial Services", "Banks—Regional"),
+    "BMRI.JK": ("Financial Services", "Banks—Regional"),
+    "BBNI.JK": ("Financial Services", "Banks—Regional"),
     "TLKM.JK": ("Communication Services", "Telecom Services"),
+    "ASII.JK": ("Consumer Cyclical", "Auto Manufacturers"),
     "GOTO.JK": ("Technology", "Internet Content & Information"),
+    "ADRO.JK": ("Energy", "Thermal Coal"),
+    "ANTM.JK": ("Basic Materials", "Other Industrial Metals & Mining"),
+    "BUMI.JK": ("Energy", "Thermal Coal"),
+    "PGAS.JK": ("Utilities", "Utilities—Regulated Gas"),
+    "PTBA.JK": ("Energy", "Thermal Coal"),
+    "ICBP.JK": ("Consumer Defensive", "Packaged Foods"),
+    "INDF.JK": ("Consumer Defensive", "Packaged Foods"),
+    "AMRT.JK": ("Consumer Defensive", "Grocery Stores"),
+    "UNVR.JK": ("Consumer Defensive", "Household & Personal Products"),
 }
 
 US_INDICES = [
@@ -62,7 +88,14 @@ IDX_INDICES = [
 
 ALL_INDICES = US_INDICES + IDX_INDICES
 
-DEFAULT_WATCHLIST = ["AAPL", "MSFT", "TSLA", "NVDA", "GOOGL", "BBCA.JK", "TLKM.JK", "GOTO.JK"]
+DEFAULT_WATCHLIST = [
+    # US Market Top Traded (16 stocks)
+    "AAPL", "NVDA", "MSFT", "AMZN", "GOOGL", "META", "TSLA", "AMD",
+    "NFLX", "JPM", "V", "WMT", "DIS", "XOM", "JNJ", "LLY",
+    # IDX (BEI) Top Traded & LQ45 (16 stocks)
+    "BBCA.JK", "BBRI.JK", "BMRI.JK", "BBNI.JK", "TLKM.JK", "ASII.JK", "GOTO.JK", "ADRO.JK",
+    "ANTM.JK", "BUMI.JK", "PGAS.JK", "PTBA.JK", "ICBP.JK", "INDF.JK", "AMRT.JK", "UNVR.JK",
+]
 
 PERIOD_MAP = {
     "1d": ("1d", "5m"),

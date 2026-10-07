@@ -98,7 +98,7 @@ class WatchlistItem(BaseModel):
 
 
 class BatchQuoteRequest(BaseModel):
-    tickers: list[str] = Field(..., max_length=20)
+    tickers: list[str] = Field(..., max_length=60)
 
 
 class PriceAlertCreate(BaseModel):

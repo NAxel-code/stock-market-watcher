@@ -3,7 +3,14 @@ import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type { PriceAlert } from '@/types/stock'
 
-const DEFAULT_WATCHLIST = ['AAPL', 'MSFT', 'TSLA', 'NVDA', 'GOOGL', 'BBCA.JK', 'TLKM.JK', 'GOTO.JK']
+export const DEFAULT_WATCHLIST = [
+  // US Market Top Traded (16 stocks)
+  'AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA', 'AMD',
+  'NFLX', 'JPM', 'V', 'WMT', 'DIS', 'XOM', 'JNJ', 'LLY',
+  // IDX (BEI) Top Traded & LQ45 (16 stocks)
+  'BBCA.JK', 'BBRI.JK', 'BMRI.JK', 'BBNI.JK', 'TLKM.JK', 'ASII.JK', 'GOTO.JK', 'ADRO.JK',
+  'ANTM.JK', 'BUMI.JK', 'PGAS.JK', 'PTBA.JK', 'ICBP.JK', 'INDF.JK', 'AMRT.JK', 'UNVR.JK',
+]
 
 export interface UserProfile {
   id: string
@@ -16,6 +23,7 @@ interface UIStore {
   watchlist: string[]
   addToWatchlist: (ticker: string) => Promise<void> | void
   removeFromWatchlist: (ticker: string) => Promise<void> | void
+  resetToDefaultWatchlist: () => void
   isInWatchlist: (ticker: string) => boolean
   syncWatchlistWithCloud: () => Promise<void>
   alerts: PriceAlert[]
@@ -37,6 +45,7 @@ export const useUIStore = create<UIStore>()(
         }
       },
       watchlist: DEFAULT_WATCHLIST,
+      resetToDefaultWatchlist: () => set({ watchlist: DEFAULT_WATCHLIST }),
       addToWatchlist: (ticker) => {
         const current = get().watchlist
         if (current.includes(ticker)) return
