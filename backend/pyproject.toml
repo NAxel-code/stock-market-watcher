@@ -13,3 +13,6 @@ known-first-party = ["app"]
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+
+[tool.vercel]
+entrypoint = "main:app"
