@@ -51,9 +51,9 @@ export function MultiHorizonReturns({
   }, [currentPrice, dayChangePercent, history1y])
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2">
-      <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-        Kinerja Multi-Periode (CoinGecko Returns Grid)
+    <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4 space-y-2">
+      <div className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+        Kinerja Multi-Horizon (CoinGecko Returns)
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
         {returns.map((item) => {
@@ -64,14 +64,21 @@ export function MultiHorizonReturns({
           return (
             <div
               key={item.period}
-              className="bg-zinc-950/70 border border-zinc-800/80 rounded-lg p-2.5 text-center transition-colors"
+              className={cn(
+                'rounded-lg p-2.5 text-center transition-colors border',
+                !hasVal
+                  ? 'bg-zinc-950/70 border-zinc-800/80'
+                  : isPos
+                  ? 'bg-emerald-950/20 border-emerald-900/40'
+                  : 'bg-rose-950/20 border-rose-900/40'
+              )}
             >
-              <div className="text-[11px] text-zinc-500 font-medium">
+              <div className="text-[11px] text-zinc-400 font-medium">
                 {item.label} ({item.period})
               </div>
               <div
                 className={cn(
-                  'font-mono text-sm font-bold mt-0.5',
+                  'font-mono text-sm font-bold tabular-nums mt-0.5',
                   !hasVal ? 'text-zinc-500' : isPos ? 'text-green-400' : 'text-red-400'
                 )}
               >

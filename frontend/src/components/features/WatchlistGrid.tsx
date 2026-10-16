@@ -94,14 +94,14 @@ export function WatchlistGrid({ showRemove = false }: { showRemove?: boolean }) 
 
         {/* Watchlist Counter & Reset Button */}
         <div className="flex items-center gap-2 self-end sm:self-auto shrink-0 pb-2 text-xs text-zinc-400">
-          <span className="font-mono text-[11px]">
+          <span className="font-mono tabular-nums text-[11px]">
             {filteredTickers.length} / {watchlist.length} Saham
           </span>
           {isCustomWatchlist && (
             <button
               onClick={handleResetDefaults}
               title="Reset ke 32 saham unggulan US & IDX"
-              className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 px-2 py-1 rounded-md transition-colors"
+              className="flex items-center gap-1 text-[11px] text-zinc-300 hover:text-zinc-100 bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800/90 px-2.5 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-95"
             >
               <RotateCcw className="h-3 w-3" />
               <span>Reset Unggulan</span>

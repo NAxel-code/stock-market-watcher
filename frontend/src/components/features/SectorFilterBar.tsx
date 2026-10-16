@@ -108,19 +108,20 @@ export function SectorFilterBar({
             data-testid={`filter-tab-${tab.id}`}
             onClick={() => onSelectFilter(tab.id)}
             className={cn(
-              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border',
+              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border active:scale-[0.98]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950',
               isActive
                 ? 'bg-zinc-100 text-zinc-950 border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950 dark:border-zinc-100 font-semibold shadow-xs'
-                : 'bg-zinc-900/80 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/60'
+                : 'bg-zinc-900/90 text-zinc-300 border-zinc-800/90 hover:text-zinc-100 hover:border-zinc-700 hover:bg-zinc-800/70'
             )}
           >
             <span>{tab.label}</span>
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0.2 rounded-full font-mono transition-colors',
+                'text-[10px] px-1.5 py-0.5 rounded-full font-mono tabular-nums transition-colors',
                 isActive
                   ? 'bg-zinc-300 text-zinc-900 font-bold'
-                  : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700'
+                  : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-zinc-200'
               )}
             >
               {tab.count}
@@ -128,7 +129,7 @@ export function SectorFilterBar({
             {hasAvg && (
               <span
                 className={cn(
-                  'text-[10px] font-mono font-medium ml-0.5',
+                  'text-[10px] font-mono tabular-nums font-semibold ml-0.5',
                   isActive
                     ? isPos
                       ? 'text-emerald-700 dark:text-emerald-800'

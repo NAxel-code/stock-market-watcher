@@ -106,47 +106,51 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {/* Price & Auto Rejection Bands */}
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <div className="text-4xl font-bold font-mono">
+          <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
             {formatCurrency(quote.current_price, quote.currency)}
           </div>
-          <div className={cn('flex items-center gap-1.5 mt-1 text-lg font-medium', isPositive ? 'text-green-400' : 'text-red-400')}>
+          <div className={cn('flex items-center gap-1.5 mt-1 text-lg font-semibold tabular-nums', isPositive ? 'text-green-400' : 'text-red-400')}>
             {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
             {formatPercent(quote.change_percent)}
-            <span className="text-sm">({isPositive ? '+' : ''}{formatCurrency(quote.change, quote.currency)})</span>
+            <span className="text-sm font-normal text-zinc-400">({isPositive ? '+' : ''}{formatCurrency(quote.change, quote.currency)})</span>
           </div>
           <div className="flex items-center gap-3 mt-1.5">
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null && (
               <span className="text-xs text-zinc-400">
                 Dari Rekor Tertinggi (52M):{' '}
-                <span className={quote.distance_from_52w_high < 0 ? 'text-red-400 font-mono font-medium' : 'text-green-400 font-mono font-medium'}>
+                <span className={quote.distance_from_52w_high < 0 ? 'text-red-400 font-mono font-medium tabular-nums' : 'text-green-400 font-mono font-medium tabular-nums'}>
                   {quote.distance_from_52w_high > 0 ? `+${quote.distance_from_52w_high}%` : `${quote.distance_from_52w_high}%`}
                 </span>
               </span>
             )}
-            {quote.is_stale && <div className="text-xs text-amber-400">⚠ Showing delayed data</div>}
+            {quote.is_stale && (
+              <div className="text-xs text-amber-400 font-mono flex items-center gap-1 bg-amber-950/40 border border-amber-900/50 px-1.5 py-0.5 rounded">
+                ⚠ Showing delayed data
+              </div>
+            )}
           </div>
         </div>
 
         {/* IDX Auto-Rejection limits (ARA / ARB) */}
         {isIdx && quote.ara_price && quote.arb_price && (
-          <div className="rounded-xl border border-zinc-800 bg-zinc-900/90 p-3 space-y-1 text-xs">
-            <div className="flex items-center gap-1 text-zinc-400 font-semibold mb-1">
+          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-3 space-y-1 text-xs shadow-xs">
+            <div className="flex items-center gap-1 text-zinc-300 font-semibold mb-1">
               <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
               <span>Batas Auto Rejection (IDX)</span>
             </div>
             <div className="flex gap-4">
               <div>
-                <span className="text-zinc-500">ARA (Atas): </span>
-                <span className="font-mono font-semibold text-green-400">{formatCurrency(quote.ara_price, 'IDR')}</span>
+                <span className="text-zinc-400">ARA (Atas): </span>
+                <span className="font-mono font-semibold tabular-nums text-green-400">{formatCurrency(quote.ara_price, 'IDR')}</span>
               </div>
               <div>
-                <span className="text-zinc-500">ARB (Bawah): </span>
-                <span className="font-mono font-semibold text-red-400">{formatCurrency(quote.arb_price, 'IDR')}</span>
+                <span className="text-zinc-400">ARB (Bawah): </span>
+                <span className="font-mono font-semibold tabular-nums text-red-400">{formatCurrency(quote.arb_price, 'IDR')}</span>
               </div>
               {quote.tick_size && (
                 <div>
-                  <span className="text-zinc-500">Fraksi: </span>
-                  <span className="font-mono text-zinc-300">Rp {quote.tick_size}</span>
+                  <span className="text-zinc-400">Fraksi: </span>
+                  <span className="font-mono tabular-nums text-zinc-200">Rp {quote.tick_size}</span>
                 </div>
               )}
             </div>
@@ -155,7 +159,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       </div>
 
       {/* Bloomberg-Style 52-Week Range Bar */}
-      <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/60 p-4">
+      <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4">
         <FiftyTwoWeekRangeBar
           low={quote.fifty_two_week_low}
           high={quote.fifty_two_week_high}
@@ -172,7 +176,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       />
 
       {/* TradingView-Style Interactive Chart with Volume */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-4">
         <PriceChart
           ticker={ticker}
           currency={quote.currency}
@@ -183,9 +187,9 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
+          <div key={stat.label} className="rounded-lg border border-zinc-800/90 bg-zinc-900/80 p-4">
             <div className="text-xs text-zinc-400 mb-1">{stat.label}</div>
-            <div className="font-mono font-medium">{stat.value}</div>
+            <div className="font-mono font-semibold tabular-nums text-zinc-100">{stat.value}</div>
           </div>
         ))}
       </div>
