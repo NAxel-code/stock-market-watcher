@@ -64,6 +64,7 @@ export interface TopMover {
   company_name: string
   current_price: number
   change_percent: number
+  currency?: string
 }
 
 export interface MarketSummary {

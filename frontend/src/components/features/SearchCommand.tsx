@@ -13,6 +13,8 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { searchTickers } from '@/lib/api'
+import { isIdxTicker } from '@/lib/formatters'
+import { cn } from '@/lib/utils'
 import type { StockSearchResult } from '@/types/stock'
 
 export function SearchCommand() {
@@ -113,20 +115,35 @@ export function SearchCommand() {
           )}
           {displayedResults.length > 0 && (
             <CommandGroup heading="Stocks">
-              {displayedResults.map((result) => (
-                <CommandItem
-                  key={result.ticker}
-                  value={result.ticker}
-                  onSelect={() => handleSelect(result.ticker)}
-                  className="flex items-center justify-between"
-                >
-                  <div>
-                    <span className="font-mono font-bold text-sm">{result.ticker}</span>
-                    <span className="ml-2 text-zinc-400 text-sm">{result.name}</span>
-                  </div>
-                  <span className="text-xs text-zinc-500">{result.exchange}</span>
-                </CommandItem>
-              ))}
+              {displayedResults.map((result) => {
+                const isIdx = isIdxTicker(result.ticker)
+                return (
+                  <CommandItem
+                    key={result.ticker}
+                    value={result.ticker}
+                    onSelect={() => handleSelect(result.ticker)}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2 truncate pr-2">
+                      <span className="font-mono font-bold text-sm text-zinc-100">{result.ticker}</span>
+                      <span className="text-zinc-400 text-sm truncate">{result.name}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={cn(
+                          'text-[10px] font-semibold font-mono px-1.5 py-0.5 rounded border',
+                          isIdx
+                            ? 'bg-emerald-950/70 text-emerald-400 border-emerald-800/80'
+                            : 'bg-blue-950/70 text-blue-400 border-blue-800/80'
+                        )}
+                      >
+                        {isIdx ? 'IDX • IDR' : 'US • USD'}
+                      </span>
+                      <span className="text-xs text-zinc-500 hidden sm:inline">{result.exchange}</span>
+                    </div>
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           )}
         </CommandList>

@@ -67,6 +67,7 @@ class TopMover(BaseModel):
     company_name: str
     current_price: float
     change_percent: float
+    currency: str = "USD"
 
 
 class MarketSummaryResponse(BaseModel):

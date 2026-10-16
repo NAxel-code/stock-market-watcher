@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, TrendingDown, X } from 'lucide-react'
-import { formatCurrency, formatPercent } from '@/lib/formatters'
+import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Sparkline } from '@/components/features/Sparkline'
@@ -55,6 +55,7 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
   }
 
   const isPositive = quote.change_percent >= 0
+  const stockCurrency = getStockCurrency(quote)
 
   return (
     <div
@@ -82,8 +83,19 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-mono font-bold text-sm tracking-tight text-zinc-100">{quote.ticker}</span>
+              <span
+                className={cn(
+                  'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border',
+                  stockCurrency === 'IDR'
+                    ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/60'
+                    : 'text-blue-400 bg-blue-950/60 border-blue-900/60'
+                )}
+                title={`Bursa: ${stockCurrency === 'IDR' ? 'Indonesia (IDX)' : 'United States (US)'}`}
+              >
+                {stockCurrency === 'IDR' ? 'IDX' : 'US'}
+              </span>
               {quote.sector && (
-                <span className="text-[10px] text-blue-400 bg-blue-950/50 border border-blue-900/60 px-1.5 py-0.5 rounded font-medium truncate max-w-[95px]">
+                <span className="text-[10px] text-zinc-300 bg-zinc-800/80 border border-zinc-700/60 px-1.5 py-0.5 rounded font-medium truncate max-w-[85px]">
                   {quote.sector}
                 </span>
               )}
@@ -98,8 +110,21 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
 
         <div className="mt-3 flex items-end justify-between">
           <div>
-            <div className="text-xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
-              {formatCurrency(quote.current_price, quote.currency)}
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
+                {formatCurrency(quote.current_price, stockCurrency)}
+              </span>
+              <span
+                className={cn(
+                  'text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider',
+                  stockCurrency === 'IDR'
+                    ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/60'
+                    : 'text-blue-400 bg-blue-950/60 border-blue-900/60'
+                )}
+                title={`Mata uang: ${stockCurrency}`}
+              >
+                {stockCurrency}
+              </span>
             </div>
             <div
               className={cn('text-sm font-semibold tabular-nums mt-0.5', isPositive ? 'text-green-400' : 'text-red-400')}

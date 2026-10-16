@@ -170,6 +170,18 @@ export function PriceChart({ ticker, currency = 'USD', previousClose }: PriceCha
             <span className="hidden sm:inline">Volume + Bars</span>
           </button>
         </div>
+
+        <div className="hidden sm:flex items-center text-[11px] font-mono text-zinc-400 ml-auto gap-1">
+          <span>Skala:</span>
+          <span className={cn(
+            "font-semibold px-1.5 py-0.5 rounded border text-[10px]",
+            currency === 'IDR'
+              ? "bg-emerald-950/70 text-emerald-400 border-emerald-800/80"
+              : "bg-blue-950/70 text-blue-400 border-blue-800/80"
+          )}>
+            {currency}
+          </span>
+        </div>
       </div>
 
       {/* Responsive Composed Chart */}
@@ -196,8 +208,10 @@ export function PriceChart({ ticker, currency = 'USD', previousClose }: PriceCha
             tickLine={false}
             axisLine={false}
             domain={['auto', 'auto']}
-            tickFormatter={(v: number) => formatCurrency(v, currency).replace('$', '')}
-            width={65}
+            tickFormatter={(v: number) =>
+              currency === 'IDR' ? v.toLocaleString('id-ID') : v.toFixed(2)
+            }
+            width={currency === 'IDR' ? 70 : 60}
           />
           {/* Volume Y Axis (Hidden, used for relative height) */}
           <YAxis

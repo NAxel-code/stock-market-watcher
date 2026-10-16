@@ -9,7 +9,7 @@ import { IdxLotCalculator } from '@/components/features/IdxLotCalculator'
 import { PriceAlertDialog } from '@/components/features/PriceAlertDialog'
 import { MultiHorizonReturns } from '@/components/features/MultiHorizonReturns'
 import { Button } from '@/components/ui/button'
-import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker } from '@/lib/formatters'
+import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker, getStockCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -21,6 +21,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useUIStore()
   const inWatchlist = isInWatchlist(ticker)
   const isIdx = isIdxTicker(ticker) || Boolean(quote?.is_idx)
+  const stockCurrency = quote ? getStockCurrency(quote) : (isIdx ? 'IDR' : 'USD')
 
   const handleWatchlistToggle = () => {
     if (inWatchlist) {
@@ -58,10 +59,10 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
   const isPositive = quote.change_percent >= 0
 
   const stats = [
-    { label: 'Market Cap', value: formatMarketCap(quote.market_cap) },
+    { label: 'Market Cap', value: formatMarketCap(quote.market_cap, stockCurrency) },
     { label: 'Volume', value: quote.volume ? formatVolume(quote.volume) : 'N/A' },
-    { label: '52W High', value: quote.fifty_two_week_high ? formatCurrency(quote.fifty_two_week_high, quote.currency) : 'N/A' },
-    { label: '52W Low', value: quote.fifty_two_week_low ? formatCurrency(quote.fifty_two_week_low, quote.currency) : 'N/A' },
+    { label: '52W High', value: quote.fifty_two_week_high ? formatCurrency(quote.fifty_two_week_high, stockCurrency) : 'N/A' },
+    { label: '52W Low', value: quote.fifty_two_week_low ? formatCurrency(quote.fifty_two_week_low, stockCurrency) : 'N/A' },
   ]
 
   return (
@@ -89,7 +90,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           <PriceAlertDialog
             ticker={quote.ticker}
             currentPrice={quote.current_price}
-            currency={quote.currency}
+            currency={stockCurrency}
           />
           <Button
             variant={inWatchlist ? 'outline' : 'default'}
@@ -106,13 +107,29 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {/* Price & Auto Rejection Bands */}
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
-            {formatCurrency(quote.current_price, quote.currency)}
+          <div className="flex items-baseline gap-2.5">
+            <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
+              {formatCurrency(quote.current_price, stockCurrency)}
+            </div>
+            <span
+              className={cn(
+                'text-xs font-semibold px-2 py-0.5 rounded border font-mono tracking-wider',
+                stockCurrency === 'IDR'
+                  ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80'
+                  : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
+              )}
+              title={`Mata uang: ${stockCurrency === 'IDR' ? 'Indonesian Rupiah' : 'US Dollar'}`}
+            >
+              {stockCurrency}
+            </span>
+          </div>
+          <div className="text-xs text-zinc-400 mt-1">
+            Denominasi: <span className="text-zinc-300 font-medium">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
           </div>
           <div className={cn('flex items-center gap-1.5 mt-1 text-lg font-semibold tabular-nums', isPositive ? 'text-green-400' : 'text-red-400')}>
             {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
             {formatPercent(quote.change_percent)}
-            <span className="text-sm font-normal text-zinc-400">({isPositive ? '+' : ''}{formatCurrency(quote.change, quote.currency)})</span>
+            <span className="text-sm font-normal text-zinc-400">({isPositive ? '+' : ''}{formatCurrency(quote.change, stockCurrency)})</span>
           </div>
           <div className="flex items-center gap-3 mt-1.5">
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null && (
@@ -164,7 +181,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           low={quote.fifty_two_week_low}
           high={quote.fifty_two_week_high}
           current={quote.current_price}
-          currency={quote.currency}
+          currency={stockCurrency}
         />
       </div>
 
@@ -179,7 +196,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-4">
         <PriceChart
           ticker={ticker}
-          currency={quote.currency}
+          currency={stockCurrency}
           previousClose={quote.previous_close}
         />
       </div>

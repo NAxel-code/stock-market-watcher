@@ -410,6 +410,7 @@ def get_market_summary() -> MarketSummaryResponse:
             company_name=q.company_name,
             current_price=q.current_price,
             change_percent=q.change_percent,
+            currency=q.currency,
         )
         for q in sorted_movers[:4]
         if q.change_percent > 0
@@ -421,6 +422,7 @@ def get_market_summary() -> MarketSummaryResponse:
             company_name=q.company_name,
             current_price=q.current_price,
             change_percent=q.change_percent,
+            currency=q.currency,
         )
         for q in reversed(sorted_movers)
         if q.change_percent < 0
