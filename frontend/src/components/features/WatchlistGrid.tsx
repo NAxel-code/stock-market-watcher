@@ -83,7 +83,7 @@ export function WatchlistGrid({ showRemove = false }: { showRemove?: boolean }) 
   return (
     <div className="space-y-4">
       {/* Sector & Market Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div id="tour-sector-filter" className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex-1 min-w-0">
           <SectorFilterBar
             activeFilter={activeFilter}
@@ -122,7 +122,7 @@ export function WatchlistGrid({ showRemove = false }: { showRemove?: boolean }) 
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="tour-stock-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {filteredTickers.map((ticker) => {
             const quote = quotes?.find((q) => q.ticker.toUpperCase() === ticker.toUpperCase())
             return (

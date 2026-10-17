@@ -11,7 +11,7 @@ export default function DashboardPage() {
       <OnboardingBanner />
 
       {/* Market Summary Section */}
-      <section>
+      <section id="tour-market-summary">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-zinc-200">Ringkasan Pasar Utama</h2>
           <span className="text-xs font-mono text-zinc-400 hidden sm:inline">Indeks Global & IDX</span>
@@ -28,7 +28,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Watchlist Section */}
-      <section>
+      <section id="tour-watchlist-grid">
         <div className="mb-3">
           <h2 className="text-lg font-semibold text-zinc-200">Daftar Pantauan Saham Unggulan</h2>
           <p className="text-xs text-zinc-400 mt-0.5">Top 25% saham teraktif dan berkapitalisasi terbesar di bursa US & Indonesia (BEI)</p>

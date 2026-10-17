@@ -9,6 +9,7 @@ import { SearchCommand } from '@/components/features/SearchCommand'
 import { MarketStatusRibbon } from '@/components/features/MarketStatusRibbon'
 import { AuthModal } from '@/components/features/AuthModal'
 import { TutorialModal } from '@/components/features/TutorialModal'
+import { SpotlightTour } from '@/components/features/SpotlightTour'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -19,6 +20,7 @@ const navLinks = [
 export function Navbar() {
   const pathname = usePathname()
   const [isTutorialOpen, setIsTutorialOpen] = useState(false)
+  const [isTourActive, setIsTourActive] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
@@ -63,7 +65,9 @@ export function Navbar() {
               <HelpCircle className="h-4 w-4 text-blue-400" />
               <span className="hidden lg:inline">Panduan</span>
             </button>
-            <SearchCommand />
+            <div id="tour-search-command">
+              <SearchCommand />
+            </div>
             <AuthModal />
             <ThemeToggle />
           </div>
@@ -99,7 +103,17 @@ export function Navbar() {
       </nav>
 
       {/* Interactive Tutorial Modal */}
-      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
+      <TutorialModal
+        isOpen={isTutorialOpen}
+        onClose={() => setIsTutorialOpen(false)}
+        onStartSpotlightTour={() => {
+          setIsTutorialOpen(false)
+          setIsTourActive(true)
+        }}
+      />
+
+      {/* Interactive Spotlight Tour */}
+      <SpotlightTour isActive={isTourActive} onClose={() => setIsTourActive(false)} />
     </header>
   )
 }

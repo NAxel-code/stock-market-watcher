@@ -15,6 +15,7 @@ export function MarketStatusRibbon() {
 
   return (
     <div
+      id="tour-market-status"
       role="status"
       aria-label="Status Pasar Real-Time"
       className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/90 bg-zinc-950/80 backdrop-blur-md px-4 py-1.5 text-xs text-zinc-300"

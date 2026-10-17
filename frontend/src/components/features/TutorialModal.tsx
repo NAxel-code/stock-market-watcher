@@ -16,11 +16,13 @@ import {
   BookOpen,
   ArrowRight,
   Sparkles,
+  Compass,
 } from 'lucide-react'
 
 interface TutorialModalProps {
   isOpen: boolean
   onClose: () => void
+  onStartSpotlightTour?: () => void
 }
 
 interface Step {
@@ -127,7 +129,7 @@ const TICKER_CHEAT_SHEET = [
   },
 ]
 
-export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
+export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: TutorialModalProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'tour' | 'cheatSheet'>('tour')
   const [currentStep, setCurrentStep] = useState(0)
@@ -345,6 +347,20 @@ export function TutorialModal({ isOpen, onClose }: TutorialModalProps) {
           </label>
 
           <div className="flex items-center gap-2">
+            {onStartSpotlightTour && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleFinish()
+                  onStartSpotlightTour()
+                }}
+                className="flex items-center gap-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 text-xs font-semibold transition"
+              >
+                <Compass className="h-3.5 w-3.5" />
+                <span>Mulai Tur Spotlight</span>
+              </button>
+            )}
+
             {activeTab === 'tour' && currentStep > 0 && (
               <button
                 type="button"
