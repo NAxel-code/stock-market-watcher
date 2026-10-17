@@ -1,12 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TrendingUp, List, BarChart2 } from 'lucide-react'
+import { TrendingUp, List, BarChart2, HelpCircle } from 'lucide-react'
 import { ThemeToggle } from '@/components/features/ThemeToggle'
 import { SearchCommand } from '@/components/features/SearchCommand'
 import { MarketStatusRibbon } from '@/components/features/MarketStatusRibbon'
 import { AuthModal } from '@/components/features/AuthModal'
+import { TutorialModal } from '@/components/features/TutorialModal'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -16,6 +18,7 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname()
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
@@ -50,6 +53,16 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsTutorialOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
+              title="Panduan & Trik Penggunaan"
+              aria-label="Panduan penggunaan"
+            >
+              <HelpCircle className="h-4 w-4 text-blue-400" />
+              <span className="hidden lg:inline">Panduan</span>
+            </button>
             <SearchCommand />
             <AuthModal />
             <ThemeToggle />
@@ -73,8 +86,20 @@ export function Navbar() {
               <span>{label}</span>
             </Link>
           ))}
+          <button
+            type="button"
+            onClick={() => setIsTutorialOpen(true)}
+            className="flex flex-col items-center justify-center gap-0.5 px-4 py-2 min-h-[48px] min-w-[64px] text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+            aria-label="Buka panduan penggunaan"
+          >
+            <HelpCircle className="h-5 w-5 text-blue-400" />
+            <span>Panduan</span>
+          </button>
         </div>
       </nav>
+
+      {/* Interactive Tutorial Modal */}
+      <TutorialModal isOpen={isTutorialOpen} onClose={() => setIsTutorialOpen(false)} />
     </header>
   )
 }

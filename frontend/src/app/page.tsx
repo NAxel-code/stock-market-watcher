@@ -1,11 +1,15 @@
 import { Suspense } from 'react'
 import { MarketSummary } from '@/components/features/MarketSummary'
 import { WatchlistGrid } from '@/components/features/WatchlistGrid'
+import { OnboardingBanner } from '@/components/features/OnboardingBanner'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Onboarding / Tutorial Banner */}
+      <OnboardingBanner />
+
       {/* Market Summary Section */}
       <section>
         <div className="flex items-center justify-between mb-3">
