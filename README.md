@@ -17,7 +17,8 @@
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript%205-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Tests](https://img.shields.io/badge/Vitest-57%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
-[![Deployment](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Cloud%20Run-blue?logo=vercel)](https://vercel.com)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-success?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
+[![Deployment](https://img.shields.io/badge/Vercel-Deployed%20(Ready)-brightgreen?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
 [![AI-Assisted](https://img.shields.io/badge/Development-AI--Assisted-8A2BE2)](#-ai-assisted-development)
 
 ---
@@ -105,7 +106,7 @@ Fast keyboard-first search with auto-complete, exchange badges, and instant dete
 | **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Free-tier market data provider with in-memory TTL caching |
 | **Database & Auth** | **Supabase (PostgreSQL)** | Persistent watchlist, price alerts, and auth-ready schema |
 | **Testing** | **Vitest** (Unit/Integration) & **Playwright** (E2E) | 57 unit tests with 100% pass rate |
-| **Deployment** | **Vercel** (Serverless Monorepo) / **Cloud Run** | Monorepo configuration with zero-config serverless rewrites |
+| **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) / **Cloud Run** | Live production monorepo deployment with serverless routing |
 
 ---
 

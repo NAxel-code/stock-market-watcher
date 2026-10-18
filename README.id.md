@@ -17,7 +17,8 @@
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript%205-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Tests](https://img.shields.io/badge/Vitest-57%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
-[![Deployment](https://img.shields.io/badge/Deploy-Vercel%20%2B%20Cloud%20Run-blue?logo=vercel)](https://vercel.com)
+[![Live Demo](https://img.shields.io/badge/Demo%20Langsung-Vercel%20Production-success?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
+[![Deployment](https://img.shields.io/badge/Vercel-Deployed%20(Ready)-brightgreen?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
 [![AI-Assisted](https://img.shields.io/badge/Development-AI--Assisted-8A2BE2)](#-ai-assisted-development)
 
 ---
@@ -105,7 +106,7 @@ Pencarian instan dengan navigasi keyboard, *autocomplete*, badge bursa, dan dete
 | **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Sumber data pasar bebas biaya dengan layer in-memory TTL caching |
 | **Database & Auth** | **Supabase (PostgreSQL)** | Penyimpanan portofolio/alert dan sistem otentikasi siap pakai |
 | **Testing** | **Vitest** (Unit/Integration) & **Playwright** (E2E) | 57 unit tests dengan tingkat kelulusan 100% |
-| **Deployment** | **Vercel** (Monorepo Serverless) / **Cloud Run** | Setup monorepo `vercel.json` dengan proxy routing otomatis |
+| **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) / **Cloud Run** | Setup monorepo `vercel.json` dengan serverless routing aktif |
 
 ---
 
