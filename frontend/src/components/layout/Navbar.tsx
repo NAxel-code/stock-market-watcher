@@ -59,11 +59,11 @@ export function Navbar() {
               type="button"
               onClick={() => setIsTutorialOpen(true)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
-              title="Panduan & Trik Penggunaan"
-              aria-label="Panduan penggunaan"
+              title="Platform Guide & Tips"
+              aria-label="Platform guide"
             >
               <HelpCircle className="h-4 w-4 text-blue-400" />
-              <span className="hidden lg:inline">Panduan</span>
+              <span className="hidden lg:inline">Guide</span>
             </button>
             <div id="tour-search-command">
               <SearchCommand />
@@ -94,10 +94,10 @@ export function Navbar() {
             type="button"
             onClick={() => setIsTutorialOpen(true)}
             className="flex flex-col items-center justify-center gap-0.5 px-4 py-2 min-h-[48px] min-w-[64px] text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-            aria-label="Buka panduan penggunaan"
+            aria-label="Open platform guide"
           >
             <HelpCircle className="h-5 w-5 text-blue-400" />
-            <span>Panduan</span>
+            <span>Guide</span>
           </button>
         </div>
       </nav>

@@ -91,9 +91,9 @@ export function MarketSummary() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
                   <Flame className="h-3.5 w-3.5" />
-                  <span>Top Gainers Hari Ini</span>
+                  <span>Top Gainers Today</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 font-mono">Bursa US & IDX</span>
+                <span className="text-[10px] text-zinc-400 font-mono">US & IDX Markets</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {data.top_gainers.map((mover) => {
@@ -136,9 +136,9 @@ export function MarketSummary() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-rose-400">
                   <TrendingDown className="h-3.5 w-3.5" />
-                  <span>Top Losers Hari Ini</span>
+                  <span>Top Losers Today</span>
                 </div>
-                <span className="text-[10px] text-zinc-400 font-mono">Bursa US & IDX</span>
+                <span className="text-[10px] text-zinc-400 font-mono">US & IDX Markets</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {data.top_losers.map((mover) => {

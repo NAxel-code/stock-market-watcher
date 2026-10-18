@@ -7,14 +7,14 @@ import { IdxLotCalculator } from './IdxLotCalculator'
 describe('IdxLotCalculator component', () => {
   it('renders lot calculation with default 1 lot (100 shares)', () => {
     render(<IdxLotCalculator currentPrice={6000} ticker="BBCA.JK" />)
-    expect(screen.getByText(/Kalkulator Lot Saham IDX/)).toBeInTheDocument()
-    expect(screen.getByText(/\(100 lembar\)/)).toBeInTheDocument()
+    expect(screen.getByText(/IDX Lot Calculator/)).toBeInTheDocument()
+    expect(screen.getByText(/\(100 shares\)/)).toBeInTheDocument()
   })
 
   it('updates total calculation when clicking quick lot buttons', () => {
     render(<IdxLotCalculator currentPrice={6000} ticker="BBCA.JK" />)
     const quickBtn = screen.getByRole('button', { name: /10 lot/i })
     fireEvent.click(quickBtn)
-    expect(screen.getByText(/\(1,000 lembar\)/)).toBeInTheDocument()
+    expect(screen.getByText(/\(1,000 shares\)/)).toBeInTheDocument()
   })
 })

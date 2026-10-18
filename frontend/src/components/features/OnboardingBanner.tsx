@@ -50,9 +50,9 @@ export function OnboardingBanner() {
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="min-w-0">
-            <span className="font-semibold text-zinc-100 mr-1.5">Baru pertama kali di StockPulse?</span>
+            <span className="font-semibold text-zinc-100 mr-1.5">New to StockPulse?</span>
             <span className="text-zinc-400 hidden sm:inline">
-              Ikuti tur interaktif 1 menit untuk memahami status bursa, ticker IDX (<code className="rounded bg-zinc-800 px-1 py-0.5 text-amber-300 font-mono">.JK</code>), dan kalkulator lot.
+              Take a quick 1-minute interactive tour to explore market hours, IDX tickers (<code className="rounded bg-zinc-800 px-1 py-0.5 text-amber-300 font-mono">.JK</code>), and lot calculators.
             </span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export function OnboardingBanner() {
             className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 font-semibold text-white hover:bg-blue-500 transition shadow-xs"
           >
             <Compass className="h-3.5 w-3.5" />
-            <span>Mulai Tur Spotlight</span>
+            <span>Start Spotlight Tour</span>
           </button>
           <button
             type="button"
@@ -72,13 +72,13 @@ export function OnboardingBanner() {
             className="flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/80 px-2.5 py-1.5 font-medium text-zinc-300 hover:bg-zinc-700 hover:text-white transition"
           >
             <BookOpen className="h-3.5 w-3.5" />
-            <span>Panduan Ticker</span>
+            <span>Ticker Guide</span>
           </button>
           <button
             type="button"
             onClick={handleDismiss}
             className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition"
-            aria-label="Tutup pemberitahuan"
+            aria-label="Dismiss banner"
           >
             <X className="h-4 w-4" />
           </button>

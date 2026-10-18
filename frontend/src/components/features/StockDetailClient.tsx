@@ -118,13 +118,13 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
                   ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80'
                   : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
               )}
-              title={`Mata uang: ${stockCurrency === 'IDR' ? 'Indonesian Rupiah' : 'US Dollar'}`}
+              title={`Currency: ${stockCurrency === 'IDR' ? 'Indonesian Rupiah' : 'US Dollar'}`}
             >
               {stockCurrency}
             </span>
           </div>
           <div className="text-xs text-zinc-400 mt-1">
-            Denominasi: <span className="text-zinc-300 font-medium">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
+            Denomination: <span className="text-zinc-300 font-medium">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
           </div>
           <div className={cn('flex items-center gap-1.5 mt-1 text-lg font-semibold tabular-nums', isPositive ? 'text-green-400' : 'text-red-400')}>
             {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
@@ -134,7 +134,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           <div className="flex items-center gap-3 mt-1.5">
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null && (
               <span className="text-xs text-zinc-400">
-                Dari Rekor Tertinggi (52M):{' '}
+                From 52W High:{' '}
                 <span className={quote.distance_from_52w_high < 0 ? 'text-red-400 font-mono font-medium tabular-nums' : 'text-green-400 font-mono font-medium tabular-nums'}>
                   {quote.distance_from_52w_high > 0 ? `+${quote.distance_from_52w_high}%` : `${quote.distance_from_52w_high}%`}
                 </span>
@@ -153,20 +153,20 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-3 space-y-1 text-xs shadow-xs">
             <div className="flex items-center gap-1 text-zinc-300 font-semibold mb-1">
               <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
-              <span>Batas Auto Rejection (IDX)</span>
+              <span>Auto Rejection Limits (IDX)</span>
             </div>
             <div className="flex gap-4">
               <div>
-                <span className="text-zinc-400">ARA (Atas): </span>
+                <span className="text-zinc-400">ARA (Upper Limit): </span>
                 <span className="font-mono font-semibold tabular-nums text-green-400">{formatCurrency(quote.ara_price, 'IDR')}</span>
               </div>
               <div>
-                <span className="text-zinc-400">ARB (Bawah): </span>
+                <span className="text-zinc-400">ARB (Lower Limit): </span>
                 <span className="font-mono font-semibold tabular-nums text-red-400">{formatCurrency(quote.arb_price, 'IDR')}</span>
               </div>
               {quote.tick_size && (
                 <div>
-                  <span className="text-zinc-400">Fraksi: </span>
+                  <span className="text-zinc-400">Tick Size: </span>
                   <span className="font-mono tabular-nums text-zinc-200">Rp {quote.tick_size}</span>
                 </div>
               )}

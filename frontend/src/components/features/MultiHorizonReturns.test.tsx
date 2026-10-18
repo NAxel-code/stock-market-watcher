@@ -9,11 +9,11 @@ describe('MultiHorizonReturns component', () => {
   it('renders all 4 horizons with 24h change and dashes when history is empty', () => {
     render(<MultiHorizonReturns currentPrice={150} dayChangePercent={2.5} />)
 
-    expect(screen.getByText(/24 Jam/i)).toBeInTheDocument()
+    expect(screen.getByText(/24 Hours/i)).toBeInTheDocument()
     expect(screen.getByText('+2.50%')).toBeInTheDocument()
-    expect(screen.getByText(/7 Hari/i)).toBeInTheDocument()
-    expect(screen.getByText(/30 Hari/i)).toBeInTheDocument()
-    expect(screen.getByText(/1 Tahun/i)).toBeInTheDocument()
+    expect(screen.getByText(/7 Days/i)).toBeInTheDocument()
+    expect(screen.getByText(/30 Days/i)).toBeInTheDocument()
+    expect(screen.getByText(/1 Year/i)).toBeInTheDocument()
 
     const dashes = screen.getAllByText('—')
     expect(dashes.length).toBe(3)

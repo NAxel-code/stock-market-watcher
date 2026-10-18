@@ -18,10 +18,10 @@ export function MultiHorizonReturns({
 }: MultiHorizonReturnsProps) {
   const returns = useMemo(() => {
     const res: { label: string; period: string; change: number | null }[] = [
-      { label: '24 Jam', period: '1D', change: dayChangePercent },
-      { label: '7 Hari', period: '7D', change: null },
-      { label: '30 Hari', period: '1M', change: null },
-      { label: '1 Tahun', period: '1Y', change: null },
+      { label: '24 Hours', period: '1D', change: dayChangePercent },
+      { label: '7 Days', period: '7D', change: null },
+      { label: '30 Days', period: '1M', change: null },
+      { label: '1 Year', period: '1Y', change: null },
     ]
 
     if (!history1y || history1y.length === 0 || !currentPrice) {
@@ -53,7 +53,7 @@ export function MultiHorizonReturns({
   return (
     <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4 space-y-2">
       <div className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
-        Kinerja Multi-Horizon (CoinGecko Returns)
+        Multi-Horizon Performance (CoinGecko Style)
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
         {returns.map((item) => {

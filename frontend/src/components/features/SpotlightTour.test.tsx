@@ -12,31 +12,31 @@ describe('SpotlightTour component', () => {
 
   it('renders step 1 title and badge when isActive is true', () => {
     render(<SpotlightTour isActive={true} onClose={vi.fn()} />)
-    expect(screen.getByText('Langkah 1 dari 5')).toBeInTheDocument()
-    expect(screen.getByText('Pita Status Pasar Real-Time (Market Ribbon)')).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Real-Time Market Status (Market Ribbon)')).toBeInTheDocument()
   })
 
-  it('navigates through steps when clicking Lanjut and Sebelumnya', () => {
+  it('navigates through steps when clicking Next and Back', () => {
     render(<SpotlightTour isActive={true} onClose={vi.fn()} />)
     
     // Go to step 2
-    const lanjutBtn = screen.getByRole('button', { name: /Lanjut/i })
-    fireEvent.click(lanjutBtn)
-    expect(screen.getByText('Langkah 2 dari 5')).toBeInTheDocument()
-    expect(screen.getByText('Pencarian Cerdas Ticker (Cmd+K / Ctrl+K)')).toBeInTheDocument()
+    const nextBtn = screen.getByRole('button', { name: /Next/i })
+    fireEvent.click(nextBtn)
+    expect(screen.getByText('Step 2 of 5')).toBeInTheDocument()
+    expect(screen.getByText('Smart Ticker Search (Cmd+K / Ctrl+K)')).toBeInTheDocument()
 
     // Go back to step 1
-    const prevBtn = screen.getByRole('button', { name: /Sebelumnya/i })
+    const prevBtn = screen.getByRole('button', { name: /Back/i })
     fireEvent.click(prevBtn)
-    expect(screen.getByText('Langkah 1 dari 5')).toBeInTheDocument()
+    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument()
   })
 
-  it('calls onClose when clicking Lewati or close button', () => {
+  it('calls onClose when clicking Skip or close button', () => {
     const handleClose = vi.fn()
     render(<SpotlightTour isActive={true} onClose={handleClose} />)
     
-    const lewatiBtn = screen.getByRole('button', { name: /Lewati/i })
-    fireEvent.click(lewatiBtn)
+    const skipBtn = screen.getByRole('button', { name: /Skip/i })
+    fireEvent.click(skipBtn)
     expect(handleClose).toHaveBeenCalledTimes(1)
   })
 
@@ -46,15 +46,15 @@ describe('SpotlightTour component', () => {
 
     // Click next 4 times to reach step 5
     for (let i = 0; i < TOUR_STEPS.length - 1; i++) {
-      const lanjutBtn = screen.getByRole('button', { name: /Lanjut/i })
-      fireEvent.click(lanjutBtn)
+      const nextBtn = screen.getByRole('button', { name: /Next/i })
+      fireEvent.click(nextBtn)
     }
 
-    expect(screen.getByText(`Langkah ${TOUR_STEPS.length} dari ${TOUR_STEPS.length}`)).toBeInTheDocument()
+    expect(screen.getByText(`Step ${TOUR_STEPS.length} of ${TOUR_STEPS.length}`)).toBeInTheDocument()
 
-    // Click Selesai
-    const selesaiBtn = screen.getByRole('button', { name: /Selesai/i })
-    fireEvent.click(selesaiBtn)
+    // Click Done
+    const doneBtn = screen.getByRole('button', { name: /Done/i })
+    fireEvent.click(doneBtn)
     expect(handleClose).toHaveBeenCalledTimes(1)
   })
 })

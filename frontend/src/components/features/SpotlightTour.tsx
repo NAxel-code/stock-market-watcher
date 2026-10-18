@@ -22,43 +22,43 @@ export interface TourStep {
 export const TOUR_STEPS: TourStep[] = [
   {
     targetId: 'tour-market-status',
-    badge: 'Langkah 1 dari 5',
-    title: 'Pita Status Pasar Real-Time (Market Ribbon)',
+    badge: 'Step 1 of 5',
+    title: 'Real-Time Market Status (Market Ribbon)',
     description:
-      'Pantau jam perdagangan aktif bursa Indonesia (BEI/IDX: 09:00 - 16:00 WIB) dan Wall Street (NYSE/NASDAQ: 21:30 - 04:00 WIB). Sistem menghitung mundur jam buka/tutup dan menyegarkan data otomatis setiap 1 menit saat pasar beroperasi.',
-    hint: '💡 Titik hijau berkedip menandakan sesi perdagangan sedang berlangsung secara langsung (live session).',
+      'Monitor active trading hours for Indonesia (IDX: 09:00 - 16:00 WIB) and Wall Street (NYSE/NASDAQ: 21:30 - 04:00 WIB). The system counts down to open/close times and automatically refreshes data every 1 minute during live sessions.',
+    hint: '💡 A pulsating green dot indicates an active live trading session.',
   },
   {
     targetId: 'tour-search-command',
-    badge: 'Langkah 2 dari 5',
-    title: 'Pencarian Cerdas Ticker (Cmd+K / Ctrl+K)',
+    badge: 'Step 2 of 5',
+    title: 'Smart Ticker Search (Cmd+K / Ctrl+K)',
     description:
-      'Tekan pintasan Cmd+K (Mac) atau Ctrl+K (Windows) di halaman mana saja untuk memanggil Command Palette pencarian instan. Cukup ketik simbol ticker atau nama emiten.',
-    hint: '💡 Untuk saham Indonesia (BEI), gunakan format akhiran .JK (misal: BBCA.JK, BBRI.JK, GOTO.JK). Saham US cukup ketik simbol biasa (AAPL, NVDA).',
+      'Press Cmd+K (Mac) or Ctrl+K (Windows) on any page to open the instant Command Palette. Simply type a ticker symbol or company name.',
+    hint: '💡 For Indonesian stocks (IDX), append .JK (e.g., BBCA.JK, BBRI.JK, GOTO.JK). For US stocks, use standard symbols (AAPL, NVDA).',
   },
   {
     targetId: 'tour-market-summary',
-    badge: 'Langkah 3 dari 5',
-    title: 'Ringkasan Indeks Utama & Sparkline',
+    badge: 'Step 3 of 5',
+    title: 'Major Indices & Sparklines',
     description:
-      'Lihat barometer pergerakan bursa dunia dalam sekejap: S&P 500, Nasdaq, Dow Jones, dan IHSG (Jakarta Composite Index) lengkap dengan grafik sparkline tren harian dan persentase perubahan.',
-    hint: '💡 Warna hijau (+%) menandakan bursa menguat, sedangkan merah (-%) menandakan bursa terkoreksi.',
+      'Get an instant pulse on global markets: S&P 500, Nasdaq, Dow Jones, and IHSG (Jakarta Composite Index) complete with intraday sparklines and percentage changes.',
+    hint: '💡 Green (+%) indicates market gains, while red (-%) indicates a pullback.',
   },
   {
     targetId: 'tour-sector-filter',
-    badge: 'Langkah 4 dari 5',
-    title: 'Filter Sektor & Klasifikasi Bursa',
+    badge: 'Step 4 of 5',
+    title: 'Sector & Exchange Filtering',
     description:
-      'Saring daftar pantauan dengan satu klik: tampilkan hanya saham Indonesia (IDX), saham US, atau persektor industri (Teknologi, Finansial, Kesehatan, Energi, dll).',
-    hint: "💡 Tombol 'Reset Unggulan' mengembalikan daftar pantauan ke 32 saham teraktif rekomendasi pasar.",
+      'Filter your watchlist with a single click: view Indonesian stocks (IDX), US equities, or industry sectors (Technology, Financials, Healthcare, Energy, etc.).',
+    hint: "💡 The 'Reset to Default' button restores your watchlist to 32 featured bluechips.",
   },
   {
     targetId: 'tour-stock-grid',
-    badge: 'Langkah 5 dari 5',
-    title: 'Kartu Saham Interaktif & Analitik Detail',
+    badge: 'Step 5 of 5',
+    title: 'Interactive Stock Cards & Deep Analytics',
     description:
-      'Setiap kartu menampilkan harga real-time (USD / IDR), grafik mini tren, dan tombol bookmark Watchlist. Klik kartu saham mana pun untuk membuka halaman analitik lengkap: Grafik Recharts 1D-1Y, Rentang 52 Minggu, Simulasi Kalkulator Lot BEI (1 Lot = 100 lembar), dan Price Alert.',
-    hint: '💡 Seluruh watchlist disimpan otomatis dan privat di perangkat browser Anda tanpa wajib mendaftar akun.',
+      'Each card shows live prices (USD / IDR), 7-day sparklines, and watchlist bookmarking. Click any card to open full analytics: 1D-1Y Recharts, 52-Week Range Bar, IDX Lot Calculator (1 Lot = 100 shares), and Price Alerts.',
+    hint: '💡 Your watchlist is stored automatically and privately in your browser with zero registration required.',
   },
 ]
 
@@ -223,7 +223,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
                       ? 'w-6 bg-blue-500'
                       : 'w-1.5 bg-zinc-700 hover:bg-zinc-500'
                   }`}
-                  aria-label={`Ke langkah ${idx + 1}`}
+                  aria-label={`Go to step ${idx + 1}`}
                 />
               ))}
             </div>
@@ -235,7 +235,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
                 onClick={onClose}
                 className="text-xs text-zinc-400 hover:text-zinc-200 px-2.5 py-1.5 rounded-lg transition-colors"
               >
-                Lewati
+                Skip
               </button>
 
               {currentStep > 0 && (
@@ -245,7 +245,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
                   className="flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 transition"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
-                  <span>Sebelumnya</span>
+                  <span>Back</span>
                 </button>
               )}
 
@@ -256,13 +256,13 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
               >
                 {currentStep < TOUR_STEPS.length - 1 ? (
                   <>
-                    <span>Lanjut</span>
+                    <span>Next</span>
                     <ChevronRight className="h-3.5 w-3.5" />
                   </>
                 ) : (
                   <>
                     <Check className="h-3.5 w-3.5" />
-                    <span>Selesai</span>
+                    <span>Done</span>
                   </>
                 )}
               </button>

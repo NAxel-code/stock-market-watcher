@@ -1,6 +1,12 @@
 # 📈 StockPulse — Real-Time Stock Market Watcher
 
-> **StockPulse** adalah platform analitik dan pemantau pasar saham real-time untuk bursa Amerika Serikat (US) dan Indonesia (IDX / BEI). Dibangun dengan arsitektur modern berdensitas tinggi, stack serverless gratis (*100% free tier*), visualisasi performa ala CoinGecko/TradingView, serta kalkulator mekanika bursa BEI.
+<div align="center">
+
+🌐 **Language / Bahasa:** **English** | [Bahasa Indonesia](./README.id.md)
+
+</div>
+
+> **StockPulse** is a real-time stock market analytics and monitoring platform covering United States (US) and Indonesian (IDX / BEI) equities. Built with a high-density modern terminal aesthetic, serverless-ready architecture (*100% free tier*), CoinGecko/TradingView-style performance visualizations, and Indonesian Stock Exchange exchange mechanics calculators.
 
 ---
 
@@ -16,102 +22,102 @@
 
 ---
 
-## 📸 Bukti Tampilan Terbaru & Fitur Unggulan
+## 📸 Latest UI Showcase & Live Captures
 
-Berikut adalah bukti tangkapan layar langsung (*live screenshot captures*) dari antarmuka StockPulse terbaru:
+Below are authentic screenshot captures from the live StockPulse interface:
 
-### 1. 🌟 Interactive Spotlight Tour (Langkah 1 & 2)
-Panduan interaktif visual langsung di atas elemen DOM aktif dengan *luminous spotlight ring* (`ring-2 ring-blue-500 shadow-[0_0_60px_rgba(59,130,246,0.45)]`), *backdrop* gelap, kartu tooltip mengambang, serta navigasi keyboard lengkap (<kbd>Esc</kbd>, <kbd>→</kbd>, <kbd>←</kbd>).
+### 1. 🌟 Interactive Spotlight Tour (Steps 1 & 2)
+Live in-DOM guided walkthrough anchored dynamically over active elements featuring a luminous spotlight ring (`ring-2 ring-blue-500 shadow-[0_0_60px_rgba(59,130,246,0.45)]`), backdrop darkening, floating popover cards, and full keyboard navigation (<kbd>Esc</kbd>, <kbd>→</kbd>, <kbd>←</kbd>).
 
-| Langkah 1: Pita Status Bursa Real-Time | Langkah 2: Command Palette Ticker Search |
+| Step 1: Real-Time Market Status Ribbon | Step 2: Command Palette Ticker Search |
 | :---: | :---: |
 | ![Spotlight Tour - Step 1](./docs/screenshots/spotlight-tour.png) | ![Spotlight Tour - Step 2](./docs/screenshots/spotlight-tour-step2.png) |
 
 ---
 
-### 2. 📊 Detail Saham, Mekanika BEI, & Kinerja Multi-Horizon
-Halaman analitik lengkap untuk emiten (contoh: `BBCA.JK` - Bank Central Asia), menampilkan batas Auto Rejection (ARA/ARB), bar rentang 52 minggu, kalkulator lot BEI, dan matriks imbal hasil multi-periode.
+### 2. 📊 Stock Detail, IDX Mechanics, & Multi-Horizon Performance
+Comprehensive analytics page for any equity (e.g., `BBCA.JK` - Bank Central Asia), featuring Auto Rejection thresholds (ARA/ARB), 52-week price range bar, IDX Lot Calculator, and multi-horizon return matrix.
 
 ![Stock Detail Full](./docs/screenshots/stock-detail-full.png)
 
 ---
 
-### 3. 🧭 Modal Panduan & Cheat Sheet Ticker Populer
-Modal terintegrasi dengan 2 tab: tur panduan fitur 4-langkah dan *cheat sheet* emiten favorit US & BEI dengan tombol salin ticker 1-klik.
+### 3. 🧭 Tutorial Guide & Popular Tickers Cheat Sheet Modal
+Dual-tab modal featuring a 4-step interactive feature tour and a curated cheat sheet of popular US & IDX tickers with 1-click clipboard copying.
 
 ![Tutorial Modal](./docs/screenshots/tutorial-modal.png)
 
 ---
 
-### 4. 🔍 Pencarian Cepat Command Palette (<kbd>Cmd+K</kbd> / <kbd>Ctrl+K</kbd>)
-Pencarian instan dengan navigasi keyboard, *autocomplete*, badge bursa, dan deteksi otomatis saham US vs IDX (.JK).
+### 4. 🔍 Instant Command Palette (<kbd>Cmd+K</kbd> / <kbd>Ctrl+K</kbd>)
+Fast keyboard-first search with auto-complete, exchange badges, and instant detection of US vs IDX (.JK) equities.
 
 ![Command Palette](./docs/screenshots/command-palette.png)
 
 ---
 
-## ⚡ Fitur Utama
+## ⚡ Core Features
 
 ### 🌟 1. Onboarding & Interactive Spotlight Tour
-- **5-Step Live Element Spotlight**: Menyorot elemen nyata secara dinamis (`getBoundingClientRect()`) dengan transisi *smooth scroll*:
-  1. `tour-market-status`: Jam perdagangan BEI (09:00 - 16:00 WIB) & Wall Street US (21:30 - 04:00 WIB).
-  2. `tour-search-command`: Shortcut <kbd>Cmd+K</kbd> / <kbd>Ctrl+K</kbd> dan format suffix `.JK`.
-  3. `tour-market-summary`: 4 indeks pasar utama (S&P 500, Nasdaq, Dow Jones, IHSG) & mini sparklines.
-  4. `tour-sector-filter`: Filter instan bursa (US / IDX) dan sektor industri.
-  5. `tour-stock-grid`: Kartu saham real-time, link grafik Recharts, kalkulator lot, dan alert harga.
-- **Onboarding Banner Beranda**: Sambutan pengguna baru yang dapat ditutup (*dismissible*) dengan penyimpanan persisten di `localStorage`.
-- **Aksesibilitas Penuh**: Navigasi keyboard (<kbd>Esc</kbd> untuk keluar, panah kiri/kanan untuk berpindah).
+- **5-Step Live Element Spotlight**: Dynamically targets real DOM elements via `getBoundingClientRect()` with smooth scrolling:
+  1. `tour-market-status`: Trading hours for IDX (09:00 - 16:00 WIB) & US Wall Street (21:30 - 04:00 WIB).
+  2. `tour-search-command`: Global shortcut <kbd>Cmd+K</kbd> / <kbd>Ctrl+K</kbd> and `.JK` suffix conventions.
+  3. `tour-market-summary`: 4 benchmark indices (S&P 500, Nasdaq, Dow Jones, IHSG) with mini sparklines.
+  4. `tour-sector-filter`: Instant filters for exchange (**All**, **US**, **IDX**) and sector categories.
+  5. `tour-stock-grid`: Real-time stock cards, Recharts chart links, lot calculators, and price alerts.
+- **Homepage Onboarding Banner**: Dismissible welcome card with persistent state stored in `localStorage`.
+- **Keyboard Accessible**: Full keyboard navigation (<kbd>Esc</kbd> to exit, Arrow keys to navigate).
 
-### 🇮🇩 2. Mekanika Khusus Pasar Indonesia (Bursa Efek Indonesia / IDX)
-- **Kalkulator Lot BEI**: Simulasi transaksi saham presisi standar 1 lot = 100 lembar saham dengan opsi Beli/Jual, chip cepat (1, 5, 10, 50, 100 lot), estimasi fee broker (0.15%), levy bursa, dan PPh final.
-- **Batas Auto Rejection Simetris (ARA & ARB)**: Kalkulasi batas kenaikan tertinggi (*Auto Rejection Atas*) dan penurunan terendah (*Auto Rejection Bawah*) berdasarkan fraksi harga resmi BEI.
-- **Format Ticker Terstandarisasi**: Dukungan mulus suffix `.JK` untuk semua emiten BEI (misal: `BBCA.JK`, `BBRI.JK`, `TLKM.JK`).
+### 🇮🇩 2. Indonesian Stock Exchange (IDX / BEI) Mechanics
+- **IDX Lot Calculator**: Realistic trade simulation based on the 1 lot = 100 shares standard, Buy/Sell toggles, quick-select chips (1, 5, 10, 50, 100 lots), broker fee estimation (0.15%), exchange levy, and final income tax.
+- **Symmetric Auto Rejection Limits (ARA & ARB)**: Calculates official upper (*Auto Rejection Atas*) and lower (*Auto Rejection Bawah*) limits according to IDX price fraction rules.
+- **Standardized Ticker Format**: Seamless `.JK` suffix support across all IDX counters (e.g., `BBCA.JK`, `BBRI.JK`, `TLKM.JK`).
 
-### 📈 3. Analitik Finansial Bergaya CoinGecko & TradingView
-- **7-Day Sparkline SVG**: Mini chart kurva Bezier kubik dengan gradien dinamis hijau/merah pada setiap kartu saham.
-- **Kinerja Multi-Horizon**: Tabel persentase imbal hasil terukur lintas horizon waktu: **1D (24 Jam)**, **1W (7 Hari)**, **1M (30 Hari)**, **1Y (1 Tahun)**, dan **YTD**.
-- **52-Week Range Bar**: Bar visual posisi harga terkini terhadap titik terendah dan tertinggi 52 minggu, dilengkapi persentase penurunan dari rekor harga tertinggi (*drawdown from peak*).
+### 📈 3. CoinGecko & TradingView-Style Financial Analytics
+- **7-Day Sparkline SVG**: Cubic Bezier mini trendlines with dynamic emerald/rose gradients on each stock card.
+- **Multi-Horizon Returns**: Performance percentage table across standard periods: **1D (24 Hours)**, **1W (7 Days)**, **1M (30 Days)**, **1Y (1 Year)**, and **YTD**.
+- **52-Week Range Bar**: Visual indicator showing current price position between 52-week low and high, with percentage drawdown from all-time peak.
 
-### 🎯 4. Presisi Format Poin Indeks vs Mata Uang Ganda
-- **Poin Indeks Pasar**: Indeks global (`^GSPC`, `^IXIC`, `^DJI`) dan IHSG (`^JKSE`) diformat akurat dalam satuan poin (`pts`), bukan simbol uang.
-- **Dukungan Mata Uang Ganda**: Format cerdas USD (`$`) untuk saham Wall Street dan Rupiah integer tanpa desimal janggal (`Rp`) untuk saham Indonesia.
+### 🎯 4. Strict Index Points vs Dual-Currency Formatting
+- **Market Index Points**: Global indices (`^GSPC`, `^IXIC`, `^DJI`) and IDX Composite (`^JKSE`) strictly formatted in index points (`pts`), never falsely prepended with currency symbols.
+- **Dual-Currency Support**: Clean USD (`$`) formatting for Wall Street stocks and integer Rupiah (`Rp`) without misleading decimals for Indonesian equities.
 
-### 🏷️ 5. Filter Sektor & 32 Saham Unggulan Bluechip
-- Filter cepat berdasarkan bursa (**Semua**, **US**, **IDX**) atau sektor industri (**Technology**, **Financial Services**, **Energy**, **Consumer Cyclical**, **Healthcare**).
-- Katalog pantauan pre-seeded berisi 32 saham berkapitalisasi pasar terbesar dan teraktif.
+### 🏷️ 5. Sector Filters & 32 Pre-Seeded Bluechip Equities
+- Quick categorization by exchange (**All**, **US**, **IDX**) or sector (**Technology**, **Financial Services**, **Energy**, **Consumer Cyclical**, **Healthcare**).
+- Pre-seeded watchlist of 32 mega-cap, high-liquidity stocks across both markets.
 
 ### ⏱️ 6. Smart Polling & Resilient Caching
-- **Polling Cerdas**: Frekuensi pembaruan otomatis 1 menit saat bursa buka dan diperlambat ke 15 menit di luar jam operasional.
-- **Cache Fallback & Circuit Breaker**: Menggunakan cache TTL di backend untuk menjamin ketersediaan data saat Yahoo Finance mengalami rate limit.
+- **Adaptive Polling**: Auto-refreshes every 1 minute during active market sessions and throttles down to 15 minutes off-hours.
+- **Resilient Fallback Cache**: Backend TTL caching ensures high uptime even during Yahoo Finance rate limits.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Lapisan | Teknologi | Deskripsi |
+| Layer | Technology | Description |
 |---|---|---|
-| **Frontend Framework** | **Next.js 16.3.8 (App Router)** | Framework React fullstack dengan bundler Turbopack super cepat |
-| **UI Library** | **React 19** & **Tailwind CSS v4** | Komponen modern dengan styling utility-first dan token terminal zinc-950 |
-| **Primitives & Icons** | **Radix UI**, **CMDK**, **Lucide React** | Dialog, dropdown, accessible command palette, dan icon set presisi |
-| **State Management** | **TanStack Query v5** & **Zustand v5** | Sinkronisasi server-state otomatis dan client store persisten |
-| **Chart Engine** | **Recharts** & **Custom SVG Bezier** | Grafik interaktif multi-periode (1D/1W/1M/3M/1Y) + mini sparklines |
-| **Backend API** | **FastAPI (Python 3.11)** | REST API asinkron dengan schema validasi Pydantic v2 |
-| **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Sumber data pasar bebas biaya dengan layer in-memory TTL caching |
-| **Database & Auth** | **Supabase (PostgreSQL)** | Penyimpanan portofolio/alert dan sistem otentikasi siap pakai |
-| **Testing** | **Vitest** (Unit/Integration) & **Playwright** (E2E) | 57 unit tests dengan tingkat kelulusan 100% |
-| **Deployment** | **Vercel** (Monorepo Serverless) / **Cloud Run** | Setup monorepo `vercel.json` dengan proxy routing otomatis |
+| **Frontend Framework** | **Next.js 16.3.8 (App Router)** | Fullstack React framework with ultra-fast Turbopack bundler |
+| **UI Library** | **React 19** & **Tailwind CSS v4** | Modern component styling with utility-first classes and zinc-950 dark theme tokens |
+| **Primitives & Icons** | **Radix UI**, **CMDK**, **Lucide React** | Accessible dialogs, popovers, keyboard-first command palette, and SVG icons |
+| **State Management** | **TanStack Query v5** & **Zustand v5** | Automatic server-state synchronization with persistent local storage |
+| **Chart Engine** | **Recharts** & **Custom SVG Bezier** | Multi-timeframe interactive charts (1D/1W/1M/3M/1Y) + mini sparklines |
+| **Backend API** | **FastAPI (Python 3.11)** | Asynchronous Python REST API with Pydantic v2 validation |
+| **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Free-tier market data provider with in-memory TTL caching |
+| **Database & Auth** | **Supabase (PostgreSQL)** | Persistent watchlist, price alerts, and auth-ready schema |
+| **Testing** | **Vitest** (Unit/Integration) & **Playwright** (E2E) | 57 unit tests with 100% pass rate |
+| **Deployment** | **Vercel** (Serverless Monorepo) / **Cloud Run** | Monorepo configuration with zero-config serverless rewrites |
 
 ---
 
-## 🚀 Panduan Memulai Cepat (Quick Start)
+## 🚀 Quick Start Guide
 
-### Prasyarat
-- **Node.js** v20+ dan npm
+### Prerequisites
+- **Node.js** v20+ and npm
 - **Python** 3.11+
 
 ---
 
-### 1. Clone Repositori
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/NAxel-code/stock-market-watcher.git
 cd stock-market-watcher
@@ -119,70 +125,72 @@ cd stock-market-watcher
 
 ---
 
-### 2. Jalankan Backend (FastAPI)
+### 2. Start Backend (FastAPI)
 ```bash
 cd backend
 
-# Buat virtual environment
+# Create virtual environment
 python -m venv venv
 
-# Aktivasi virtual environment
+# Activate virtual environment
 # Windows:
 .\venv\Scripts\activate
 # macOS/Linux:
 source venv/bin/activate
 
-# Install dependensi
+# Install dependencies
 pip install -r requirements.txt
 
-# Salin konfigurasi environment
+# Copy environment variables
 cp .env.example .env
 
-# Jalankan server API
+# Run development server
 uvicorn app.main:app --reload --port 8000
 ```
-- API Backend berjalan di: `http://localhost:8000`
-- Dokumentasi interaktif Swagger/OpenAPI: `http://localhost:8000/docs`
+- Backend API running at: `http://localhost:8000`
+- Interactive Swagger / OpenAPI docs: `http://localhost:8000/docs`
 
 ---
 
-### 3. Jalankan Frontend (Next.js 16)
-Buka terminal baru di root proyek:
+### 3. Start Frontend (Next.js 16)
+Open a new terminal tab at the project root:
 ```bash
 cd frontend
 
-# Install dependensi npm
+# Install dependencies
 npm install
 
-# Salin konfigurasi environment
+# Copy environment variables
 cp .env.example .env.local
 
-# Jalankan server development
+# Run development server
 npm run dev
 ```
-- Buka browser di: `http://localhost:3000`
+- Open browser at: `http://localhost:3000`
 
 ---
 
-## 🧪 Pengujian Otomatis (Testing)
+## 🧪 Automated Testing
 
-Proyek ini menerapkan *Test-Driven Development (TDD)* yang ketat untuk menjamin stabilitas setiap fitur.
+This project follows rigorous *Test-Driven Development (TDD)* to guarantee stability across components and financial calculators.
 
 ### Frontend Unit & Component Tests (Vitest)
 ```bash
 cd frontend
 npm test
 ```
-> **Hasil Uji Terkini**: **57 / 57 tests passed (100% PASS)** di 11 test suites:
+> **Latest Test Run**: **57 / 57 tests passed (100% PASS)** across 11 test suites:
 > - `SpotlightTour.test.tsx` (5 tests)
 > - `TutorialModal.test.tsx` (5 tests)
-> - `SectorFilterBar.test.tsx` (6 tests)
-> - `Sparkline.test.tsx` (3 tests)
-> - `MultiHorizonReturns.test.tsx` (4 tests)
-> - `StockCard.test.tsx` (4 tests)
-> - `formatters.test.ts` (14 tests)
-> - `useUIStore.test.ts` (7 tests)
-> - `Navbar.test.tsx`, `SearchCommand.test.tsx`, `PriceAlertModal.test.tsx`
+> - `SectorFilterBar.test.tsx` (3 tests)
+> - `Sparkline.test.tsx` (4 tests)
+> - `FiftyTwoWeekRangeBar.test.tsx` (2 tests)
+> - `MultiHorizonReturns.test.tsx` (2 tests)
+> - `IdxLotCalculator.test.tsx` (2 tests)
+> - `StockCard.test.tsx` (9 tests)
+> - `formatters.test.ts` (11 tests)
+> - `api.test.ts` (8 tests)
+> - `useUIStore.test.ts` (6 tests)
 
 ### Backend Unit & Service Tests (Pytest)
 ```bash
@@ -192,49 +200,49 @@ pytest -v
 
 ---
 
-## 📁 Struktur Monorepo
+## 📁 Monorepo Structure
 
 ```
 stock-market-watcher/
 ├── package.json               # Root monorepo npm workspaces
 ├── vercel.json                # Vercel deployment & serverless proxy routing
-├── docs/                      # Dokumentasi arsitektur, PRD, dan visual
-│   └── screenshots/           # Bukti visual UI & spotlight tour
+├── docs/                      # PRD, architectural diagrams, visual assets
+│   └── screenshots/           # UI & spotlight tour screenshot evidence
 ├── frontend/                  # Next.js 16 App Router
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── layout.tsx     # Root layout dengan dark mode & query client
-│   │   │   ├── page.tsx       # Beranda dashboard utama
-│   │   │   ├── stocks/[ticker]# Halaman analitik detail emiten
-│   │   │   └── watchlist/     # Halaman khusus daftar pantauan
+│   │   │   ├── layout.tsx     # Root layout with dark mode & query client
+│   │   │   ├── page.tsx       # Main dashboard page
+│   │   │   ├── stocks/[ticker]# Dynamic stock detail & analytics page
+│   │   │   └── watchlist/     # Dedicated watchlist manager page
 │   │   ├── components/
-│   │   │   ├── features/      # SpotlightTour, TutorialModal, IdxLotCalculator, dll.
+│   │   │   ├── features/      # SpotlightTour, TutorialModal, IdxLotCalculator, etc.
 │   │   │   ├── layout/        # Navbar, MarketStatusRibbon, ThemeToggle
-│   │   │   └── ui/            # Primitive components (Button, Dialog, Badge, Skeleton)
+│   │   │   └── ui/            # Primitive UI components (Button, Dialog, Badge, Skeleton)
 │   │   ├── hooks/             # TanStack Query custom hooks
-│   │   ├── lib/               # API client, formatters mata uang/indeks, utils
-│   │   ├── stores/            # Zustand stores (useUIStore)
-│   │   └── types/             # TypeScript interfaces (StockQuote, Returns, dll.)
-│   └── next.config.ts         # Konfigurasi Turbopack & API proxy rewrites
+│   │   ├── lib/               # API client, currency/index formatters, utilities
+│   │   └── stores/            # Zustand stores (useUIStore)
+│   │   └── types/             # TypeScript interfaces (StockQuote, Returns, etc.)
+│   └── next.config.ts         # Turbopack configuration & API proxy rewrites
 └── backend/                   # FastAPI Python backend
-    ├── pyproject.toml         # Standar PEP 621 packaging (uv/hatchling)
+    ├── pyproject.toml         # PEP 621 packaging standard (uv/hatchling)
     ├── app/
-    │   ├── api/v1/            # Endpoint stocks, market, watchlist, alerts
-    │   ├── core/              # Config, exceptions, structured logging
-    │   ├── models/            # Pydantic schemas (StockQuote, AutoRejection, dll.)
+    │   ├── api/v1/            # Endpoints: stocks, market, watchlist, alerts
+    │   ├── core/              # App config, exceptions, structured logging
+    │   ├── models/            # Pydantic schemas (StockQuote, AutoRejection, etc.)
     │   ├── services/          # yfinance provider, multi-period return calculators
-    │   └── db/                # SQL migrations untuk Supabase
+    │   └── db/                # Supabase PostgreSQL migrations
     └── tests/                 # Pytest test suite
 ```
 
 ---
 
-## 📌 Riwayat Masalah & Solusi (GitHub Issues Tracking)
+## 📌 Issue Tracking & Fix History (GitHub Issues)
 
-Seluruh perubahan dan penambahan fitur telah terdokumentasi secara rinci pada GitHub Issue Tracker repositori:
+All architectural enhancements and bug fixes are comprehensively documented in the repository's GitHub Issue Tracker:
 
-| Issue | Judul & Topik | Label | Commit Penyelesaian |
-| :---: | :--- | :--- | :---: |
+| Issue | Title & Scope | Labels | Resolution Commit |
+| :---: | :--- | :--- | :--- |
 | [**#1**](https://github.com/NAxel-code/stock-market-watcher/issues/1) | `feat(tutorial): Interactive Spotlight Tour with live DOM element highlighting` | `enhancement`, `accessibility` | [`9dd1236`](https://github.com/NAxel-code/stock-market-watcher/commit/9dd1236) |
 | [**#2**](https://github.com/NAxel-code/stock-market-watcher/issues/2) | `feat(tutorial): Interactive feature guide and ticker cheat sheet modal` | `enhancement`, `documentation` | [`67936c5`](https://github.com/NAxel-code/stock-market-watcher/commit/67936c5) |
 | [**#3**](https://github.com/NAxel-code/stock-market-watcher/issues/3) | `fix(currency): Market indices formatted as currency and USD/IDR inconsistency across views` | `bug` | [`628c04a`](https://github.com/NAxel-code/stock-market-watcher/commit/628c04a) |
@@ -248,10 +256,10 @@ Seluruh perubahan dan penambahan fitur telah terdokumentasi secara rinci pada Gi
 
 ## 🤖 AI-Assisted Development
 
-Proyek ini dikembangkan menggunakan kolaborasi *AI-assisted pair programming* (Google DeepMind Antigravity) untuk arsitektur sistem, desain komponen, dan verifikasi berbasis pengujian (*Test-Driven Development*), dengan arahan rekayasa perangkat lunak (*human engineering*) yang berpegang pada prinsip kebersihan kode, pencegahan *over-engineering*, dan presisi domain finansial.
+This project was engineered using *AI-assisted pair programming* (Google DeepMind Antigravity) for system architecture, component design, and test-driven verification (*Test-Driven Development*), guided by human software engineering principles focusing on clean code, zero speculative abstractions, and financial domain precision.
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Didistribusikan di bawah lisensi **MIT**. Lihat berkas [LICENSE](./LICENSE) untuk detail lebih lanjut.
+Distributed under the **MIT** License. See [LICENSE](./LICENSE) for full terms.

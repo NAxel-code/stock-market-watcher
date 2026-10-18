@@ -23,7 +23,7 @@ export function IdxLotCalculator({ currentPrice, ticker }: IdxLotCalculatorProps
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Calculator className="h-4 w-4 text-blue-400" />
-          <h3 className="text-sm font-semibold text-zinc-200">Kalkulator Lot Saham IDX: {ticker} (1 Lot = 100 Lembar)</h3>
+          <h3 className="text-sm font-semibold text-zinc-200">IDX Lot Calculator: {ticker} (1 Lot = 100 Shares)</h3>
         </div>
         <div className="flex rounded-lg bg-zinc-950 border border-zinc-800 p-0.5 text-xs">
           <button
@@ -32,7 +32,7 @@ export function IdxLotCalculator({ currentPrice, ticker }: IdxLotCalculatorProps
               tradeType === 'buy' ? 'bg-emerald-600 text-white shadow-xs' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Beli (Buy)
+            Buy
           </button>
           <button
             onClick={() => setTradeType('sell')}
@@ -40,14 +40,14 @@ export function IdxLotCalculator({ currentPrice, ticker }: IdxLotCalculatorProps
               tradeType === 'sell' ? 'bg-rose-600 text-white shadow-xs' : 'text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            Jual (Sell)
+            Sell
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="text-xs text-zinc-400 block mb-1 font-medium">Jumlah Lot:</label>
+          <label className="text-xs text-zinc-400 block mb-1 font-medium">Number of Lots:</label>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -56,7 +56,7 @@ export function IdxLotCalculator({ currentPrice, ticker }: IdxLotCalculatorProps
               onChange={(e) => setLots(Math.max(1, parseInt(e.target.value) || 1))}
               className="w-full bg-zinc-950 border border-zinc-750 rounded-lg px-3 py-1.5 text-sm font-mono tabular-nums text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <span className="text-xs text-zinc-400 font-mono tabular-nums whitespace-nowrap">({totalShares.toLocaleString()} lembar)</span>
+            <span className="text-xs text-zinc-400 font-mono tabular-nums whitespace-nowrap">({totalShares.toLocaleString()} shares)</span>
           </div>
 
           <div className="flex gap-1.5 mt-2">
@@ -74,15 +74,15 @@ export function IdxLotCalculator({ currentPrice, ticker }: IdxLotCalculatorProps
 
         <div className="rounded-lg bg-zinc-950/80 border border-zinc-800/80 p-3 space-y-1.5 text-xs">
           <div className="flex justify-between text-zinc-400">
-            <span>Nilai Transaksi Kotor:</span>
+            <span>Gross Transaction Value:</span>
             <span className="font-mono tabular-nums text-zinc-100 font-medium">{formatCurrency(grossValue, 'IDR')}</span>
           </div>
           <div className="flex justify-between text-zinc-400">
-            <span>Estimasi Fee Broker ({tradeType === 'buy' ? '0.15%' : '0.25%'}):</span>
+            <span>Estimated Broker Fee ({tradeType === 'buy' ? '0.15%' : '0.25%'}):</span>
             <span className="font-mono tabular-nums text-zinc-300">+{formatCurrency(estimatedFee, 'IDR')}</span>
           </div>
           <div className="border-t border-zinc-800/80 pt-1.5 flex justify-between font-semibold text-sm">
-            <span className="text-zinc-200">Total Bersih:</span>
+            <span className="text-zinc-200">Net Total:</span>
             <span className={`font-mono tabular-nums ${tradeType === 'buy' ? 'text-emerald-400' : 'text-blue-400'}`}>
               {formatCurrency(netTotal, 'IDR')}
             </span>

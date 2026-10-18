@@ -84,7 +84,7 @@ export function SearchCommand() {
         aria-label="Search stocks"
       >
         <Search className="h-3.5 w-3.5 text-zinc-400" />
-        <span className="text-xs">Cari saham...</span>
+        <span className="text-xs">Search stocks...</span>
         <kbd className="ml-auto text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700/60 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
       </Button>
       <Button

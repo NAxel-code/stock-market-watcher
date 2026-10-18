@@ -19,20 +19,20 @@ describe('TutorialModal component', () => {
 
   it('renders title and first step when isOpen is true', () => {
     render(<TutorialModal isOpen={true} onClose={vi.fn()} />)
-    expect(screen.getByText(/Panduan Penggunaan StockPulse/i)).toBeInTheDocument()
-    expect(screen.getByText(/Pencarian kilat saham/i)).toBeInTheDocument()
+    expect(screen.getByText(/StockPulse Platform Guide/i)).toBeInTheDocument()
+    expect(screen.getByText(/Instant ticker lookup/i)).toBeInTheDocument()
   })
 
-  it('navigates through steps when clicking Lanjut', () => {
+  it('navigates through steps when clicking Next', () => {
     render(<TutorialModal isOpen={true} onClose={vi.fn()} />)
-    const lanjutBtn = screen.getByRole('button', { name: /Lanjut/i })
-    fireEvent.click(lanjutBtn)
-    expect(screen.getByText(/Pantau jam perdagangan BEI/i)).toBeInTheDocument()
+    const nextBtn = screen.getByRole('button', { name: /Next/i })
+    fireEvent.click(nextBtn)
+    expect(screen.getByText(/Real-time trading status/i)).toBeInTheDocument()
   })
 
-  it('switches to Kamus Ticker tab and displays stock list', () => {
+  it('switches to Popular Tickers Cheat Sheet tab and displays stock list', () => {
     render(<TutorialModal isOpen={true} onClose={vi.fn()} />)
-    const cheatSheetTab = screen.getByRole('button', { name: /Kamus Ticker Populer/i })
+    const cheatSheetTab = screen.getByRole('button', { name: /Popular Tickers Cheat Sheet/i })
     fireEvent.click(cheatSheetTab)
     expect(screen.getByText('BBCA.JK')).toBeInTheDocument()
     expect(screen.getByText('NVDA')).toBeInTheDocument()
@@ -41,7 +41,7 @@ describe('TutorialModal component', () => {
   it('calls onClose when close button is clicked', () => {
     const handleClose = vi.fn()
     render(<TutorialModal isOpen={true} onClose={handleClose} />)
-    const closeBtn = screen.getByRole('button', { name: /Tutup panduan/i })
+    const closeBtn = screen.getByRole('button', { name: /Close guide/i })
     fireEvent.click(closeBtn)
     expect(handleClose).toHaveBeenCalledTimes(1)
   })

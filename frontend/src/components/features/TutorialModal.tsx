@@ -40,64 +40,64 @@ interface Step {
 const STEPS: Step[] = [
   {
     id: 1,
-    title: 'Cari Ticker (Cmd+K)',
-    badge: 'Langkah 1',
+    title: 'Search Tickers (Cmd+K)',
+    badge: 'Step 1',
     Icon: Search,
-    headline: 'Pencarian kilat saham Wall Street (US) & Bursa Efek Indonesia (IDX)',
+    headline: 'Instant ticker lookup for Wall Street (US) & Indonesia (IDX)',
     description:
-      'Tekan pintasan keyboard Cmd+K (Mac) atau Ctrl+K (Windows) di mana saja untuk membuka pencarian cerdas. Ketik nama perusahaan atau simbol ticker saham.',
+      'Press Cmd+K (Mac) or Ctrl+K (Windows) from anywhere to open smart search. Type company name or ticker symbol.',
     tips: [
-      'Saham IDX (Indonesia): Gunakan format akhiran .JK (contoh: BBCA.JK, BBRI.JK, TLKM.JK, GOTO.JK).',
-      'Saham US: Cukup ketik simbol reguler tanpa akhiran (contoh: AAPL, NVDA, TSLA, MSFT).',
-      'Pencarian mendukung autocomplete ticker teraktif pasar.',
+      'Indonesian IDX stocks: Append the .JK suffix (e.g., BBCA.JK, BBRI.JK, TLKM.JK, GOTO.JK).',
+      'US stocks: Use standard ticker symbols without suffix (e.g., AAPL, NVDA, TSLA, MSFT).',
+      'Command palette includes real-time autocomplete for high-volume stocks.',
     ],
     accentBg: 'from-blue-500/10 via-blue-500/5 to-transparent border-blue-500/30',
     accentIcon: 'bg-blue-600 text-white',
   },
   {
     id: 2,
-    title: 'Status Pasar Real-Time',
-    badge: 'Langkah 2',
+    title: 'Live Market Hours',
+    badge: 'Step 2',
     Icon: Clock,
-    headline: 'Pantau jam perdagangan BEI & New York secara langsung',
+    headline: 'Real-time trading status for Jakarta (IDX) and New York (US)',
     description:
-      'Pita status di bagian atas layar (Market Status Ribbon) selalu mengabarkan apakah bursa sedang aktif atau tutup, lengkap dengan hitung mundur sesi berikutnya.',
+      'The top Market Status Ribbon shows live trading status with a countdown to the next opening or closing bell.',
     tips: [
-      'Bursa IDX (Jakarta): Sesi 1 (09:00 - 12:00 WIB), Sesi 2 (13:30 - 16:00 WIB).',
-      'Bursa US (New York): 21:30 - 04:00 WIB (atau 20:30 WIB saat Daylight Saving).',
-      'Data saham otomatis disegarkan setiap 1 menit saat jam bursa buka dan 15 menit saat tutup.',
+      'Indonesia (IDX): Session 1 (09:00 - 12:00 WIB), Session 2 (13:30 - 16:00 WIB).',
+      'US Markets (New York): 21:30 - 04:00 WIB (or 20:30 WIB during Daylight Saving Time).',
+      'Quotes auto-refresh every 1 minute during market hours and 15 minutes when closed.',
     ],
     accentBg: 'from-amber-500/10 via-amber-500/5 to-transparent border-amber-500/30',
     accentIcon: 'bg-amber-600 text-white',
   },
   {
     id: 3,
-    title: 'Kalkulator Lot BEI',
-    badge: 'Langkah 3',
+    title: 'IDX Lot Sizing & Fees',
+    badge: 'Step 3',
     Icon: Calculator,
-    headline: 'Hitung modal beli per lot (100 lembar) dan estimasi fee sekuritas',
+    headline: 'Calculate capital requirements (1 lot = 100 shares) and transaction fees',
     description:
-      'Di pasar modal Indonesia, transaksi saham wajib dalam satuan lot. Pada setiap halaman detail saham IDX, tersedia kalkulator cerdas untuk simulasi dana.',
+      'Equities in Indonesia trade strictly in lots. Every IDX stock detail page provides an interactive lot calculator.',
     tips: [
-      '1 Lot = 100 lembar saham (otomatis mengalikan harga pasar aktif).',
-      'Termasuk estimasi biaya transaksi sekuritas & BEI (~0.15% beli, ~0.25% jual).',
-      'Tombol cepat 1, 5, 10, hingga 50 lot untuk estimasi instan.',
+      '1 Lot = 100 shares (automatically multiplied by live market price).',
+      'Estimates broker commission and exchange levies (~0.15% buy, ~0.25% sell).',
+      'Quick chips for 1, 5, 10, 50, and 100 lots for fast position estimation.',
     ],
     accentBg: 'from-emerald-500/10 via-emerald-500/5 to-transparent border-emerald-500/30',
     accentIcon: 'bg-emerald-600 text-white',
   },
   {
     id: 4,
-    title: 'Watchlist & Price Alert',
-    badge: 'Langkah 4',
+    title: 'Watchlists & Price Alerts',
+    badge: 'Step 4',
     Icon: Bell,
-    headline: 'Simpan portofolio pantauan dan pasang alarm target harga',
+    headline: 'Save watchlist assets and configure price trigger notifications',
     description:
-      'Bangun daftar pantauan favoritmu tanpa harus login. Klik ikon bookmark pada kartu saham untuk menyimpannya di Watchlist perambanmu.',
+      'Build your personalized watchlist without registration. Click the bookmark icon on any stock card to save it.',
     tips: [
-      'Watchlist tersimpan otomatis di localStorage perangkat secara aman dan privat.',
-      'Fitur Price Alert: Pasang target harga tembus atas (take profit) atau bawah (cut loss).',
-      'Grafik interaktif Recharts: Ganti rentang waktu 1 Hari, 1 Minggu, 1 Bulan, 3 Bulan, hingga 1 Tahun.',
+      'Saved securely in your browser local storage with zero account tracking.',
+      'Price Alerts: Set target price alerts for breakout gains or stop-loss limits.',
+      'Interactive Recharts: Switch between 1D, 1W, 1M, 3M, and 1Y historical views.',
     ],
     accentBg: 'from-purple-500/10 via-purple-500/5 to-transparent border-purple-500/30',
     accentIcon: 'bg-purple-600 text-white',
@@ -190,16 +190,16 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
             </span>
             <div>
               <h2 id="tutorial-dialog-title" className="text-base font-bold text-zinc-100 leading-tight">
-                Panduan Penggunaan StockPulse
+                StockPulse Platform Guide
               </h2>
-              <p className="text-xs text-zinc-400">Kuasai fitur pemantauan saham US & IDX dalam 4 langkah</p>
+              <p className="text-xs text-zinc-400">Master US & IDX stock market watcher features in 4 steps</p>
             </div>
           </div>
           <button
             type="button"
             onClick={handleFinish}
             className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition"
-            aria-label="Tutup panduan"
+            aria-label="Close guide"
           >
             <X className="h-4 w-4" />
           </button>
@@ -217,7 +217,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
             }`}
           >
             <Sparkles className="h-4 w-4 text-blue-400" />
-            <span>Tur Cepat (4 Fitur)</span>
+            <span>Quick Tour (4 Steps)</span>
           </button>
           <button
             type="button"
@@ -229,7 +229,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
             }`}
           >
             <BookOpen className="h-4 w-4 text-amber-400" />
-            <span>Kamus Ticker Populer</span>
+            <span>Popular Tickers Cheat Sheet</span>
           </button>
         </div>
 
@@ -279,7 +279,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                 <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/90 p-3.5 space-y-2">
                   <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wide flex items-center gap-1.5">
                     <Check className="h-3.5 w-3.5 text-blue-400" />
-                    <span>Poin Penting:</span>
+                    <span>Key Points:</span>
                   </h4>
                   <ul className="space-y-1.5 text-xs text-zinc-300">
                     {step.tips.map((tip, i) => (
@@ -295,7 +295,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
           ) : (
             <div className="space-y-5">
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3 text-xs text-zinc-300 leading-relaxed">
-                <span className="font-semibold text-blue-400">Petunjuk Format Ticker:</span> Saham Indonesia (BEI) memerlukan akhiran <code className="rounded bg-zinc-800 px-1 py-0.5 text-amber-300 font-mono">.JK</code>. Klik ticker di bawah untuk langsung menuju grafik & detail analitiknya.
+                <span className="font-semibold text-blue-400">Ticker Convention:</span> Indonesian stocks (IDX) require the <code className="rounded bg-zinc-800 px-1 py-0.5 text-amber-300 font-mono">.JK</code> suffix. Click any ticker below to navigate to its live chart and analytics.
               </div>
 
               {TICKER_CHEAT_SHEET.map((group) => (
@@ -343,7 +343,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
               onChange={(e) => setDontShowAgain(e.target.checked)}
               className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-blue-600 focus:ring-blue-500 cursor-pointer"
             />
-            <span>Jangan tampilkan otomatis lagi</span>
+            <span>Don&apos;t show automatically again</span>
           </label>
 
           <div className="flex items-center gap-2">
@@ -357,7 +357,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                 className="flex items-center gap-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 px-3 py-1.5 text-xs font-semibold transition"
               >
                 <Compass className="h-3.5 w-3.5" />
-                <span>Mulai Tur Spotlight</span>
+                <span>Start Spotlight Tour</span>
               </button>
             )}
 
@@ -368,7 +368,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                 className="flex items-center gap-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-700 transition"
               >
                 <ChevronLeft className="h-4 w-4" />
-                <span>Sebelumnya</span>
+                <span>Back</span>
               </button>
             )}
 
@@ -378,7 +378,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                 onClick={() => setCurrentStep((prev) => prev + 1)}
                 className="flex items-center gap-1 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-blue-500 transition shadow-xs"
               >
-                <span>Lanjut</span>
+                <span>Next</span>
                 <ChevronRight className="h-4 w-4" />
               </button>
             ) : (
@@ -388,7 +388,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                 className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-blue-500 transition shadow-xs"
               >
                 <Check className="h-4 w-4" />
-                <span>Mulai Jelajah</span>
+                <span>Explore StockPulse</span>
               </button>
             )}
           </div>

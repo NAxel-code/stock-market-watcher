@@ -90,7 +90,7 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
                     ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/60'
                     : 'text-blue-400 bg-blue-950/60 border-blue-900/60'
                 )}
-                title={`Bursa: ${stockCurrency === 'IDR' ? 'Indonesia (IDX)' : 'United States (US)'}`}
+                title={`Exchange: ${stockCurrency === 'IDR' ? 'Indonesia (IDX)' : 'United States (US)'}`}
               >
                 {stockCurrency === 'IDR' ? 'IDX' : 'US'}
               </span>
@@ -121,7 +121,7 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
                     ? 'text-emerald-400 bg-emerald-950/60 border-emerald-900/60'
                     : 'text-blue-400 bg-blue-950/60 border-blue-900/60'
                 )}
-                title={`Mata uang: ${stockCurrency}`}
+                title={`Currency: ${stockCurrency}`}
               >
                 {stockCurrency}
               </span>
@@ -143,7 +143,7 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
         <div className="mt-2.5 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-400 font-mono tabular-nums">
           <span>
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null
-              ? `Puncak: ${quote.distance_from_52w_high > 0 ? '+' : ''}${quote.distance_from_52w_high}%`
+              ? `52W Peak: ${quote.distance_from_52w_high > 0 ? '+' : ''}${quote.distance_from_52w_high}%`
               : '—'}
           </span>
           {quote.is_stale && (

@@ -52,7 +52,7 @@ describe('SectorFilterBar component', () => {
       />
     )
 
-    expect(screen.getByText('Semua')).toBeInTheDocument()
+    expect(screen.getByText('All')).toBeInTheDocument()
     expect(screen.getByText('IDX (BEI)')).toBeInTheDocument()
     expect(screen.getByText('US Market')).toBeInTheDocument()
     expect(screen.getByText('Technology')).toBeInTheDocument()

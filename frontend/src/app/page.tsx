@@ -13,8 +13,8 @@ export default function DashboardPage() {
       {/* Market Summary Section */}
       <section id="tour-market-summary">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-zinc-200">Ringkasan Pasar Utama</h2>
-          <span className="text-xs font-mono text-zinc-400 hidden sm:inline">Indeks Global & IDX</span>
+          <h2 className="text-lg font-semibold text-zinc-200">Major Market Overview</h2>
+          <span className="text-xs font-mono text-zinc-400 hidden sm:inline">Global & IDX Indices</span>
         </div>
         <Suspense fallback={
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -30,8 +30,8 @@ export default function DashboardPage() {
       {/* Watchlist Section */}
       <section id="tour-watchlist-grid">
         <div className="mb-3">
-          <h2 className="text-lg font-semibold text-zinc-200">Daftar Pantauan Saham Unggulan</h2>
-          <p className="text-xs text-zinc-400 mt-0.5">Top 25% saham teraktif dan berkapitalisasi terbesar di bursa US & Indonesia (BEI)</p>
+          <h2 className="text-lg font-semibold text-zinc-200">Featured Watchlist</h2>
+          <p className="text-xs text-zinc-400 mt-0.5">Top active and highest market cap equities across US & Indonesia (IDX)</p>
         </div>
         <Suspense fallback={
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

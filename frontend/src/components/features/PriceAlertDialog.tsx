@@ -31,7 +31,7 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
   const handleCreate = async () => {
     const priceNum = parseFloat(targetPrice)
     if (isNaN(priceNum) || priceNum <= 0) {
-      toast.error('Masukkan target harga yang valid')
+      toast.error('Please enter a valid target price')
       return
     }
 
@@ -43,10 +43,10 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
         condition,
       })
       addAlert(alert)
-      toast.success(`Alert disetel: ${ticker} ${condition} ${formatCurrency(priceNum, currency)}`)
+      toast.success(`Alert set: ${ticker} ${condition} ${formatCurrency(priceNum, currency)}`)
       setOpen(false)
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Gagal membuat alert')
+      toast.error(err instanceof Error ? err.message : 'Failed to create alert')
     } finally {
       setLoading(false)
     }
@@ -61,7 +61,7 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
         className="gap-1.5 border-zinc-700 bg-zinc-900 text-xs hover:bg-zinc-800"
       >
         <Bell className="h-3.5 w-3.5 text-amber-400" />
-        <span>Pasang Alert</span>
+        <span>Set Alert</span>
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -69,20 +69,20 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="h-4 w-4 text-amber-400" />
-            Pasang Price Alert untuk {ticker}
+            Set Price Alert for {ticker}
           </DialogTitle>
           <DialogDescription className="text-zinc-400 text-xs">
-            Dapatkan notifikasi langsung di layar saat harga {ticker} melewati batas target Anda.
+            Receive real-time notifications when {ticker} crosses your target price threshold.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="text-xs text-zinc-400">
-            Harga Saat Ini: <strong className="text-zinc-100 font-mono text-sm">{formatCurrency(currentPrice, currency)}</strong>
+            Current Price: <strong className="text-zinc-100 font-mono text-sm">{formatCurrency(currentPrice, currency)}</strong>
           </div>
 
           <div>
-            <label className="text-xs text-zinc-300 block mb-1">Kondisi Pemicu:</label>
+            <label className="text-xs text-zinc-300 block mb-1">Trigger Condition:</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -93,7 +93,7 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
                     : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
-                Naik Di Atas (&gt;=)
+                Rises Above (&gt;=)
               </button>
               <button
                 type="button"
@@ -104,31 +104,31 @@ export function PriceAlertDialog({ ticker, currentPrice, currency = 'USD' }: Pri
                     : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700'
                 }`}
               >
-                Turun Di Bawah (&lt;=)
+                Drops Below (&lt;=)
               </button>
             </div>
           </div>
 
           <div>
-            <label className="text-xs text-zinc-300 block mb-1">Target Harga ({currency}):</label>
+            <label className="text-xs text-zinc-300 block mb-1">Target Price ({currency}):</label>
             <input
               type="number"
               step="any"
               value={targetPrice}
               onChange={(e) => setTargetPrice(e.target.value)}
               className="w-full bg-zinc-950 border border-zinc-700 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-500"
-              placeholder={`Contoh: ${currentPrice}`}
+              placeholder={`e.g. ${currentPrice}`}
             />
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-            Batal
+            Cancel
           </Button>
           <Button size="sm" onClick={handleCreate} disabled={loading} className="gap-1 bg-blue-600 hover:bg-blue-500">
             <Check className="h-3.5 w-3.5" />
-            {loading ? 'Menyimpan...' : 'Aktifkan Alert'}
+            {loading ? 'Saving...' : 'Set Alert'}
           </Button>
         </div>
       </DialogContent>

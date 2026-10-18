@@ -95,7 +95,7 @@ describe('StockCard component', () => {
     }
     render(<StockCard quote={coingeckoQuote} />)
     expect(screen.getByText('Technology')).toBeInTheDocument()
-    expect(screen.getByText('Puncak: -12.5%')).toBeInTheDocument()
+    expect(screen.getByText('52W Peak: -12.5%')).toBeInTheDocument()
     expect(screen.getByTestId('sparkline-chart')).toBeInTheDocument()
   })
 })

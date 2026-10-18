@@ -27,7 +27,7 @@ export function SectorFilterBar({
 }: SectorFilterBarProps) {
   const tabs = useMemo<FilterTab[]>(() => {
     if (!quotes || quotes.length === 0) {
-      return [{ id: 'ALL', label: 'Semua', count: 0, avgChange: null }]
+      return [{ id: 'ALL', label: 'All', count: 0, avgChange: null }]
     }
 
     // Helper to calculate average change percentage
@@ -45,7 +45,7 @@ export function SectorFilterBar({
     // Sector mapping
     const sectorMap = new Map<string, StockQuote[]>()
     quotes.forEach((q) => {
-      const sec = q.sector?.trim() || 'Lainnya'
+      const sec = q.sector?.trim() || 'Other'
       const existing = sectorMap.get(sec) || []
       existing.push(q)
       sectorMap.set(sec, existing)
@@ -54,7 +54,7 @@ export function SectorFilterBar({
     const result: FilterTab[] = [
       {
         id: 'ALL',
-        label: 'Semua',
+        label: 'All',
         count: quotes.length,
         avgChange: calcAvg(quotes),
       },
