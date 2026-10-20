@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   X,
@@ -29,6 +29,8 @@ interface Step {
   id: number
   title: string
   badge: string
+  targetId?: string
+  targetLabel?: string
   Icon: React.ComponentType<{ className?: string }>
   headline: string
   description: string
@@ -42,6 +44,8 @@ const STEPS: Step[] = [
     id: 1,
     title: 'Search Tickers (Cmd+K)',
     badge: 'Step 1',
+    targetId: 'tour-search-command',
+    targetLabel: 'Search Command Palette',
     Icon: Search,
     headline: 'Instant ticker lookup for Wall Street (US) & Indonesia (IDX)',
     description:
@@ -58,6 +62,8 @@ const STEPS: Step[] = [
     id: 2,
     title: 'Live Market Hours',
     badge: 'Step 2',
+    targetId: 'tour-market-status',
+    targetLabel: 'Market Status Ribbon',
     Icon: Clock,
     headline: 'Real-time trading status for Jakarta (IDX) and New York (US)',
     description:
@@ -74,6 +80,8 @@ const STEPS: Step[] = [
     id: 3,
     title: 'IDX Lot Sizing & Fees',
     badge: 'Step 3',
+    targetId: 'tour-stock-grid',
+    targetLabel: 'Stock Cards & IDX Lot Calculator',
     Icon: Calculator,
     headline: 'Calculate capital requirements (1 lot = 100 shares) and transaction fees',
     description:
@@ -90,6 +98,8 @@ const STEPS: Step[] = [
     id: 4,
     title: 'Watchlists & Price Alerts',
     badge: 'Step 4',
+    targetId: 'tour-stock-grid',
+    targetLabel: 'Watchlist Grid & Price Alerts',
     Icon: Bell,
     headline: 'Save watchlist assets and configure price trigger notifications',
     description:
@@ -134,6 +144,43 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
   const [activeTab, setActiveTab] = useState<'tour' | 'cheatSheet'>('tour')
   const [currentStep, setCurrentStep] = useState(0)
   const [dontShowAgain, setDontShowAgain] = useState(false)
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
+
+  const updateTargetRect = useCallback(() => {
+    if (!isOpen || activeTab !== 'tour') {
+      setTargetRect(null)
+      return
+    }
+    const current = STEPS[currentStep]
+    if (!current?.targetId) {
+      setTargetRect(null)
+      return
+    }
+    const el = document.getElementById(current.targetId)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect()
+        setTargetRect(rect)
+      }, 300)
+    } else {
+      setTargetRect(null)
+    }
+  }, [isOpen, activeTab, currentStep])
+
+  useEffect(() => {
+    if (isOpen && activeTab === 'tour') {
+      updateTargetRect()
+      window.addEventListener('resize', updateTargetRect)
+      window.addEventListener('scroll', updateTargetRect)
+      return () => {
+        window.removeEventListener('resize', updateTargetRect)
+        window.removeEventListener('scroll', updateTargetRect)
+      }
+    } else {
+      setTargetRect(null)
+    }
+  }, [isOpen, activeTab, currentStep, updateTargetRect])
 
   useEffect(() => {
     if (!isOpen) return
@@ -173,7 +220,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-3 sm:p-4 md:p-6 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="tutorial-dialog-title"
@@ -181,118 +228,156 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
         if (e.target === e.currentTarget) handleFinish()
       }}
     >
-      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-900/60 px-5 py-3.5">
-          <div className="flex items-center gap-2.5">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
-              <TrendingUp className="h-5 w-5" />
-            </span>
-            <div>
-              <h2 id="tutorial-dialog-title" className="text-base font-bold text-zinc-100 leading-tight">
-                StockPulse Platform Guide
-              </h2>
-              <p className="text-xs text-zinc-400">Master US & IDX stock market watcher features in 4 steps</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleFinish}
-            className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition"
-            aria-label="Close guide"
-          >
-            <X className="h-4 w-4" />
-          </button>
+      {/* Live Target Feature Spotlight Ring */}
+      {activeTab === 'tour' && targetRect && (
+        <div
+          style={{
+            top: `${Math.max(0, targetRect.top - 6)}px`,
+            left: `${Math.max(0, targetRect.left - 6)}px`,
+            width: `${targetRect.width + 12}px`,
+            height: `${targetRect.height + 12}px`,
+          }}
+          className="fixed pointer-events-none z-40 rounded-xl ring-2 sm:ring-4 ring-blue-500 shadow-[0_0_80px_rgba(59,130,246,0.65)] animate-pulse transition-all duration-300"
+        >
+          <span className="absolute -top-7 left-2 flex items-center gap-1.5 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-lg">
+            <Sparkles className="h-3 w-3" />
+            <span>Target: {step.targetLabel ?? step.title}</span>
+          </span>
         </div>
+      )}
 
-        {/* Tab Switcher */}
-        <div className="flex border-b border-zinc-800 bg-zinc-950 px-5 pt-2">
-          <button
-            type="button"
-            onClick={() => setActiveTab('tour')}
-            className={`flex items-center gap-2 border-b-2 px-4 pb-2.5 text-xs sm:text-sm font-semibold transition ${
-              activeTab === 'tour'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <Sparkles className="h-4 w-4 text-blue-400" />
-            <span>Quick Tour (4 Steps)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('cheatSheet')}
-            className={`flex items-center gap-2 border-b-2 px-4 pb-2.5 text-xs sm:text-sm font-semibold transition ${
-              activeTab === 'cheatSheet'
-                ? 'border-blue-500 text-blue-400'
-                : 'border-transparent text-zinc-400 hover:text-zinc-200'
-            }`}
-          >
-            <BookOpen className="h-4 w-4 text-amber-400" />
-            <span>Popular Tickers Cheat Sheet</span>
-          </button>
-        </div>
-
-        {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
-          {activeTab === 'tour' ? (
-            <div className="space-y-5">
-              {/* Step Navigation Pills */}
-              <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                {STEPS.map((s, idx) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setCurrentStep(idx)}
-                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 px-1 text-xs font-semibold transition ${
-                      currentStep === idx
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : currentStep > idx
-                        ? 'bg-blue-950/40 text-blue-300 border border-blue-800/60'
-                        : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
-                    }`}
-                  >
-                    <span>{idx + 1}.</span>
-                    <span className="hidden sm:inline truncate">{s.title}</span>
-                  </button>
-                ))}
+      <div className="flex min-h-full items-center justify-center py-2 sm:py-4">
+        <div className="relative z-50 flex max-h-[85vh] sm:max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-2xl">
+          {/* Header */}
+          <div className="flex shrink-0 items-center justify-between border-b border-zinc-800/80 bg-zinc-900/60 px-5 py-3.5">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                <TrendingUp className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 id="tutorial-dialog-title" className="text-base font-bold text-zinc-100 leading-tight">
+                  StockPulse Platform Guide
+                </h2>
+                <p className="text-xs text-zinc-400">Master US & IDX stock market watcher features in 4 steps</p>
               </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleFinish}
+              className="grid h-8 w-8 place-items-center rounded-lg text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition"
+              aria-label="Close guide"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-              {/* Step Card */}
-              <div
-                className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${step.accentBg} p-5`}
-              >
-                <div className="flex items-start gap-4">
-                  <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${step.accentIcon} shadow-sm`}>
-                    <step.Icon className="h-5 w-5" />
-                  </span>
-                  <div className="space-y-1">
-                    <span className="inline-block rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-200 uppercase tracking-wider">
-                      {step.badge}
+          {/* Tab Switcher */}
+          <div className="flex shrink-0 border-b border-zinc-800 bg-zinc-950 px-5 pt-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('tour')}
+              className={`flex items-center gap-2 border-b-2 px-4 pb-2.5 text-xs sm:text-sm font-semibold transition ${
+                activeTab === 'tour'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <Sparkles className="h-4 w-4 text-blue-400" />
+              <span>Quick Tour (4 Steps)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('cheatSheet')}
+              className={`flex items-center gap-2 border-b-2 px-4 pb-2.5 text-xs sm:text-sm font-semibold transition ${
+                activeTab === 'cheatSheet'
+                  ? 'border-blue-500 text-blue-400'
+                  : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              }`}
+            >
+              <BookOpen className="h-4 w-4 text-amber-400" />
+              <span>Popular Tickers Cheat Sheet</span>
+            </button>
+          </div>
+
+          {/* Content Body */}
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
+            {activeTab === 'tour' ? (
+              <div className="space-y-4">
+                {/* Step Navigation Pills */}
+                <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                  {STEPS.map((s, idx) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setCurrentStep(idx)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 px-1 text-xs font-semibold transition ${
+                        currentStep === idx
+                          ? 'bg-blue-600 text-white shadow-xs'
+                          : currentStep > idx
+                          ? 'bg-blue-950/40 text-blue-300 border border-blue-800/60'
+                          : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                      }`}
+                    >
+                      <span>{idx + 1}.</span>
+                      <span className="hidden sm:inline truncate">{s.title}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Step Card */}
+                <div
+                  className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${step.accentBg} p-5`}
+                >
+                  <div className="flex items-start gap-4">
+                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${step.accentIcon} shadow-sm`}>
+                      <step.Icon className="h-5 w-5" />
                     </span>
-                    <h3 className="text-base sm:text-lg font-bold text-zinc-100">{step.headline}</h3>
-                    <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed pt-1">{step.description}</p>
+                    <div className="space-y-1">
+                      <span className="inline-block rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-200 uppercase tracking-wider">
+                        {step.badge}
+                      </span>
+                      <h3 className="text-base sm:text-lg font-bold text-zinc-100">{step.headline}</h3>
+                      <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed pt-1">{step.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Target Feature Indicator & Focus Action */}
+                  {step.targetId && (
+                    <div className="mt-4 flex items-center justify-between rounded-lg border border-blue-500/25 bg-blue-950/40 px-3 py-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-blue-300">
+                        <Compass className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                        <span>
+                          Highlighted Feature: <strong className="text-zinc-100 font-semibold">{step.targetLabel}</strong>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={updateTargetRect}
+                        className="rounded-md border border-blue-500/40 bg-blue-600/20 px-2.5 py-1 text-[11px] font-semibold text-blue-300 hover:bg-blue-600 hover:text-white transition"
+                      >
+                        Highlight on Screen
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Highlight Tips */}
+                  <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/90 p-3.5 space-y-2">
+                    <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wide flex items-center gap-1.5">
+                      <Check className="h-3.5 w-3.5 text-blue-400" />
+                      <span>Key Points:</span>
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-zinc-300">
+                      {step.tips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-2 leading-relaxed">
+                          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-
-                {/* Highlight Tips */}
-                <div className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/90 p-3.5 space-y-2">
-                  <h4 className="text-xs font-bold text-zinc-200 uppercase tracking-wide flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5 text-blue-400" />
-                    <span>Key Points:</span>
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-zinc-300">
-                    {step.tips.map((tip, i) => (
-                      <li key={i} className="flex items-start gap-2 leading-relaxed">
-                        <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-400" />
-                        <span>{tip}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
               </div>
-            </div>
-          ) : (
+            ) : (
             <div className="space-y-5">
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 p-3 text-xs text-zinc-300 leading-relaxed">
                 <span className="font-semibold text-blue-400">Ticker Convention:</span> Indonesian stocks (IDX) require the <code className="rounded bg-zinc-800 px-1 py-0.5 text-amber-300 font-mono">.JK</code> suffix. Click any ticker below to navigate to its live chart and analytics.
@@ -335,7 +420,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
         </div>
 
         {/* Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800/80 bg-zinc-900/60 px-5 py-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-t border-zinc-800/80 bg-zinc-900/60 px-5 py-3">
           <label className="flex items-center gap-2 cursor-pointer select-none text-xs text-zinc-400 hover:text-zinc-200">
             <input
               type="checkbox"
@@ -395,5 +480,6 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
         </div>
       </div>
     </div>
+  </div>
   )
 }
