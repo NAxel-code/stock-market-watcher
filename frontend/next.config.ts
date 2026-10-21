@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/stock/:ticker*',
+        destination: '/stocks/:ticker*',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 export default nextConfig;
