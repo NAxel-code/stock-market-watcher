@@ -201,6 +201,23 @@ class RelativeStrengthMetrics(BaseModel):
     benchmark_1m_return_pct: float
     alpha_pct: float
     rating: str = Field(..., examples=["OUTPERFORMING", "IN_LINE", "UNDERPERFORMING"])
+    kalman_beta: float = Field(default=1.0, description="Dynamic beta estimated via 1D state-space Kalman Filter")
+    kalman_beta_drift: str = Field(default="STABLE", description="BETA_EXPANDING, BETA_DEFENSIVE, or STABLE")
+    decoupling_score: float = Field(default=0.0, description="Idiosyncratic decoupling index from benchmark (0-100%)")
+
+
+class WatchlistCorrelationRequest(BaseModel):
+    tickers: list[str] = Field(default_factory=list, description="List of ticker symbols to correlate (max 16)")
+
+
+class WatchlistCorrelationResponse(BaseModel):
+    tickers: list[str]
+    raw_correlation: list[list[float]]
+    denoised_correlation: list[list[float]]
+    lambda_plus: float
+    signal_count: int
+    noise_count: int
+    interpretation: str
 
 
 class AnalysisDeskResponse(BaseModel):

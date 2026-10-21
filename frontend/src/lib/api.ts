@@ -7,6 +7,7 @@ import type {
   StockHistory,
   StockQuote,
   StockSearchResult,
+  WatchlistCorrelationResponse,
 } from '@/types/stock'
 
 const API_URL =
@@ -81,4 +82,12 @@ export const deleteAlert = (id: string): Promise<{ status: string }> =>
 export const evaluateAlerts = (): Promise<Array<{ alert_id: string; ticker: string; message: string }>> =>
   apiFetch<Array<{ alert_id: string; ticker: string; message: string }>>('/api/v1/alerts/evaluate', {
     method: 'POST',
+  })
+
+export const fetchWatchlistCorrelation = (
+  tickers: string[] = []
+): Promise<WatchlistCorrelationResponse> =>
+  apiFetch<WatchlistCorrelationResponse>('/api/v1/watchlist/correlation', {
+    method: 'POST',
+    body: JSON.stringify({ tickers }),
   })

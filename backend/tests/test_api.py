@@ -286,3 +286,16 @@ def test_stock_search_empty_query(client: TestClient) -> None:
     response = client.get("/api/v1/stocks/search?q=")
     assert response.status_code == 422
 
+
+def test_watchlist_correlation_endpoint(client: TestClient) -> None:
+    """Watchlist correlation returns raw and denoised matrix with RMT threshold."""
+    response = client.post("/api/v1/watchlist/correlation", json={"tickers": ["AAPL", "MSFT"]})
+    assert response.status_code == 200
+    data = response.json()
+    assert "tickers" in data
+    assert "raw_correlation" in data
+    assert "denoised_correlation" in data
+    assert "lambda_plus" in data
+    assert "signal_count" in data
+    assert data["lambda_plus"] > 0
+

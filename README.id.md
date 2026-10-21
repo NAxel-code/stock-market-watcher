@@ -16,8 +16,8 @@
 [![Styling](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?logo=tailwind-css)](https://tailwindcss.com)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript%205-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Charts](https://img.shields.io/badge/Charts-Lightweight--Charts%20v5-blue?logo=tradingview)](https://tradingview.github.io/lightweight-charts/)
-[![Vitest](https://img.shields.io/badge/Vitest-66%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
-[![Pytest](https://img.shields.io/badge/Pytest-54%20Passed%20(100%25)-green?logo=pytest)](https://pytest.org)
+[![Vitest](https://img.shields.io/badge/Vitest-71%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
+[![Pytest](https://img.shields.io/badge/Pytest-57%20Passed%20(100%25)-green?logo=pytest)](https://pytest.org)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
 [![Live Demo](https://img.shields.io/badge/Demo%20Langsung-Vercel%20Production-success?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
 [![Deployment](https://img.shields.io/badge/Vercel-Deployed%20(Ready)-brightgreen?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
@@ -122,6 +122,14 @@ Sistem intelijen teknikal kuantitatif berdasarkan metodologi trading institusion
 
 ---
 
+### 🔬 8. Suite Quantitative Finance & Eksekusi Algoritmik
+- **Almgren-Chriss (2000) Optimal Execution Simulator**: Memodelkan slippage non-linear ($I \propto \sigma \sqrt{\text{Order} / \text{ADV}}$) dan True Cost of Execution (TCO) langsung di dalam IDX Lot Calculator. Menyediakan opsi urgensi (**Aggressive**, **Balanced**, **Passive TWAP**), analisis rasio partisipasi volume harian, serta jadwal pemotongan 4-slice otomatis untuk meminimalkan friksi pasar.
+- **Kalman Filter Dynamic Beta & Drift Tracking**: Menggantikan regresi CAPM statis dengan filter Kalman ruang-keadaan 1 dimensi untuk memperkirakan beta sistematis dinamis ($\beta_t$), skor decoupling idiosyncratic ($1 - R^2$), dan status pergeseran beta (`BETA_EXPANDING`, `BETA_DEFENSIVE`, `STABLE`).
+- **Marchenko-Pastur Random Matrix Theory (RMT) Correlation Denoising**: Menghilangkan noise sampel empiris dari matriks korelasi portofolio dengan menyaring nilai eigen di bawah batas acak Marchenko-Pastur ($\lambda_+ = \sigma^2(1 + \sqrt{N/T})^2$). Faktor noise disusutkan ke nilai konstan untuk mengisolasi pendorong sinyal makroekonomi sejati.
+- **Heatmap Korelasi Portofolio Interaktif**: Matriks korelasi langsung pada halaman Watchlist dengan toggle 1-klik antara Denoised (RMT) dan Raw Empirical, ringkasan diagnostik spektral, serta perbandingan interaktif saat kursor diarahkan ke sel.
+
+---
+
 ## 🛠️ Tech Stack
 
 | Lapisan | Teknologi | Deskripsi |
@@ -134,7 +142,7 @@ Sistem intelijen teknikal kuantitatif berdasarkan metodologi trading institusion
 | **Backend API** | **FastAPI (Python 3.12)** | REST API Python asinkron dengan validasi Pydantic v2 dan komputasi technical desk |
 | **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Penyedia data pasar tanpa biaya dengan in-memory TTL caching |
 | **Database & Auth** | **Supabase (PostgreSQL)** | Watchlist persisten, alert harga, dan skema siap autentikasi |
-| **Testing** | **Vitest** (66 tes) & **Pytest** (54 tes) | Pengujian otomatis komprehensif dengan tingkat kelulusan 100% (120 tes total) |
+| **Testing** | **Vitest** (71 tes) & **Pytest** (57 tes) | Pengujian otomatis komprehensif dengan tingkat kelulusan 100% (128 tes total) |
 | **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) | Deployment monorepo produksi aktif dengan routing serverless |
 
 ---

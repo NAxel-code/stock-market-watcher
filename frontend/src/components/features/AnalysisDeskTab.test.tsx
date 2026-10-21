@@ -108,6 +108,9 @@ const mockDeskData: StockDeskResponse = {
     benchmark_1m_return_pct: 1.2,
     alpha_pct: -8.0,
     rating: 'UNDERPERFORMING',
+    kalman_beta: 1.15,
+    kalman_beta_drift: 'STABLE',
+    decoupling_score: 35.0,
   },
   mindset_guardrail: 'Mindset Rule #1: Capital preservation takes precedence over bottom fishing.',
 }
@@ -165,6 +168,9 @@ describe('AnalysisDeskTab component', () => {
     expect(screen.getByText('LH-LL')).toBeInTheDocument()
     expect(screen.getByText('Dominant Selling Pressure')).toBeInTheDocument()
     expect(screen.getByText('UNDERPERFORMING')).toBeInTheDocument()
+    expect(screen.getByText('Kalman Filter Beta Drift')).toBeInTheDocument()
+    expect(screen.getByText('1.15x')).toBeInTheDocument()
+    expect(screen.getByText('35.0%')).toBeInTheDocument()
 
     // Mindset Guardrail
     expect(screen.getByText(/Mindset Rule #1: Capital preservation takes precedence/i)).toBeInTheDocument()

@@ -190,3 +190,24 @@ def test_edge_case_short_history():
     assert report.ticker == "TEST"
     assert report.stage.stage_number in (1, 2, 3, 4)
     assert report.trade_plan.verdict in ("AVOID", "BUY ON BREAKOUT", "BUY ON WEAKNESS", "TAKE PROFIT", "HOLD")
+
+
+def test_calculate_kalman_beta():
+    from app.services.technical_desk import calculate_kalman_beta
+    df_stock = _generate_synthetic_ohlcv(n_bars=60, trend="up", base_price=1000)
+    df_bench = _generate_synthetic_ohlcv(n_bars=60, trend="up", base_price=7000)
+
+    beta, drift, decouple = calculate_kalman_beta(df_stock["Close"], df_bench["Close"])
+    assert isinstance(beta, float)
+    assert drift in ("BETA_EXPANDING", "BETA_DEFENSIVE", "STABLE")
+    assert 0.0 <= decouple <= 100.0
+
+
+def test_calculate_watchlist_correlation_rmt():
+    from app.services.technical_desk import calculate_watchlist_correlation
+    resp = calculate_watchlist_correlation(["AAPL", "MSFT", "NVDA"])
+    assert len(resp.tickers) >= 2
+    assert len(resp.raw_correlation) == len(resp.tickers)
+    assert len(resp.denoised_correlation) == len(resp.tickers)
+    assert resp.lambda_plus > 0
+    assert resp.signal_count >= 0

@@ -23,6 +23,7 @@ from app.models.schemas import (
     StageInfo,
     TradePlan,
     VsaMetrics,
+    WatchlistCorrelationResponse,
 )
 
 logger = logging.getLogger(__name__)
@@ -634,6 +635,87 @@ def generate_scenarios(df: pd.DataFrame) -> list[ScenarioProjection]:
     ]
 
 
+def calculate_kalman_beta(
+    stock_closes: pd.Series, benchmark_closes: pd.Series
+) -> tuple[float, str, float]:
+    """Calculate dynamic beta and decoupling score using a 1D state-space Kalman Filter.
+
+    Model:
+        r_stock,t = beta_t * r_bench,t + v_t (Observation)
+        beta_t = beta_{t-1} + w_t (State transition / random walk drift)
+
+    Returns:
+        tuple[float, str, float]: (latest_kalman_beta, drift_status, decoupling_score_pct)
+    """
+    if len(stock_closes) < 10 or len(benchmark_closes) < 10:
+        return 1.0, "STABLE", 0.0
+
+    min_len = min(len(stock_closes), len(benchmark_closes))
+    s_sub = stock_closes.iloc[-min_len:].values.astype(float)
+    b_sub = benchmark_closes.iloc[-min_len:].values.astype(float)
+
+    # Returns
+    s_ret = np.diff(s_sub) / np.where(s_sub[:-1] == 0, 1.0, s_sub[:-1])
+    b_ret = np.diff(b_sub) / np.where(b_sub[:-1] == 0, 1.0, b_sub[:-1])
+
+    if len(s_ret) < 5 or float(np.std(b_ret)) == 0.0:
+        return 1.0, "STABLE", 0.0
+
+    # 1D Kalman Filter Initialization
+    beta_hat = 1.0
+    p = 1.0
+    q = 1e-4  # process noise (beta drift rate)
+    r = 1e-3  # observation noise
+
+    beta_history: list[float] = []
+    residuals: list[float] = []
+
+    for t in range(len(s_ret)):
+        x_t = float(b_ret[t])
+        y_t = float(s_ret[t])
+
+        # Predict
+        beta_pred = beta_hat
+        p_pred = p + q
+
+        # Innovation
+        e_t = y_t - x_t * beta_pred
+        residuals.append(e_t)
+        s_t = (x_t ** 2) * p_pred + r
+
+        # Kalman gain
+        k_t = (p_pred * x_t) / s_t if s_t > 0 else 0.0
+
+        # Update
+        beta_hat = beta_pred + k_t * e_t
+        p = (1.0 - k_t * x_t) * p_pred
+        beta_history.append(beta_hat)
+
+    final_beta = round(float(beta_hat), 2)
+
+    # Beta drift assessment: comparing latest vs 10 periods ago
+    if len(beta_history) >= 10:
+        prev_beta = beta_history[-10]
+        if final_beta - prev_beta > 0.15:
+            drift = "BETA_EXPANDING"
+        elif prev_beta - final_beta > 0.15:
+            drift = "BETA_DEFENSIVE"
+        else:
+            drift = "STABLE"
+    else:
+        drift = "STABLE"
+
+    # Decoupling score: idiosyncratic variance percentage unexplained by benchmark
+    var_total = float(np.var(s_ret))
+    var_resid = float(np.var(residuals))
+    if var_total > 0:
+        decoupling_pct = min(100.0, max(0.0, round((var_resid / var_total) * 100, 1)))
+    else:
+        decoupling_pct = 0.0
+
+    return final_beta, drift, decoupling_pct
+
+
 def generate_technical_desk_report(
     ticker: str,
     company_name: str,
@@ -704,6 +786,12 @@ def generate_technical_desk_report(
     alpha = round(stock_1m - bench_1m, 2)
     rs_rating = "OUTPERFORMING" if alpha >= 3.0 else ("UNDERPERFORMING" if alpha <= -3.0 else "IN_LINE")
 
+    k_beta, k_drift, k_decouple = (
+        calculate_kalman_beta(df["Close"], benchmark_df["Close"])
+        if benchmark_df is not None and len(benchmark_df) >= 10
+        else (1.0, "STABLE", 0.0)
+    )
+
     relative_strength = RelativeStrengthMetrics(
         benchmark_ticker=bench_ticker,
         benchmark_name=bench_name,
@@ -711,6 +799,9 @@ def generate_technical_desk_report(
         benchmark_1m_return_pct=bench_1m,
         alpha_pct=alpha,
         rating=rs_rating,
+        kalman_beta=k_beta,
+        kalman_beta_drift=k_drift,
+        decoupling_score=k_decouple,
     )
 
     # Mindset Guardrails tailored to phase
@@ -753,3 +844,101 @@ def generate_technical_desk_report(
 
     _desk_cache[cache_key] = report
     return report
+
+
+def calculate_watchlist_correlation(tickers: list[str]) -> WatchlistCorrelationResponse:
+    """Compute empirical and Marchenko-Pastur denoised correlation matrix for a portfolio.
+
+    Applies Random Matrix Theory (RMT) to separate true macroeconomic signal eigenvalues
+    from random financial noise: lambda_plus = sigma^2 * (1 + sqrt(N/T))^2.
+    """
+    from app.services import yahoo_finance as yf_service
+
+    clean_tickers = [t.strip().upper() for t in tickers if t.strip()][:16]
+    if len(clean_tickers) < 3:
+        clean_tickers = ["AAPL", "NVDA", "MSFT", "AMZN", "BBCA.JK", "BBRI.JK", "TLKM.JK", "ASII.JK"]
+
+    returns_dict: dict[str, np.ndarray] = {}
+    valid_tickers: list[str] = []
+
+    for t in clean_tickers:
+        try:
+            hist = yf_service.get_history(t, "1m")
+            if hist and hist.data and len(hist.data) >= 8:
+                closes = np.array([p.close for p in hist.data], dtype=float)
+                ret = np.diff(closes) / np.where(closes[:-1] == 0, 1.0, closes[:-1])
+                returns_dict[t] = ret
+                valid_tickers.append(t)
+        except Exception:
+            continue
+
+    if len(valid_tickers) < 2:
+        n = max(2, len(clean_tickers))
+        ident = np.eye(n).tolist()
+        return WatchlistCorrelationResponse(
+            tickers=clean_tickers[:n],
+            raw_correlation=ident,
+            denoised_correlation=ident,
+            lambda_plus=2.0,
+            signal_count=1,
+            noise_count=n - 1,
+            interpretation="Insufficient historical data points to perform RMT denoising.",
+        )
+
+    # Align series to common length
+    min_len = min(len(r) for r in returns_dict.values())
+    X = np.column_stack([returns_dict[t][-min_len:] for t in valid_tickers])
+    T, N = X.shape
+
+    # Empirical correlation matrix
+    raw_corr = np.corrcoef(X, rowvar=False)
+    raw_corr = np.nan_to_num(raw_corr, nan=0.0, posinf=1.0, neginf=-1.0)
+    np.fill_diagonal(raw_corr, 1.0)
+
+    # Marchenko-Pastur Noise Threshold: lambda_plus = sigma^2 * (1 + sqrt(N/T))^2
+    q = T / N if N > 0 else 1.0
+    sigma2 = 1.0
+    lambda_plus = sigma2 * (1.0 + np.sqrt(1.0 / q)) ** 2
+
+    # Eigendecomposition
+    eigenvals, eigenvecs = np.linalg.eigh(raw_corr)
+    # Sort descending
+    idx = np.argsort(eigenvals)[::-1]
+    eigenvals = eigenvals[idx]
+    eigenvecs = eigenvecs[:, idx]
+
+    is_signal = eigenvals > lambda_plus
+    signal_count = int(np.sum(is_signal))
+    noise_count = int(N - signal_count)
+
+    # Constant shrinkage: replace noise eigenvalues with their mean to preserve trace sum
+    clean_vals = eigenvals.copy()
+    if noise_count > 0:
+        mean_noise = float(np.mean(eigenvals[~is_signal]))
+        clean_vals[~is_signal] = mean_noise
+
+    # Reconstruct denoised correlation matrix
+    clean_corr = eigenvecs @ np.diag(clean_vals) @ eigenvecs.T
+    clean_corr = np.nan_to_num(clean_corr, nan=0.0)
+
+    # Rescale diagonal to 1.0
+    diag_elements = np.maximum(np.diag(clean_corr), 1e-8)
+    inv_sqrt = np.diag(1.0 / np.sqrt(diag_elements))
+    clean_corr = inv_sqrt @ clean_corr @ inv_sqrt
+    np.fill_diagonal(clean_corr, 1.0)
+    clean_corr = np.clip(clean_corr, -1.0, 1.0)
+
+    interpretation = (
+        f"Filtered {noise_count} noise factors out of {N} total asset dimensions. "
+        f"{signal_count} true macroeconomic signal eigenvalue(s) isolated above Marchenko-Pastur threshold (λ+ = {round(lambda_plus, 2)})."
+    )
+
+    return WatchlistCorrelationResponse(
+        tickers=valid_tickers,
+        raw_correlation=[[round(float(v), 3) for v in row] for row in raw_corr],
+        denoised_correlation=[[round(float(v), 3) for v in row] for row in clean_corr],
+        lambda_plus=round(float(lambda_plus), 3),
+        signal_count=signal_count,
+        noise_count=noise_count,
+        interpretation=interpretation,
+    )

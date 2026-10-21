@@ -176,6 +176,19 @@ export interface RelativeStrengthMetrics {
   benchmark_1m_return_pct: number
   alpha_pct: number
   rating: 'OUTPERFORMING' | 'IN_LINE' | 'UNDERPERFORMING'
+  kalman_beta?: number
+  kalman_beta_drift?: 'BETA_EXPANDING' | 'BETA_DEFENSIVE' | 'STABLE'
+  decoupling_score?: number
+}
+
+export interface WatchlistCorrelationResponse {
+  tickers: string[]
+  raw_correlation: number[][]
+  denoised_correlation: number[][]
+  lambda_plus: number
+  signal_count: number
+  noise_count: number
+  interpretation: string
 }
 
 export interface StockDeskResponse {

@@ -17,4 +17,24 @@ describe('IdxLotCalculator component', () => {
     fireEvent.click(quickBtn)
     expect(screen.getByText(/\(1,000 shares\)/)).toBeInTheDocument()
   })
+
+  it('toggles Almgren-Chriss execution and market impact simulator', () => {
+    render(<IdxLotCalculator currentPrice={6000} ticker="BBCA.JK" volume={50_000_000} />)
+
+    const toggleBtn = screen.getByRole('button', { name: /Institutional Execution & Slippage Simulator/i })
+    expect(toggleBtn).toBeInTheDocument()
+
+    // Click to open simulator
+    fireEvent.click(toggleBtn)
+
+    expect(screen.getByText(/Almgren-Chriss \(2000\)/i)).toBeInTheDocument()
+    expect(screen.getByText(/Optimal Liquidity/i)).toBeInTheDocument()
+    expect(screen.getByText(/Execution Urgency:/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Balanced \(Optimal\)/i })).toBeInTheDocument()
+
+    // Switch urgency to aggressive
+    const aggressiveBtn = screen.getByRole('button', { name: /Aggressive \(Swift\)/i })
+    fireEvent.click(aggressiveBtn)
+    expect(aggressiveBtn).toHaveClass('bg-blue-600')
+  })
 })

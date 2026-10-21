@@ -274,6 +274,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
         <IdxLotCalculator
           currentPrice={quote.current_price}
           ticker={quote.ticker}
+          volume={quote.volume}
         />
       )}
     </div>

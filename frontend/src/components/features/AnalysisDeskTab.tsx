@@ -590,6 +590,55 @@ export function AnalysisDeskTab({ ticker }: AnalysisDeskTabProps) {
               </span>
             </div>
           </div>
+
+          {relative_strength.kalman_beta !== undefined && (
+            <div className="pt-2 border-t border-zinc-800/60 mt-2 space-y-2">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-zinc-400 font-medium flex items-center gap-1">
+                  Kalman Filter Beta Drift
+                </span>
+                <span
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
+                    relative_strength.kalman_beta_drift === 'BETA_EXPANDING'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      : relative_strength.kalman_beta_drift === 'BETA_DEFENSIVE'
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      : 'bg-zinc-800 text-zinc-300'
+                  }`}
+                >
+                  {relative_strength.kalman_beta_drift ?? 'STABLE'}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-lg bg-zinc-950/60 p-2 border border-zinc-800/60">
+                  <span className="text-zinc-400 text-[10px] block">Dynamic Beta (&beta;<sub>t</sub>)</span>
+                  <span className="font-mono font-bold text-sm text-zinc-100">
+                    {relative_strength.kalman_beta.toFixed(2)}x
+                  </span>
+                  <span className="text-[9px] text-zinc-400 block truncate">
+                    {relative_strength.kalman_beta > 1.2
+                      ? 'High sensitivity to index'
+                      : relative_strength.kalman_beta < 0.8
+                      ? 'Defensive market sensitivity'
+                      : 'Moderate index tracking'}
+                  </span>
+                </div>
+                <div className="rounded-lg bg-zinc-950/60 p-2 border border-zinc-800/60">
+                  <span className="text-zinc-400 text-[10px] block">Decoupling (1 - R&sup2;)</span>
+                  <span className="font-mono font-bold text-sm text-purple-300">
+                    {relative_strength.decoupling_score !== undefined
+                      ? `${relative_strength.decoupling_score.toFixed(1)}%`
+                      : '0.0%'}
+                  </span>
+                  <span className="text-[9px] text-zinc-400 block truncate">
+                    {relative_strength.decoupling_score && relative_strength.decoupling_score > 60
+                      ? 'Strong idiosyncratic alpha'
+                      : 'Index-driven returns'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

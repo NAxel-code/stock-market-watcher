@@ -16,8 +16,8 @@
 [![Styling](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?logo=tailwind-css)](https://tailwindcss.com)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript%205-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Charts](https://img.shields.io/badge/Charts-Lightweight--Charts%20v5-blue?logo=tradingview)](https://tradingview.github.io/lightweight-charts/)
-[![Vitest](https://img.shields.io/badge/Vitest-66%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
-[![Pytest](https://img.shields.io/badge/Pytest-54%20Passed%20(100%25)-green?logo=pytest)](https://pytest.org)
+[![Vitest](https://img.shields.io/badge/Vitest-71%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
+[![Pytest](https://img.shields.io/badge/Pytest-57%20Passed%20(100%25)-green?logo=pytest)](https://pytest.org)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-success?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
 [![Deployment](https://img.shields.io/badge/Vercel-Deployed%20(Ready)-brightgreen?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
@@ -122,6 +122,14 @@ Algorithmic technical intelligence engine built on classical quantitative tradin
 
 ---
 
+### 🔬 8. Quantitative Finance & Algorithmic Execution Suite
+- **Almgren-Chriss (2000) Optimal Execution Simulator**: Models non-linear market impact ($I \propto \sigma \sqrt{\text{Order} / \text{ADV}}$) and True Cost of Execution (TCO) inside the IDX Lot Calculator. Offers interactive urgency profiles (**Aggressive**, **Balanced**, **Passive TWAP**), participation rate analysis, and scheduled 4-slice execution schedules to minimize liquidity friction.
+- **Kalman Filter Dynamic Beta & Drift**: Replaces static CAPM regression with a 1D state-space Kalman filter estimating time-varying systematic beta ($\beta_t$), market decoupling indices ($1 - R^2$), and dynamic drift states (`BETA_EXPANDING`, `BETA_DEFENSIVE`, `STABLE`).
+- **Marchenko-Pastur Random Matrix Theory (RMT) Correlation Denoising**: Removes empirical sample noise from portfolio correlation matrices by filtering eigenvalues below the theoretical Marchenko-Pastur upper bound ($\lambda_+ = \sigma^2(1 + \sqrt{N/T})^2$). Shrinks pure noise factors into constant trace while isolating true macroeconomic signal drivers.
+- **Interactive Portfolio Correlation Heatmap**: Live correlation matrix on the Watchlist page featuring 1-click toggles between Denoised (RMT) and Raw Empirical views, spectral diagnostic counters, and comparative cell hover inspect.
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology | Description |
@@ -134,7 +142,7 @@ Algorithmic technical intelligence engine built on classical quantitative tradin
 | **Backend API** | **FastAPI (Python 3.12)** | Asynchronous Python REST API with Pydantic v2 validation and technical desk math |
 | **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Zero-cost market data provider with in-memory TTL caching |
 | **Database & Auth** | **Supabase (PostgreSQL)** | Persistent watchlist, price alerts, and auth-ready schema |
-| **Testing** | **Vitest** (66 tests) & **Pytest** (54 tests) | Comprehensive test suites with 100% pass rate (120 tests total) |
+| **Testing** | **Vitest** (71 tests) & **Pytest** (57 tests) | Comprehensive test suites with 100% pass rate (128 tests total) |
 | **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) | Live production monorepo deployment with serverless routing |
 
 ---
