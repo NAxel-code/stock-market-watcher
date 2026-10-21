@@ -96,7 +96,7 @@ export interface PriceAlert {
 }
 
 export type Period = '1d' | '1w' | '1m' | '3m' | '1y'
-export type ChartType = 'area' | 'candle'
+export type ChartType = 'area' | 'candle' | 'bar' | 'var'
 
 // --- Stock Desk Institutional Technical Analysis Types ---
 
