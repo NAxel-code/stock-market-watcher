@@ -1,8 +1,31 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchMarketStatus } from '@/lib/api'
+
+function formatJakartaLiveTime(): string {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+    })
+    const parts = formatter.formatToParts(new Date()).reduce<Record<string, string>>((acc, p) => {
+      acc[p.type] = p.value
+      return acc
+    }, {})
+
+    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} WIB`
+  } catch {
+    return new Date().toLocaleTimeString('id-ID') + ' WIB'
+  }
+}
 
 export function MarketStatusRibbon() {
   const { data } = useQuery({
@@ -10,6 +33,18 @@ export function MarketStatusRibbon() {
     queryFn: fetchMarketStatus,
     refetchInterval: 60_000,
   })
+
+  // Live real-time ticking clock (1s interval)
+  const [liveJakartaTime, setLiveJakartaTime] = useState<string>('')
+
+  useEffect(() => {
+    setLiveJakartaTime(formatJakartaLiveTime())
+    const interval = setInterval(() => {
+      setLiveJakartaTime(formatJakartaLiveTime())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   if (!data) return null
 
@@ -59,7 +94,7 @@ export function MarketStatusRibbon() {
       </div>
 
       <div className="hidden md:flex items-center gap-3 text-[11px] text-zinc-400 font-mono tabular-nums">
-        <span>Jakarta: {data.idx.current_time_local}</span>
+        <span>Jakarta: {liveJakartaTime || data.idx.current_time_local}</span>
       </div>
     </div>
   )
