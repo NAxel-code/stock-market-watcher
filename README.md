@@ -6,7 +6,7 @@
 
 </div>
 
-> **StockPulse** is a real-time stock market analytics and monitoring platform covering United States (US) and Indonesian (IDX / BEI) equities. Built with a high-density modern terminal aesthetic, serverless-ready architecture (*100% free tier*), CoinGecko/TradingView-style performance visualizations, and Indonesian Stock Exchange exchange mechanics calculators.
+> **StockPulse** is a real-time stock market analytics and monitoring platform covering United States (US) and Indonesian (IDX / BEI) equities. Built with a high-density modern terminal aesthetic, serverless-ready architecture (*100% free tier*), TradingView-grade canvas charting, institutional technical desk analytics, and Indonesian Stock Exchange exchange mechanics calculators.
 
 ---
 
@@ -15,7 +15,9 @@
 [![Backend](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![Styling](https://img.shields.io/badge/CSS-Tailwind%20v4-38B2AC?logo=tailwind-css)](https://tailwindcss.com)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript%205-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![Tests](https://img.shields.io/badge/Vitest-57%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
+[![Charts](https://img.shields.io/badge/Charts-Lightweight--Charts%20v5-blue?logo=tradingview)](https://tradingview.github.io/lightweight-charts/)
+[![Vitest](https://img.shields.io/badge/Vitest-66%20Passed%20(100%25)-green?logo=vitest)](https://vitest.dev)
+[![Pytest](https://img.shields.io/badge/Pytest-54%20Passed%20(100%25)-green?logo=pytest)](https://pytest.org)
 [![Database](https://img.shields.io/badge/Database-Supabase-3ECF8E?logo=supabase)](https://supabase.com)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-success?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
 [![Deployment](https://img.shields.io/badge/Vercel-Deployed%20(Ready)-brightgreen?logo=vercel&logoColor=white)](https://stock-market-watcher-lemon.vercel.app)
@@ -28,7 +30,7 @@
 Below are authentic screenshot captures from the live StockPulse interface:
 
 ### 1. 🌟 Interactive Spotlight Tour (Steps 1 & 2)
-Live in-DOM guided walkthrough anchored dynamically over active elements featuring a luminous spotlight ring (`ring-2 ring-blue-500 shadow-[0_0_60px_rgba(59,130,246,0.45)]`), backdrop darkening, floating popover cards, and full keyboard navigation (<kbd>Esc</kbd>, <kbd>→</kbd>, <kbd>←</kbd>).
+Live in-DOM guided walkthrough anchored dynamically over active elements via React Portals, featuring a true cutout spotlight (`boxShadow: 0 0 0 9999px rgba(0,0,0,0.75)` with `ring-2 ring-blue-500 shadow-[0_0_80px_rgba(59,130,246,0.65)]`), floating popover cards, and full keyboard navigation (<kbd>Esc</kbd>, <kbd>→</kbd>, <kbd>←</kbd>).
 
 | Step 1: Real-Time Market Status Ribbon | Step 2: Command Palette Ticker Search |
 | :---: | :---: |
@@ -59,35 +61,62 @@ Fast keyboard-first search with auto-complete, exchange badges, and instant dete
 
 ## ⚡ Core Features
 
-### 🌟 1. Onboarding & Interactive Spotlight Tour
-- **5-Step Live Element Spotlight**: Dynamically targets real DOM elements via `getBoundingClientRect()` with smooth scrolling:
+### 🕯️ 1. Professional Financial Charting (TradingView Lightweight Charts)
+Powered by TradingView's high-performance HTML5 canvas engine (`lightweight-charts` v5.2) with sub-millisecond redraws and zero DOM overhead:
+- **Candlestick Chart (`Candle`)**: Authentic wicks (High/Low) and bodies (Open/Close) with green bullish (`#22c55e`) and red bearish (`#ef4444`) color schemes.
+- **OHLC Bar Chart (`Bar`)**: Classic Wall Street bar representation with low-to-high vertical spans, left open ticks, and right close ticks.
+- **Value at Risk (VaR) Risk Distribution (`VaR Risk`)**: Quantitative risk management view computing **1-Day 95% VaR**, **1-Day 99% Catastrophic Tail Risk**, **Conditional VaR (CVaR / Expected Shortfall 95%)**, **Annualized Volatility**, and historical daily return probability distribution histograms.
+- **Area Trend View (`Area`)**: Smooth price curves with adaptive linear gradient fills.
+- **Technical Overlays**: Real-time toggles for **SMA 20** (blue trendline), **SMA 50** (amber trendline), and synchronized **Volume Histograms** with directional color-coding.
+- **Live Hover Legend**: Real-time crosshair inspection tracking `Date/Time | Open | High | Low | Close | Volume | Change %`.
+
+---
+
+### 🏛️ 2. Institutional Technical Analysis Desk (PRO Tab)
+Algorithmic technical intelligence engine built on classical quantitative trading principles:
+- **Stan Weinstein 4-Stage Analysis**: Classifies market phases into **Stage 1 (Accumulation / Base)**, **Stage 2 (Markup / Bull Run)**, **Stage 3 (Distribution / Top)**, or **Stage 4 (Capitulation / Downtrend)** with directional bias and confidence score.
+- **Market Structure & Swing Pivots**: Identifies higher highs / higher lows (HH-HL) vs lower highs / lower lows (LH-LL), nearest dynamic support & resistance levels, 300-day peak drawdown, and 20/50/200-day Moving Average stack alignment.
+- **Volume Spread Analysis (VSA)**: Detects institutional footprint including 20-day up/down volume participation ratio, volume surge multipliers, selling climaxes, stopping volume, and supply absorption.
+- **Momentum Suite**: Combines RSI (14-period), MACD (line, signal, histogram), Average Directional Index (ADX 14 trend strength), Stochastic Oscillator (%K, %D), and Chaikin Money Flow (CMF 20 institutional accumulation/distribution).
+- **Probabilistic Scenario Projections**: Calculates mathematical probabilities for **Bullish Breakout**, **Base Case Consolidation**, and **Bearish Breakdown** with specific trigger conditions and upside/downside price targets.
+- **Actionable Institutional Trade Plan**: Produces clear verdicts (**Buy on Breakout**, **Buy on Weakness**, **Take Profit**, **Hold**, **Avoid**) alongside calculated buy zones, stop-loss levels, Target 1 & Target 2 milestones, Risk/Reward ratios, and psychological guardrails.
+
+---
+
+### 🇮🇩 3. Indonesian Stock Exchange (IDX / BEI) Mechanics
+- **IDX Lot Calculator**: Realistic trade simulation based on the 1 lot = 100 shares standard, Buy/Sell toggles, quick-select chips (1, 5, 10, 50, 100 lots), broker fee estimation (0.15% buy, 0.25% sell), exchange levies, and final withholding tax.
+- **Symmetric Auto Rejection Limits (ARA & ARB)**: Calculates official upper (*Auto Rejection Atas*) and lower (*Auto Rejection Bawah*) percentage limits according to IDX price fraction rules.
+- **Standardized Ticker Format**: Seamless `.JK` suffix support across all IDX counters (e.g., `BBCA.JK`, `BBRI.JK`, `TLKM.JK`, `GOTO.JK`).
+
+---
+
+### 🌟 4. Onboarding & Interactive Spotlight Tour
+- **Viewport-Centered React Portals**: Modals and spotlights mount cleanly to `document.body`, escaping CSS containing block clipping from `<header>` backdrop filters.
+- **5-Step Live Element Spotlight**: Dynamically targets active DOM elements with smooth scrolling:
   1. `tour-market-status`: Trading hours for IDX (09:00 - 16:00 WIB) & US Wall Street (21:30 - 04:00 WIB).
   2. `tour-search-command`: Global shortcut <kbd>Cmd+K</kbd> / <kbd>Ctrl+K</kbd> and `.JK` suffix conventions.
   3. `tour-market-summary`: 4 benchmark indices (S&P 500, Nasdaq, Dow Jones, IHSG) with mini sparklines.
   4. `tour-sector-filter`: Instant filters for exchange (**All**, **US**, **IDX**) and sector categories.
-  5. `tour-stock-grid`: Real-time stock cards, Recharts chart links, lot calculators, and price alerts.
-- **Homepage Onboarding Banner**: Dismissible welcome card with persistent state stored in `localStorage`.
+  5. `tour-stock-grid`: Real-time stock cards, charts, lot calculators, and price alerts.
+- **Centralized State**: Unified Zustand store managing modal and tour states with zero duplicate components.
 - **Keyboard Accessible**: Full keyboard navigation (<kbd>Esc</kbd> to exit, Arrow keys to navigate).
 
-### 🇮🇩 2. Indonesian Stock Exchange (IDX / BEI) Mechanics
-- **IDX Lot Calculator**: Realistic trade simulation based on the 1 lot = 100 shares standard, Buy/Sell toggles, quick-select chips (1, 5, 10, 50, 100 lots), broker fee estimation (0.15%), exchange levy, and final income tax.
-- **Symmetric Auto Rejection Limits (ARA & ARB)**: Calculates official upper (*Auto Rejection Atas*) and lower (*Auto Rejection Bawah*) limits according to IDX price fraction rules.
-- **Standardized Ticker Format**: Seamless `.JK` suffix support across all IDX counters (e.g., `BBCA.JK`, `BBRI.JK`, `TLKM.JK`).
+---
 
-### 📈 3. CoinGecko & TradingView-Style Financial Analytics
+### 📈 5. CoinGecko-Style Financial Analytics
 - **7-Day Sparkline SVG**: Cubic Bezier mini trendlines with dynamic emerald/rose gradients on each stock card.
-- **Multi-Horizon Returns**: Performance percentage table across standard periods: **1D (24 Hours)**, **1W (7 Days)**, **1M (30 Days)**, **1Y (1 Year)**, and **YTD**.
-- **52-Week Range Bar**: Visual indicator showing current price position between 52-week low and high, with percentage drawdown from all-time peak.
+- **Multi-Horizon Returns**: Performance percentage matrix across **1D (24 Hours)**, **1W (7 Days)**, **1M (30 Days)**, **1Y (1 Year)**, and **YTD**.
+- **52-Week Range Bar**: Visual bar showing current price position between 52-week low and high, with percentage drawdown from all-time peak.
 
-### 🎯 4. Strict Index Points vs Dual-Currency Formatting
+---
+
+### 🎯 6. Strict Index Points vs Dual-Currency Formatting
 - **Market Index Points**: Global indices (`^GSPC`, `^IXIC`, `^DJI`) and IDX Composite (`^JKSE`) strictly formatted in index points (`pts`), never falsely prepended with currency symbols.
 - **Dual-Currency Support**: Clean USD (`$`) formatting for Wall Street stocks and integer Rupiah (`Rp`) without misleading decimals for Indonesian equities.
 
-### 🏷️ 5. Sector Filters & 32 Pre-Seeded Bluechip Equities
-- Quick categorization by exchange (**All**, **US**, **IDX**) or sector (**Technology**, **Financial Services**, **Energy**, **Consumer Cyclical**, **Healthcare**).
-- Pre-seeded watchlist of 32 mega-cap, high-liquidity stocks across both markets.
+---
 
-### ⏱️ 6. Smart Polling & Resilient Caching
+### ⏱️ 7. Smart Polling & Resilient Caching
 - **Adaptive Polling**: Auto-refreshes every 1 minute during active market sessions and throttles down to 15 minutes off-hours.
 - **Resilient Fallback Cache**: Backend TTL caching ensures high uptime even during Yahoo Finance rate limits.
 
@@ -99,14 +128,14 @@ Fast keyboard-first search with auto-complete, exchange badges, and instant dete
 |---|---|---|
 | **Frontend Framework** | **Next.js 16.3.8 (App Router)** | Fullstack React framework with ultra-fast Turbopack bundler |
 | **UI Library** | **React 19** & **Tailwind CSS v4** | Modern component styling with utility-first classes and zinc-950 dark theme tokens |
+| **Chart Engines** | **TradingView Lightweight Charts v5.2** & **Recharts v3** | 60fps canvas Candlestick, OHLC Bar, Area, SMA overlays, and VaR return distribution |
 | **Primitives & Icons** | **Radix UI**, **CMDK**, **Lucide React** | Accessible dialogs, popovers, keyboard-first command palette, and SVG icons |
-| **State Management** | **TanStack Query v5** & **Zustand v5** | Automatic server-state synchronization with persistent local storage |
-| **Chart Engine** | **Recharts** & **Custom SVG Bezier** | Multi-timeframe interactive charts (1D/1W/1M/3M/1Y) + mini sparklines |
-| **Backend API** | **FastAPI (Python 3.11)** | Asynchronous Python REST API with Pydantic v2 validation |
-| **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Free-tier market data provider with in-memory TTL caching |
+| **State Management** | **TanStack Query v5** & **Zustand v5** | Server-state caching and centralized client store with `localStorage` persistence |
+| **Backend API** | **FastAPI (Python 3.12)** | Asynchronous Python REST API with Pydantic v2 validation and technical desk math |
+| **Data Provider** | **yfinance (Yahoo Finance)** + **cachetools** | Zero-cost market data provider with in-memory TTL caching |
 | **Database & Auth** | **Supabase (PostgreSQL)** | Persistent watchlist, price alerts, and auth-ready schema |
-| **Testing** | **Vitest** (Unit/Integration) & **Playwright** (E2E) | 57 unit tests with 100% pass rate |
-| **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) / **Cloud Run** | Live production monorepo deployment with serverless routing |
+| **Testing** | **Vitest** (66 tests) & **Pytest** (54 tests) | Comprehensive test suites with 100% pass rate (120 tests total) |
+| **Deployment** | [**Vercel Serverless**](https://stock-market-watcher-lemon.vercel.app) | Live production monorepo deployment with serverless routing |
 
 ---
 
@@ -114,7 +143,7 @@ Fast keyboard-first search with auto-complete, exchange badges, and instant dete
 
 ### Prerequisites
 - **Node.js** v20+ and npm
-- **Python** 3.11+
+- **Python** 3.12+
 
 ---
 
@@ -173,14 +202,16 @@ npm run dev
 
 ## 🧪 Automated Testing
 
-This project follows rigorous *Test-Driven Development (TDD)* to guarantee stability across components and financial calculators.
+This project follows rigorous *Test-Driven Development (TDD)* to guarantee stability across components, chart series, and financial calculators.
 
 ### Frontend Unit & Component Tests (Vitest)
 ```bash
 cd frontend
 npm test
 ```
-> **Latest Test Run**: **57 / 57 tests passed (100% PASS)** across 11 test suites:
+> **Latest Test Run**: **66 / 66 tests passed (100% PASS)** across 13 test suites:
+> - `PriceChart.test.tsx` (4 tests) - *Candlestick, OHLC Bar, VaR Risk & SMA Overlays*
+> - `AnalysisDeskTab.test.tsx` (3 tests) - *Institutional Technical Desk Report*
 > - `SpotlightTour.test.tsx` (5 tests)
 > - `TutorialModal.test.tsx` (5 tests)
 > - `SectorFilterBar.test.tsx` (3 tests)
@@ -190,14 +221,22 @@ npm test
 > - `IdxLotCalculator.test.tsx` (2 tests)
 > - `StockCard.test.tsx` (9 tests)
 > - `formatters.test.ts` (11 tests)
-> - `api.test.ts` (8 tests)
-> - `useUIStore.test.ts` (6 tests)
+> - `api.test.ts` (9 tests)
+> - `useUIStore.test.ts` (7 tests)
 
 ### Backend Unit & Service Tests (Pytest)
 ```bash
 cd backend
-pytest -v
+.\venv\Scripts\pytest -v
 ```
+> **Latest Test Run**: **54 / 54 tests passed (100% PASS)**:
+> - `test_technical_desk.py` (12 tests) - *Stage analysis, VSA, CMF, momentum & scenarios*
+> - `test_api.py` (14 tests) - *Endpoints, error handling, batch & validation*
+> - `test_idx_rules.py` (9 tests) - *ARA/ARB, tick sizes & trading sessions*
+> - `test_yahoo_finance_service.py` (9 tests) - *Quotes, history & caching*
+> - `test_schemas.py` (4 tests) - *Pydantic data models*
+> - `test_coingecko_features.py` (3 tests) - *52-week distances & sparklines*
+> - `test_alerts.py` (3 tests) - *Price alert triggers*
 
 ---
 
@@ -217,23 +256,23 @@ stock-market-watcher/
 │   │   │   ├── stocks/[ticker]# Dynamic stock detail & analytics page
 │   │   │   └── watchlist/     # Dedicated watchlist manager page
 │   │   ├── components/
-│   │   │   ├── features/      # SpotlightTour, TutorialModal, IdxLotCalculator, etc.
+│   │   │   ├── features/      # PriceChart, AnalysisDeskTab, SpotlightTour, IdxLotCalculator, etc.
 │   │   │   ├── layout/        # Navbar, MarketStatusRibbon, ThemeToggle
 │   │   │   └── ui/            # Primitive UI components (Button, Dialog, Badge, Skeleton)
 │   │   ├── hooks/             # TanStack Query custom hooks
 │   │   ├── lib/               # API client, currency/index formatters, utilities
-│   │   └── stores/            # Zustand stores (useUIStore)
-│   │   └── types/             # TypeScript interfaces (StockQuote, Returns, etc.)
+│   │   ├── stores/            # Zustand stores (useUIStore)
+│   │   └── types/             # TypeScript interfaces (StockQuote, Returns, StageInfo, etc.)
 │   └── next.config.ts         # Turbopack configuration & API proxy rewrites
 └── backend/                   # FastAPI Python backend
     ├── pyproject.toml         # PEP 621 packaging standard (uv/hatchling)
     ├── app/
     │   ├── api/v1/            # Endpoints: stocks, market, watchlist, alerts
     │   ├── core/              # App config, exceptions, structured logging
-    │   ├── models/            # Pydantic schemas (StockQuote, AutoRejection, etc.)
-    │   ├── services/          # yfinance provider, multi-period return calculators
+    │   ├── models/            # Pydantic schemas (StockQuote, AnalysisDeskResponse, etc.)
+    │   ├── services/          # yfinance provider, technical desk calculations, caching
     │   └── db/                # Supabase PostgreSQL migrations
-    └── tests/                 # Pytest test suite
+    └── tests/                 # Pytest test suite (54 tests)
 ```
 
 ---
@@ -252,6 +291,8 @@ All architectural enhancements and bug fixes are comprehensively documented in t
 | [**#6**](https://github.com/NAxel-code/stock-market-watcher/issues/6) | `feat(analytics): 7-day sparklines, multi-horizon returns, and 52-week peak distance` | `enhancement` | [`cb16a4a`](https://github.com/NAxel-code/stock-market-watcher/commit/cb16a4a) |
 | [**#7**](https://github.com/NAxel-code/stock-market-watcher/issues/7) | `fix(deploy): Vercel monorepo configuration, python uv packaging, and serverless routing` | `bug` | [`26788c2`](https://github.com/NAxel-code/stock-market-watcher/commit/26788c2) |
 | [**#8**](https://github.com/NAxel-code/stock-market-watcher/issues/8) | `fix(nextjs16): Next.js 16 dynamic route params Promise and CommandDialog context wrap` | `bug` | [`36b919d`](https://github.com/NAxel-code/stock-market-watcher/commit/36b919d) |
+| [**#9**](https://github.com/NAxel-code/stock-market-watcher/issues/9) | `fix(guide): Resolve modal viewport clipping via React Portal and centralize tour state` | `bug`, `ui` | [`b9ef8c5`](https://github.com/NAxel-code/stock-market-watcher/commit/b9ef8c5) |
+| [**#10**](https://github.com/NAxel-code/stock-market-watcher/issues/10) | `feat(chart): Professional Candlestick, OHLC Bar, and VaR Risk Distribution via lightweight-charts` | `enhancement`, `analytics` | [`b4d6574`](https://github.com/NAxel-code/stock-market-watcher/commit/b4d6574) |
 
 ---
 
