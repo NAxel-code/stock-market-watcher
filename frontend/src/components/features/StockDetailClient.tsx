@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useStockData } from '@/hooks/useStockData'
 import { useStockHistory } from '@/hooks/useStockHistory'
 import { useUIStore } from '@/stores/useUIStore'
@@ -8,14 +9,16 @@ import { FiftyTwoWeekRangeBar } from '@/components/features/FiftyTwoWeekRangeBar
 import { IdxLotCalculator } from '@/components/features/IdxLotCalculator'
 import { PriceAlertDialog } from '@/components/features/PriceAlertDialog'
 import { MultiHorizonReturns } from '@/components/features/MultiHorizonReturns'
+import { AnalysisDeskTab } from '@/components/features/AnalysisDeskTab'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker, getStockCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
-import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert } from 'lucide-react'
+import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert, Compass, BarChart2, Calculator } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 
 export function StockDetailClient({ ticker }: { ticker: string }) {
+  const [activeTab, setActiveTab] = useState<'desk' | 'chart' | 'calculator'>('desk')
   const { data: quote, isLoading, error } = useStockData(ticker)
   const { data: history1y } = useStockHistory(ticker, '1y')
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useUIStore()
@@ -175,44 +178,99 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
         )}
       </div>
 
-      {/* Bloomberg-Style 52-Week Range Bar */}
-      <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4">
-        <FiftyTwoWeekRangeBar
-          low={quote.fifty_two_week_low}
-          high={quote.fifty_two_week_high}
-          current={quote.current_price}
-          currency={stockCurrency}
-        />
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-1.5 p-1 bg-zinc-900/90 rounded-xl border border-zinc-800/90 w-fit">
+        <button
+          onClick={() => setActiveTab('desk')}
+          className={cn(
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            activeTab === 'desk'
+              ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
+              : 'text-zinc-400 hover:text-zinc-200'
+          )}
+        >
+          <Compass className="h-3.5 w-3.5 text-emerald-400" />
+          <span>Technical Desk</span>
+          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            PRO
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab('chart')}
+          className={cn(
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            activeTab === 'chart'
+              ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
+              : 'text-zinc-400 hover:text-zinc-200'
+          )}
+        >
+          <BarChart2 className="h-3.5 w-3.5 text-blue-400" />
+          <span>Interactive Chart & Stats</span>
+        </button>
+        {isIdx && (
+          <button
+            onClick={() => setActiveTab('calculator')}
+            className={cn(
+              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+              activeTab === 'calculator'
+                ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
+                : 'text-zinc-400 hover:text-zinc-200'
+            )}
+          >
+            <Calculator className="h-3.5 w-3.5 text-amber-400" />
+            <span>IDX Lot Calculator</span>
+          </button>
+        )}
       </div>
 
-      {/* Multi-Horizon Returns Matrix (CoinGecko Style) */}
-      <MultiHorizonReturns
-        currentPrice={quote.current_price}
-        dayChangePercent={quote.change_percent}
-        history1y={history1y?.data}
-      />
+      {/* Tab Content: Technical Desk */}
+      {activeTab === 'desk' && (
+        <AnalysisDeskTab ticker={ticker} />
+      )}
 
-      {/* TradingView-Style Interactive Chart with Volume */}
-      <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-4">
-        <PriceChart
-          ticker={ticker}
-          currency={stockCurrency}
-          previousClose={quote.previous_close}
-        />
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-zinc-800/90 bg-zinc-900/80 p-4">
-            <div className="text-xs text-zinc-400 mb-1">{stat.label}</div>
-            <div className="font-mono font-semibold tabular-nums text-zinc-100">{stat.value}</div>
+      {/* Tab Content: Interactive Chart & Stats */}
+      {activeTab === 'chart' && (
+        <div className="space-y-6">
+          {/* Bloomberg-Style 52-Week Range Bar */}
+          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4">
+            <FiftyTwoWeekRangeBar
+              low={quote.fifty_two_week_low}
+              high={quote.fifty_two_week_high}
+              current={quote.current_price}
+              currency={stockCurrency}
+            />
           </div>
-        ))}
-      </div>
 
-      {/* IDX Lot Transaction Calculator (Only for Indonesian Stocks) */}
-      {isIdx && (
+          {/* Multi-Horizon Returns Matrix (CoinGecko Style) */}
+          <MultiHorizonReturns
+            currentPrice={quote.current_price}
+            dayChangePercent={quote.change_percent}
+            history1y={history1y?.data}
+          />
+
+          {/* TradingView-Style Interactive Chart with Volume */}
+          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-4">
+            <PriceChart
+              ticker={ticker}
+              currency={stockCurrency}
+              previousClose={quote.previous_close}
+            />
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="rounded-lg border border-zinc-800/90 bg-zinc-900/80 p-4">
+                <div className="text-xs text-zinc-400 mb-1">{stat.label}</div>
+                <div className="font-mono font-semibold tabular-nums text-zinc-100">{stat.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tab Content: IDX Lot Calculator */}
+      {activeTab === 'calculator' && isIdx && (
         <IdxLotCalculator
           currentPrice={quote.current_price}
           ticker={quote.ticker}

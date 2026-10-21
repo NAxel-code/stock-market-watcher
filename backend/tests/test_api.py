@@ -62,6 +62,130 @@ def test_stock_history(client: TestClient) -> None:
     assert response.json()["ticker"] == "AAPL"
 
 
+def test_stock_technical_desk(client: TestClient) -> None:
+    """Technical desk endpoint returns complete analysis report."""
+    from app.models.schemas import (
+        AnalysisDeskResponse,
+        MarketStructure,
+        MomentumMetrics,
+        RelativeStrengthMetrics,
+        ScenarioProjection,
+        StageInfo,
+        TradePlan,
+        VsaMetrics,
+    )
+    mock_desk = AnalysisDeskResponse(
+        ticker="AAPL",
+        company_name="Apple Inc.",
+        current_price=220.50,
+        currency="USD",
+        as_of_date="2026-10-20",
+        stage=StageInfo(
+            stage_number=2,
+            stage_name="Stage 2 - Advancing / Markup",
+            bias="BULLISH",
+            confidence_pct=85,
+            description="Bullish markup",
+        ),
+        trade_plan=TradePlan(
+            verdict="BUY ON WEAKNESS",
+            current_price=220.50,
+            buy_area_min=215.0,
+            buy_area_max=218.0,
+            stop_loss=210.0,
+            target_1=235.0,
+            target_2=245.0,
+            risk_reward_ratio="1:2.1",
+            rationale="Test rationale",
+        ),
+        scenarios=[
+            ScenarioProjection(
+                name="Bullish Rebound",
+                direction="UP",
+                probability_pct=60,
+                trigger_condition="Above 225",
+                price_target=240.0,
+                price_target_pct=8.8,
+                supporting_factors=["Factor 1"],
+                opposing_factors=[],
+            ),
+            ScenarioProjection(
+                name="Bearish Continuation",
+                direction="DOWN",
+                probability_pct=25,
+                trigger_condition="Below 210",
+                price_target=200.0,
+                price_target_pct=-9.3,
+                supporting_factors=[],
+                opposing_factors=["Support"],
+            ),
+            ScenarioProjection(
+                name="Base Consolidation",
+                direction="SIDEWAYS",
+                probability_pct=15,
+                trigger_condition="Rangebound",
+                price_target=220.0,
+                price_target_pct=0.0,
+                supporting_factors=[],
+                opposing_factors=[],
+            ),
+        ],
+        market_structure=MarketStructure(
+            trend_structure="HH-HL",
+            trend_description="Uptrend",
+            nearest_support=215.0,
+            nearest_resistance=230.0,
+            drawdown_300d_pct=-5.2,
+            peak_300d_price=232.0,
+            ma20=218.0,
+            ma50=210.0,
+            ma200=195.0,
+            ma200_slope_pct=1.2,
+            ma_stack_status="BULLISH_ALIGNMENT",
+        ),
+        vsa=VsaMetrics(
+            up_down_volume_ratio_20d=1.45,
+            participation_status="Dominant Buying Pressure",
+            is_selling_climax=False,
+            is_stopping_volume=False,
+            is_absorption=True,
+            volume_surge_ratio=1.1,
+        ),
+        momentum=MomentumMetrics(
+            rsi_14=58.5,
+            rsi_status="NEUTRAL",
+            macd_line=2.1,
+            macd_signal=1.8,
+            macd_histogram=0.3,
+            macd_bias="BULLISH",
+            adx_14=26.4,
+            trend_strength="STRONG_TREND",
+            stoch_k=65.0,
+            stoch_d=62.0,
+            cmf_20=0.08,
+            cmf_status="NET_INFLOW",
+        ),
+        relative_strength=RelativeStrengthMetrics(
+            benchmark_ticker="^GSPC",
+            benchmark_name="S&P 500",
+            stock_1m_return_pct=5.4,
+            benchmark_1m_return_pct=2.1,
+            alpha_pct=3.3,
+            rating="OUTPERFORMING",
+        ),
+        mindset_guardrail="Test mindset rule",
+    )
+    with patch("app.api.v1.stocks.yf_service.get_technical_desk", return_value=mock_desk):
+        response = client.get("/api/v1/stocks/AAPL/desk")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["ticker"] == "AAPL"
+    assert data["stage"]["stage_number"] == 2
+    assert data["trade_plan"]["verdict"] == "BUY ON WEAKNESS"
+    assert len(data["scenarios"]) == 3
+
+
+
 def test_market_summary(client: TestClient) -> None:
     """Market summary endpoint returns indices."""
     from app.models.schemas import MarketSummaryResponse

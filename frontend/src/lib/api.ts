@@ -3,6 +3,7 @@ import type {
   MarketSummary,
   Period,
   PriceAlert,
+  StockDeskResponse,
   StockHistory,
   StockQuote,
   StockSearchResult,
@@ -33,6 +34,9 @@ export const fetchStockQuote = (ticker: string): Promise<StockQuote> =>
 
 export const fetchStockHistory = (ticker: string, period: Period): Promise<StockHistory> =>
   apiFetch<StockHistory>(`/api/v1/stocks/${encodeURIComponent(ticker)}/history?period=${period}`)
+
+export const fetchStockDesk = (ticker: string): Promise<StockDeskResponse> =>
+  apiFetch<StockDeskResponse>(`/api/v1/stocks/${encodeURIComponent(ticker)}/desk`)
 
 export const fetchBatchQuotes = (tickers: string[]): Promise<StockQuote[]> =>
   apiFetch<StockQuote[]>(`/api/v1/stocks/batch?tickers=${tickers.join(',')}`)

@@ -8,6 +8,7 @@ from cachetools import TTLCache
 
 from app.core.exceptions import ExternalAPIError, StockNotFoundError
 from app.models.schemas import (
+    AnalysisDeskResponse,
     HistoryPoint,
     MarketIndex,
     MarketSessionInfo,
@@ -24,6 +25,7 @@ from app.services.idx_rules import (
     is_idx_stock,
 )
 from app.services.providers.finnhub import FinnhubProvider
+from app.services.technical_desk import generate_technical_desk_report
 
 logger = logging.getLogger(__name__)
 
@@ -445,3 +447,35 @@ def get_all_market_statuses() -> MarketStatusResponse:
         idx=MarketSessionInfo(**idx_status),
         us=MarketSessionInfo(**us_status),
     )
+
+
+def get_technical_desk(ticker: str) -> AnalysisDeskResponse:
+    """Get institutional technical desk analysis report for ticker."""
+    cache_key = ticker.upper()
+    try:
+        t = yf.Ticker(cache_key)
+        hist = t.history(period="1y", interval="1d")
+        if hist.empty or len(hist) < 5:
+            raise StockNotFoundError(cache_key)
+
+        is_idx = cache_key.endswith(".JK")
+        bench_symbol = "^JKSE" if is_idx else "^GSPC"
+        try:
+            bench_hist = yf.Ticker(bench_symbol).history(period="3mo", interval="1d")
+        except Exception as bench_err:
+            logger.debug("Failed to fetch benchmark %s: %s", bench_symbol, bench_err)
+            bench_hist = None
+
+        quote = get_quote(cache_key)
+        return generate_technical_desk_report(
+            ticker=cache_key,
+            company_name=quote.company_name,
+            df=hist,
+            benchmark_df=bench_hist,
+        )
+    except StockNotFoundError:
+        raise
+    except Exception as exc:
+        logger.error("Failed to generate technical desk report for %s: %s", ticker, exc)
+        raise ExternalAPIError(f"Failed to generate technical desk analysis for {ticker}") from exc
+

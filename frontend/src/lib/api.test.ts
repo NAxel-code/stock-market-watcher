@@ -47,6 +47,23 @@ describe('api client', () => {
     )
   })
 
+  it('fetchStockDesk returns desk data on success', async () => {
+    const mockDesk = { ticker: 'BBRI.JK', current_price: 4900, stage: { stage_number: 4 } }
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockDesk,
+    })
+
+    const data = await (await import('./api')).fetchStockDesk('BBRI.JK')
+    expect(data).toEqual(mockDesk)
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/stocks/BBRI.JK/desk',
+      expect.objectContaining({
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+  })
+
   it('fetchStockQuote throws error on API failure', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: false,

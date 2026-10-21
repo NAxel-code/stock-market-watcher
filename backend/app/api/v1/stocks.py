@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query
 
 from app.models.schemas import (
+    AnalysisDeskResponse,
     StockHistoryResponse,
     StockQuoteResponse,
     StockSearchResult,
@@ -38,3 +39,9 @@ def get_history(
 ) -> StockHistoryResponse:
     """Get historical OHLCV data. Period: 1d, 1w, 1m, 3m, 1y."""
     return yf_service.get_history(ticker.upper(), period)
+
+
+@router.get("/{ticker}/desk", response_model=AnalysisDeskResponse)
+def get_technical_desk(ticker: str) -> AnalysisDeskResponse:
+    """Get institutional technical desk analysis report for ticker."""
+    return yf_service.get_technical_desk(ticker.upper())
