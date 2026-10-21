@@ -51,4 +51,30 @@ describe('useUIStore zustand store', () => {
     expect(state.watchlist).toContain('NVDA')
     expect(state.watchlist).toContain('BMRI.JK')
   })
+
+  it('manages tutorial modal and spotlight tour states seamlessly', () => {
+    // Initial states should be false
+    expect(useUIStore.getState().isTutorialOpen).toBe(false)
+    expect(useUIStore.getState().isTourActive).toBe(false)
+
+    // Open tutorial modal
+    useUIStore.getState().openTutorial()
+    expect(useUIStore.getState().isTutorialOpen).toBe(true)
+    expect(useUIStore.getState().isTourActive).toBe(false)
+
+    // Start tour closes modal and starts tour
+    useUIStore.getState().startSpotlightTour()
+    expect(useUIStore.getState().isTutorialOpen).toBe(false)
+    expect(useUIStore.getState().isTourActive).toBe(true)
+
+    // Close tour
+    useUIStore.getState().closeTour()
+    expect(useUIStore.getState().isTourActive).toBe(false)
+
+    // Close tutorial
+    useUIStore.getState().openTutorial()
+    expect(useUIStore.getState().isTutorialOpen).toBe(true)
+    useUIStore.getState().closeTutorial()
+    expect(useUIStore.getState().isTutorialOpen).toBe(false)
+  })
 })

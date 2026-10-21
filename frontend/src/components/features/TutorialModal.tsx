@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
   X,
@@ -141,12 +142,29 @@ const TICKER_CHEAT_SHEET = [
 
 export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: TutorialModalProps) {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [activeTab, setActiveTab] = useState<'tour' | 'cheatSheet'>('tour')
   const [currentStep, setCurrentStep] = useState(0)
   const [dontShowAgain, setDontShowAgain] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
 
-  const updateTargetRect = useCallback(() => {
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Safely scroll target into view once when step or tab changes
+  const scrollToTarget = useCallback(() => {
+    if (!isOpen || activeTab !== 'tour') return
+    const current = STEPS[currentStep]
+    if (!current?.targetId) return
+    const el = document.getElementById(current.targetId)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [isOpen, activeTab, currentStep])
+
+  // Update target bounding box for spotlight outline without re-triggering scroll
+  const updateRectOnly = useCallback(() => {
     if (!isOpen || activeTab !== 'tour') {
       setTargetRect(null)
       return
@@ -158,11 +176,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
     }
     const el = document.getElementById(current.targetId)
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      setTimeout(() => {
-        const rect = el.getBoundingClientRect()
-        setTargetRect(rect)
-      }, 300)
+      setTargetRect(el.getBoundingClientRect())
     } else {
       setTargetRect(null)
     }
@@ -170,17 +184,20 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
 
   useEffect(() => {
     if (isOpen && activeTab === 'tour') {
-      updateTargetRect()
-      window.addEventListener('resize', updateTargetRect)
-      window.addEventListener('scroll', updateTargetRect)
+      scrollToTarget()
+      updateRectOnly()
+      const timer = setTimeout(updateRectOnly, 350)
+      window.addEventListener('resize', updateRectOnly)
+      window.addEventListener('scroll', updateRectOnly)
       return () => {
-        window.removeEventListener('resize', updateTargetRect)
-        window.removeEventListener('scroll', updateTargetRect)
+        clearTimeout(timer)
+        window.removeEventListener('resize', updateRectOnly)
+        window.removeEventListener('scroll', updateRectOnly)
       }
     } else {
       setTargetRect(null)
     }
-  }, [isOpen, activeTab, currentStep, updateTargetRect])
+  }, [isOpen, activeTab, currentStep, scrollToTarget, updateRectOnly])
 
   useEffect(() => {
     if (!isOpen) return
@@ -191,7 +208,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
   const handleFinish = () => {
     if (dontShowAgain) {
@@ -218,9 +235,9 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
 
   const step = STEPS[currentStep]
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-3 sm:p-4 md:p-6 backdrop-blur-xs"
+      className="fixed inset-0 z-[100] overflow-y-auto bg-black/75 p-3 sm:p-4 md:p-6 backdrop-blur-xs"
       role="dialog"
       aria-modal="true"
       aria-labelledby="tutorial-dialog-title"
@@ -352,7 +369,10 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
                       </div>
                       <button
                         type="button"
-                        onClick={updateTargetRect}
+                        onClick={() => {
+                          scrollToTarget()
+                          updateRectOnly()
+                        }}
                         className="rounded-md border border-blue-500/40 bg-blue-600/20 px-2.5 py-1 text-[11px] font-semibold text-blue-300 hover:bg-blue-600 hover:text-white transition"
                       >
                         Highlight on Screen
@@ -480,6 +500,7 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
         </div>
       </div>
     </div>
-  </div>
+  </div>,
+  document.body
   )
 }

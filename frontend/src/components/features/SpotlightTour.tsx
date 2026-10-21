@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import {
   X,
   ChevronRight,
@@ -68,19 +69,34 @@ interface SpotlightTourProps {
 }
 
 export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
+  const [mounted, setMounted] = useState(false)
   const [currentStep, setCurrentStep] = useState(0)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
 
-  const updateTargetRect = useCallback(() => {
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Scroll target element into view once when active or step changes
+  const scrollToTarget = useCallback(() => {
     if (!isActive) return
     const step = TOUR_STEPS[currentStep]
     const el = document.getElementById(step.targetId)
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      setTimeout(() => {
-        const rect = el.getBoundingClientRect()
-        setTargetRect(rect)
-      }, 350)
+    }
+  }, [isActive, currentStep])
+
+  // Update bounding box coordinates on scroll/resize without re-triggering scroll
+  const updateRectOnly = useCallback(() => {
+    if (!isActive) {
+      setTargetRect(null)
+      return
+    }
+    const step = TOUR_STEPS[currentStep]
+    const el = document.getElementById(step.targetId)
+    if (el) {
+      setTargetRect(el.getBoundingClientRect())
     } else {
       setTargetRect(null)
     }
@@ -88,17 +104,20 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
 
   useEffect(() => {
     if (isActive) {
-      updateTargetRect()
-      window.addEventListener('resize', updateTargetRect)
-      window.addEventListener('scroll', updateTargetRect)
+      scrollToTarget()
+      updateRectOnly()
+      const timer = setTimeout(updateRectOnly, 350)
+      window.addEventListener('resize', updateRectOnly)
+      window.addEventListener('scroll', updateRectOnly)
       return () => {
-        window.removeEventListener('resize', updateTargetRect)
-        window.removeEventListener('scroll', updateTargetRect)
+        clearTimeout(timer)
+        window.removeEventListener('resize', updateRectOnly)
+        window.removeEventListener('scroll', updateRectOnly)
       }
     } else {
       setTargetRect(null)
     }
-  }, [isActive, currentStep, updateTargetRect])
+  }, [isActive, currentStep, scrollToTarget, updateRectOnly])
 
   // Keyboard Navigation: Escape, ArrowLeft, ArrowRight
   useEffect(() => {
@@ -128,7 +147,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isActive, currentStep, onClose])
 
-  if (!isActive) return null
+  if (!isActive || !mounted) return null
 
   const handleNext = () => {
     if (currentStep < TOUR_STEPS.length - 1) {
@@ -151,29 +170,41 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
 
   const step = TOUR_STEPS[currentStep]
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] overflow-hidden pointer-events-auto">
-      {/* Dark Translucent Backdrop */}
-      <div
-        onClick={onClose}
-        className="absolute inset-0 bg-black/75 backdrop-blur-[2px] transition-opacity duration-300"
-      />
-
-      {/* Spotlight Luminous Cutout & Ring */}
-      {targetRect && (
+      {/* Dark Translucent Backdrop with Cutout */}
+      {targetRect ? (
+        <>
+          <div
+            onClick={onClose}
+            className="fixed inset-0 z-40"
+            aria-hidden="true"
+          />
+          <div
+            style={{
+              top: `${Math.max(0, targetRect.top - 6)}px`,
+              left: `${Math.max(0, targetRect.left - 6)}px`,
+              width: `${targetRect.width + 12}px`,
+              height: `${targetRect.height + 12}px`,
+              boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.75)',
+            }}
+            className="fixed pointer-events-none rounded-xl ring-2 sm:ring-4 ring-blue-500 shadow-[0_0_80px_rgba(59,130,246,0.65)] transition-all duration-300 z-40"
+          >
+            <span className="absolute -top-7 left-2 flex items-center gap-1.5 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-lg">
+              <Sparkles className="h-3 w-3" />
+              <span>{step.badge}</span>
+            </span>
+          </div>
+        </>
+      ) : (
         <div
-          style={{
-            top: `${Math.max(0, targetRect.top - 6)}px`,
-            left: `${Math.max(0, targetRect.left - 6)}px`,
-            width: `${targetRect.width + 12}px`,
-            height: `${targetRect.height + 12}px`,
-          }}
-          className="absolute pointer-events-none rounded-xl ring-2 ring-blue-500 shadow-[0_0_60px_rgba(59,130,246,0.45)] transition-all duration-300"
+          onClick={onClose}
+          className="fixed inset-0 bg-black/75 backdrop-blur-[2px] transition-opacity duration-300 z-40"
         />
       )}
 
       {/* Floating Spotlight Card */}
-      <div className="absolute inset-x-3 bottom-5 sm:inset-x-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2 z-50 w-full sm:max-w-xl">
+      <div className="fixed inset-x-3 bottom-5 sm:inset-x-auto sm:bottom-8 sm:left-1/2 sm:-translate-x-1/2 z-50 w-full sm:max-w-xl">
         <div className="rounded-2xl border border-zinc-700/90 bg-zinc-950/95 p-5 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 duration-200 text-zinc-100">
           {/* Card Header */}
           <div className="flex items-center justify-between mb-2">
@@ -187,7 +218,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Tutup tur"
+                aria-label="Close tour"
                 className="p-1 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
               >
                 <X className="h-4 w-4" />
@@ -270,6 +301,7 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

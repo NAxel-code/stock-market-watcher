@@ -32,6 +32,12 @@ interface UIStore {
   removeAlert: (alertId: string) => void
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
+  isTutorialOpen: boolean
+  openTutorial: () => void
+  closeTutorial: () => void
+  isTourActive: boolean
+  startSpotlightTour: () => void
+  closeTour: () => void
 }
 
 export const useUIStore = create<UIStore>()(
@@ -108,9 +114,21 @@ export const useUIStore = create<UIStore>()(
         })),
       sidebarOpen: false,
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
+      isTutorialOpen: false,
+      openTutorial: () => set({ isTutorialOpen: true, isTourActive: false }),
+      closeTutorial: () => set({ isTutorialOpen: false }),
+      isTourActive: false,
+      startSpotlightTour: () => set({ isTourActive: true, isTutorialOpen: false }),
+      closeTour: () => set({ isTourActive: false }),
     }),
     {
       name: 'stockpulse-ui-store',
+      partialize: (state) => ({
+        user: state.user,
+        watchlist: state.watchlist,
+        alerts: state.alerts,
+        sidebarOpen: state.sidebarOpen,
+      }),
     }
   )
 )

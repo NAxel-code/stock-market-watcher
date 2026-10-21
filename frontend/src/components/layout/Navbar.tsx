@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { TrendingUp, List, BarChart2, HelpCircle } from 'lucide-react'
@@ -10,6 +9,7 @@ import { MarketStatusRibbon } from '@/components/features/MarketStatusRibbon'
 import { AuthModal } from '@/components/features/AuthModal'
 import { TutorialModal } from '@/components/features/TutorialModal'
 import { SpotlightTour } from '@/components/features/SpotlightTour'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -19,8 +19,14 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname()
-  const [isTutorialOpen, setIsTutorialOpen] = useState(false)
-  const [isTourActive, setIsTourActive] = useState(false)
+  const {
+    isTutorialOpen,
+    isTourActive,
+    openTutorial,
+    closeTutorial,
+    startSpotlightTour,
+    closeTour,
+  } = useUIStore()
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
@@ -57,7 +63,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsTutorialOpen(true)}
+              onClick={openTutorial}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
               title="Platform Guide & Tips"
               aria-label="Platform guide"
@@ -92,7 +98,7 @@ export function Navbar() {
           ))}
           <button
             type="button"
-            onClick={() => setIsTutorialOpen(true)}
+            onClick={openTutorial}
             className="flex flex-col items-center justify-center gap-0.5 px-4 py-2 min-h-[48px] min-w-[64px] text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
             aria-label="Open platform guide"
           >
@@ -105,15 +111,12 @@ export function Navbar() {
       {/* Interactive Tutorial Modal */}
       <TutorialModal
         isOpen={isTutorialOpen}
-        onClose={() => setIsTutorialOpen(false)}
-        onStartSpotlightTour={() => {
-          setIsTutorialOpen(false)
-          setIsTourActive(true)
-        }}
+        onClose={closeTutorial}
+        onStartSpotlightTour={startSpotlightTour}
       />
 
       {/* Interactive Spotlight Tour */}
-      <SpotlightTour isActive={isTourActive} onClose={() => setIsTourActive(false)} />
+      <SpotlightTour isActive={isTourActive} onClose={closeTour} />
     </header>
   )
 }
