@@ -111,41 +111,41 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
           <div className="flex items-baseline gap-2.5">
-            <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-zinc-100">
+            <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-[#F0F4F8]">
               {formatCurrency(quote.current_price, stockCurrency)}
             </div>
             <span
               className={cn(
-                'text-xs font-semibold px-2 py-0.5 rounded border font-mono tracking-wider',
+                'text-[10px] font-bold px-2 py-0.5 rounded border font-mono tracking-wider uppercase',
                 stockCurrency === 'IDR'
-                  ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/80'
-                  : 'bg-blue-950/80 text-blue-400 border-blue-800/80'
+                  ? 'bg-[#00E599]/10 text-[#00E599] border-[#00E599]/30'
+                  : 'bg-[#00B2FF]/10 text-[#00B2FF] border-[#00B2FF]/30'
               )}
               title={`Currency: ${stockCurrency === 'IDR' ? 'Indonesian Rupiah' : 'US Dollar'}`}
             >
               {stockCurrency}
             </span>
           </div>
-          <div className="text-xs text-zinc-400 mt-1">
-            Denomination: <span className="text-zinc-300 font-medium">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
+          <div className="text-[11px] text-[#6F7887] font-mono mt-1">
+            DENOMINATION: <span className="text-[#8C96A5]">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
           </div>
-          <div className={cn('flex items-center gap-1.5 mt-1 text-lg font-semibold tabular-nums', isPositive ? 'text-green-400' : 'text-red-400')}>
-            {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+          <div className={cn('flex items-center gap-1.5 mt-1 text-base font-mono font-bold tabular-nums', isPositive ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+            {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
             {formatPercent(quote.change_percent)}
-            <span className="text-sm font-normal text-zinc-400">({isPositive ? '+' : ''}{formatCurrency(quote.change, stockCurrency)})</span>
+            <span className="text-xs font-normal text-[#6F7887]">({isPositive ? '+' : ''}{formatCurrency(quote.change, stockCurrency)})</span>
           </div>
           <div className="flex items-center gap-3 mt-1.5">
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null && (
-              <span className="text-xs text-zinc-400">
+              <span className="text-[11px] text-[#6F7887] font-mono">
                 From 52W High:{' '}
-                <span className={quote.distance_from_52w_high < 0 ? 'text-red-400 font-mono font-medium tabular-nums' : 'text-green-400 font-mono font-medium tabular-nums'}>
+                <span className={quote.distance_from_52w_high < 0 ? 'text-[#FF3B56] font-mono font-semibold tabular-nums' : 'text-[#00E599] font-mono font-semibold tabular-nums'}>
                   {quote.distance_from_52w_high > 0 ? `+${quote.distance_from_52w_high}%` : `${quote.distance_from_52w_high}%`}
                 </span>
               </span>
             )}
             {quote.is_stale && (
-              <div className="text-xs text-amber-400 font-mono flex items-center gap-1 bg-amber-950/40 border border-amber-900/50 px-1.5 py-0.5 rounded">
-                ⚠ Showing delayed data
+              <div className="text-[10px] text-[#FFB800] font-mono flex items-center gap-1 bg-[#FFB800]/10 border border-[#FFB800]/30 px-1.5 py-0.5 rounded">
+                ⚠ Delayed feed
               </div>
             )}
           </div>
@@ -153,24 +153,24 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
 
         {/* IDX Auto-Rejection limits (ARA / ARB) */}
         {isIdx && quote.ara_price && quote.arb_price && (
-          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-3 space-y-1 text-xs shadow-xs">
-            <div className="flex items-center gap-1 text-zinc-300 font-semibold mb-1">
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-400" />
+          <div className="rounded-md border border-[#161C26] bg-[#0D0F14] p-3 space-y-1 text-xs">
+            <div className="flex items-center gap-1 text-[#F0F4F8] font-mono font-bold text-[11px] uppercase tracking-wider mb-1">
+              <ShieldAlert className="h-3.5 w-3.5 text-[#FFB800]" />
               <span>Auto Rejection Limits (IDX)</span>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 font-mono text-[11px]">
               <div>
-                <span className="text-zinc-400">ARA (Upper Limit): </span>
-                <span className="font-mono font-semibold tabular-nums text-green-400">{formatCurrency(quote.ara_price, 'IDR')}</span>
+                <span className="text-[#6F7887]">ARA (Upper): </span>
+                <span className="font-semibold tabular-nums text-[#00E599]">{formatCurrency(quote.ara_price, 'IDR')}</span>
               </div>
               <div>
-                <span className="text-zinc-400">ARB (Lower Limit): </span>
-                <span className="font-mono font-semibold tabular-nums text-red-400">{formatCurrency(quote.arb_price, 'IDR')}</span>
+                <span className="text-[#6F7887]">ARB (Lower): </span>
+                <span className="font-semibold tabular-nums text-[#FF3B56]">{formatCurrency(quote.arb_price, 'IDR')}</span>
               </div>
               {quote.tick_size && (
                 <div>
-                  <span className="text-zinc-400">Tick Size: </span>
-                  <span className="font-mono tabular-nums text-zinc-200">Rp {quote.tick_size}</span>
+                  <span className="text-[#6F7887]">Tick: </span>
+                  <span className="tabular-nums text-[#F0F4F8]">Rp {quote.tick_size}</span>
                 </div>
               )}
             </div>
@@ -179,45 +179,45 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-zinc-900/90 rounded-xl border border-zinc-800/90 w-fit">
+      <div className="flex items-center gap-1 p-1 bg-[#0D0F14] rounded-md border border-[#161C26] w-fit">
         <button
           onClick={() => setActiveTab('desk')}
           className={cn(
-            'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer',
             activeTab === 'desk'
-              ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
-              : 'text-zinc-400 hover:text-zinc-200'
+              ? 'bg-[#121620] text-[#00E599] border border-[#00E599]/30 shadow-xs'
+              : 'text-[#6F7887] hover:text-[#F0F4F8]'
           )}
         >
-          <Compass className="h-3.5 w-3.5 text-emerald-400" />
+          <Compass className="h-3.5 w-3.5 text-[#00E599]" />
           <span>Technical Desk</span>
-          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+          <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30">
             PRO
           </span>
         </button>
         <button
           onClick={() => setActiveTab('chart')}
           className={cn(
-            'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+            'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer',
             activeTab === 'chart'
-              ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
-              : 'text-zinc-400 hover:text-zinc-200'
+              ? 'bg-[#121620] text-[#00B2FF] border border-[#00B2FF]/30 shadow-xs'
+              : 'text-[#6F7887] hover:text-[#F0F4F8]'
           )}
         >
-          <BarChart2 className="h-3.5 w-3.5 text-blue-400" />
-          <span>Interactive Chart & Stats</span>
+          <BarChart2 className="h-3.5 w-3.5 text-[#00B2FF]" />
+          <span>Interactive Chart</span>
         </button>
         {isIdx && (
           <button
             onClick={() => setActiveTab('calculator')}
             className={cn(
-              'flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer',
+              'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer',
               activeTab === 'calculator'
-                ? 'bg-zinc-800 text-zinc-100 shadow-xs border border-zinc-700/60'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-[#121620] text-[#FFB800] border border-[#FFB800]/30 shadow-xs'
+                : 'text-[#6F7887] hover:text-[#F0F4F8]'
             )}
           >
-            <Calculator className="h-3.5 w-3.5 text-amber-400" />
+            <Calculator className="h-3.5 w-3.5 text-[#FFB800]" />
             <span>IDX Lot Calculator</span>
           </button>
         )}
@@ -232,7 +232,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {activeTab === 'chart' && (
         <div className="space-y-6">
           {/* Bloomberg-Style 52-Week Range Bar */}
-          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/70 p-4">
+          <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4">
             <FiftyTwoWeekRangeBar
               low={quote.fifty_two_week_low}
               high={quote.fifty_two_week_high}
@@ -249,7 +249,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           />
 
           {/* TradingView-Style Interactive Chart with Volume */}
-          <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/90 p-4">
+          <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4">
             <PriceChart
               ticker={ticker}
               currency={stockCurrency}
@@ -258,11 +258,11 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-zinc-800/90 bg-zinc-900/80 p-4">
-                <div className="text-xs text-zinc-400 mb-1">{stat.label}</div>
-                <div className="font-mono font-semibold tabular-nums text-zinc-100">{stat.value}</div>
+              <div key={stat.label} className="rounded-md border border-[#161C26] bg-[#07080A] p-3.5">
+                <div className="text-[11px] font-mono text-[#6F7887] uppercase mb-1">{stat.label}</div>
+                <div className="font-mono font-bold tabular-nums text-sm text-[#F0F4F8]">{stat.value}</div>
               </div>
             ))}
           </div>
