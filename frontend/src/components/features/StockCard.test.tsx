@@ -39,13 +39,13 @@ describe('StockCard component', () => {
   it('renders positive change with green styling', () => {
     render(<StockCard quote={mockPositiveQuote} />)
     const changeEl = screen.getByText('+1.69%')
-    expect(changeEl).toHaveClass('text-green-400')
+    expect(changeEl).toHaveClass('text-[#00E599]')
   })
 
   it('renders negative change with red styling', () => {
     render(<StockCard quote={mockNegativeQuote} />)
     const changeEl = screen.getByText('-2.44%')
-    expect(changeEl).toHaveClass('text-red-400')
+    expect(changeEl).toHaveClass('text-[#FF3B56]')
   })
 
   it('renders skeleton loader when isLoading is true', () => {

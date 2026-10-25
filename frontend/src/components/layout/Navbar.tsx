@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { TrendingUp, List, BarChart2, HelpCircle } from 'lucide-react'
+import { List, BarChart2, HelpCircle } from 'lucide-react'
+import { StockPulseLogo } from '@/components/ui/StockPulseLogo'
 import { ThemeToggle } from '@/components/features/ThemeToggle'
 import { SearchCommand } from '@/components/features/SearchCommand'
 import { MarketStatusRibbon } from '@/components/features/MarketStatusRibbon'
@@ -29,16 +30,26 @@ export function Navbar() {
   } = useUIStore()
 
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-[#1A202C]/80 bg-[#07080A]/90 backdrop-blur-xl">
       {/* Real-Time Market Status Ticker */}
       <MarketStatusRibbon />
 
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex h-14 items-center justify-between gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <TrendingUp className="h-5 w-5 text-blue-500" />
-            <span className="hidden sm:inline">StockPulse</span>
+          <Link href="/" className="flex items-center gap-2.5 font-bold text-base tracking-tight text-white group">
+            <StockPulseLogo size={28} className="transition-transform group-hover:scale-105" />
+            <div className="flex flex-col">
+              <span className="font-mono font-black text-sm tracking-widest text-[#F0F4F8] uppercase flex items-center gap-1.5">
+                StockPulse
+                <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 tracking-normal font-semibold">
+                  PRO
+                </span>
+              </span>
+              <span className="text-[10px] text-[#6F7887] font-mono tracking-tight hidden sm:inline -mt-0.5">
+                Market Telemetry & Quant Terminal
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Nav */}
@@ -48,10 +59,10 @@ export function Navbar() {
                 key={href}
                 href={href}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+                  'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
                   pathname === href
-                    ? 'bg-zinc-800/90 text-zinc-50 font-semibold border border-zinc-700/60 shadow-xs'
-                    : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50'
+                    ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
+                    : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
                 )}
               >
                 {label}

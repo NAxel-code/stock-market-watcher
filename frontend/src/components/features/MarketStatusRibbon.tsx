@@ -53,22 +53,22 @@ export function MarketStatusRibbon() {
       id="tour-market-status"
       role="status"
       aria-label="Real-Time Market Status"
-      className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/90 bg-zinc-950/80 backdrop-blur-md px-4 py-1.5 text-xs text-zinc-300"
+      className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1A202C]/80 bg-[#07080A]/95 px-4 py-1.5 text-xs text-[#6F7887]"
     >
       <div className="flex items-center gap-4">
         {/* IDX status */}
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-zinc-200">🇮🇩 IDX (BEI):</span>
+          <span className="font-mono font-semibold text-[#F0F4F8] text-[11px] uppercase tracking-wider">🇮🇩 IDX (BEI):</span>
           <span className="flex items-center gap-1.5">
             {data.idx.is_open ? (
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E599] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E599]" />
               </span>
             ) : (
-              <span className="inline-block h-2 w-2 rounded-full bg-zinc-600" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[#343D4D]" />
             )}
-            <span className={data.idx.is_open ? 'text-emerald-400 font-semibold' : 'text-zinc-400 font-medium'}>
+            <span className={data.idx.is_open ? 'text-[#00E599] font-mono font-semibold text-[11px]' : 'text-[#6F7887] font-mono font-medium text-[11px]'}>
               {data.idx.session_name}
             </span>
           </span>
@@ -76,25 +76,28 @@ export function MarketStatusRibbon() {
 
         {/* US status */}
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-zinc-200">🇺🇸 US (NYSE/NASDAQ):</span>
+          <span className="font-mono font-semibold text-[#F0F4F8] text-[11px] uppercase tracking-wider">🇺🇸 US (NYSE/NASDAQ):</span>
           <span className="flex items-center gap-1.5">
             {data.us.is_open ? (
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E599] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E599]" />
               </span>
             ) : (
-              <span className="inline-block h-2 w-2 rounded-full bg-zinc-600" />
+              <span className="inline-block h-2 w-2 rounded-full bg-[#343D4D]" />
             )}
-            <span className={data.us.is_open ? 'text-emerald-400 font-semibold' : 'text-zinc-400 font-medium'}>
+            <span className={data.us.is_open ? 'text-[#00E599] font-mono font-semibold text-[11px]' : 'text-[#6F7887] font-mono font-medium text-[11px]'}>
               {data.us.session_name}
             </span>
           </span>
         </div>
       </div>
 
-      <div className="hidden md:flex items-center gap-3 text-[11px] text-zinc-400 font-mono tabular-nums">
-        <span>Jakarta: {liveJakartaTime || data.idx.current_time_local}</span>
+      <div className="hidden md:flex items-center gap-3 text-[11px] text-[#8C96A5] font-mono tabular-nums">
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00B2FF] animate-pulse"></span>
+          Jakarta: <strong className="text-[#F0F4F8] font-normal">{liveJakartaTime || data.idx.current_time_local}</strong>
+        </span>
       </div>
     </div>
   )

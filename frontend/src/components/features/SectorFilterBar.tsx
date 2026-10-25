@@ -108,20 +108,20 @@ export function SectorFilterBar({
             data-testid={`filter-tab-${tab.id}`}
             onClick={() => onSelectFilter(tab.id)}
             className={cn(
-              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border active:scale-[0.98]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950',
+              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all duration-150 border active:scale-[0.98]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
               isActive
-                ? 'bg-zinc-100 text-zinc-950 border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950 dark:border-zinc-100 font-semibold shadow-xs'
-                : 'bg-zinc-900/90 text-zinc-300 border-zinc-800/90 hover:text-zinc-100 hover:border-zinc-700 hover:bg-zinc-800/70'
+                ? 'bg-[#121620] text-[#00E599] border-[#00E599]/40 font-bold shadow-[0_0_12px_rgba(0,229,153,0.12)]'
+                : 'bg-[#0D0F14] text-[#8C96A5] border-[#161C26] hover:text-[#F0F4F8] hover:border-[#1F2937] hover:bg-[#121620]/60'
             )}
           >
             <span>{tab.label}</span>
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0.5 rounded-full font-mono tabular-nums transition-colors',
+                'text-[9px] px-1 py-0.2 rounded font-mono tabular-nums transition-colors',
                 isActive
-                  ? 'bg-zinc-300 text-zinc-900 font-bold'
-                  : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-zinc-200'
+                  ? 'bg-[#00E599]/20 text-[#00E599] font-bold border border-[#00E599]/30'
+                  : 'bg-[#07080A] text-[#6F7887] group-hover:text-[#A2ACB9] border border-[#161C26]'
               )}
             >
               {tab.count}
@@ -130,13 +130,7 @@ export function SectorFilterBar({
               <span
                 className={cn(
                   'text-[10px] font-mono tabular-nums font-semibold ml-0.5',
-                  isActive
-                    ? isPos
-                      ? 'text-emerald-700 dark:text-emerald-800'
-                      : 'text-rose-700 dark:text-rose-800'
-                    : isPos
-                    ? 'text-emerald-400'
-                    : 'text-rose-400'
+                  isPos ? 'text-[#00E599]' : 'text-[#FF3B56]'
                 )}
               >
                 {`${isPos ? '+' : ''}${tab.avgChange}%`}
