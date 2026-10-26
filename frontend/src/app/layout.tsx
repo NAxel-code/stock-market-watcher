@@ -10,14 +10,22 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: 'StockPulse — Real-Time Stock Market Watcher',
-  description: 'Monitor US and Indonesian (IDX) stock markets in real-time. Free, fast, and beautiful.',
+  title: 'StockPulse — Real-Time Equity & Quant Intelligence Terminal',
+  description: 'Institutional-grade real-time market telemetry, Almgren-Chriss execution simulator, and RMT portfolio analytics for US & Indonesian (IDX) equities.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-zinc-950 text-zinc-50`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-[#07080A] text-[#F0F4F8] selection:bg-[#00E599]/20 selection:text-[#00E599]`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar />

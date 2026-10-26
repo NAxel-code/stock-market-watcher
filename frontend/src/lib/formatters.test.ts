@@ -10,6 +10,9 @@ import {
   isIdxTicker,
   calculateLotValue,
   calculateEstimatedFee,
+  getIdxTickSize,
+  snapToIdxTick,
+  stepIdxPrice,
 } from './formatters'
 
 describe('formatters utility', () => {
@@ -80,5 +83,35 @@ describe('formatters utility', () => {
 
     const sellFee = calculateEstimatedFee(1000000, 'sell')
     expect(sellFee).toBe(2500) // 0.25%
+  })
+
+  it('calculates BEI Fraksi Harga tick sizes and snapping accurately', () => {
+    // < 200 => tick 1
+    expect(getIdxTickSize(50)).toBe(1)
+    expect(getIdxTickSize(199)).toBe(1)
+    // 200..499 => tick 2
+    expect(getIdxTickSize(200)).toBe(2)
+    expect(getIdxTickSize(450)).toBe(2)
+    // 500..1999 => tick 5
+    expect(getIdxTickSize(500)).toBe(5)
+    expect(getIdxTickSize(1200)).toBe(5)
+    // 2000..4999 => tick 10
+    expect(getIdxTickSize(2000)).toBe(10)
+    expect(getIdxTickSize(4970)).toBe(10)
+    // >= 5000 => tick 25
+    expect(getIdxTickSize(5000)).toBe(25)
+    expect(getIdxTickSize(9000)).toBe(25)
+
+    // Snapping
+    expect(snapToIdxTick(4973)).toBe(4970)
+    expect(snapToIdxTick(4977)).toBe(4980)
+    expect(snapToIdxTick(5010)).toBe(5000)
+    expect(snapToIdxTick(5015, true)).toBe(5025)
+
+    // Stepping
+    expect(stepIdxPrice(4980, 1)).toBe(4990)
+    expect(stepIdxPrice(4990, 1)).toBe(5000)
+    expect(stepIdxPrice(5000, 1)).toBe(5025)
+    expect(stepIdxPrice(5000, -1)).toBe(4990)
   })
 })

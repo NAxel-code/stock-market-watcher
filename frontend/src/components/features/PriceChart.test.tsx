@@ -12,6 +12,7 @@ vi.mock('lightweight-charts', () => ({
       priceScale: vi.fn(() => ({
         applyOptions: vi.fn(),
       })),
+      createPriceLine: vi.fn(),
     })),
     applyOptions: vi.fn(),
     subscribeCrosshairMove: vi.fn(),
@@ -24,6 +25,13 @@ vi.mock('lightweight-charts', () => ({
   AreaSeries: {},
   LineSeries: {},
   HistogramSeries: {},
+  LineStyle: {
+    Solid: 0,
+    Dotted: 1,
+    Dashed: 2,
+    LargeDashed: 3,
+    SparseDotted: 4,
+  },
 }))
 
 // Mock useStockHistory hook
@@ -68,7 +76,7 @@ describe('PriceChart component', () => {
 
     // Chart types
     expect(screen.getByRole('button', { name: /Candle/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Bar \(OHLC\)/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Bar/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Area/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /VaR Risk/i })).toBeInTheDocument()
   })
@@ -76,13 +84,13 @@ describe('PriceChart component', () => {
   it('allows switching between Candle, Bar, and Area chart views', () => {
     render(<PriceChart ticker="AAPL" currency="USD" />)
 
-    const barBtn = screen.getByRole('button', { name: /Bar \(OHLC\)/i })
+    const barBtn = screen.getByRole('button', { name: /Bar/i })
     fireEvent.click(barBtn)
-    expect(barBtn).toHaveClass('bg-zinc-800')
+    expect(barBtn).toHaveClass('bg-[#161C26]')
 
     const areaBtn = screen.getByRole('button', { name: /Area/i })
     fireEvent.click(areaBtn)
-    expect(areaBtn).toHaveClass('bg-zinc-800')
+    expect(areaBtn).toHaveClass('bg-[#161C26]')
   })
 
   it('switches to VaR Risk view and displays Value at Risk metrics', () => {
@@ -94,23 +102,45 @@ describe('PriceChart component', () => {
     // Check VaR analytics cards
     expect(screen.getByText(/1-Day 95% VaR/i)).toBeInTheDocument()
     expect(screen.getByText(/1-Day 99% VaR/i)).toBeInTheDocument()
-    expect(screen.getByText(/CVaR \(Expected Shortfall\)/i)).toBeInTheDocument()
-    expect(screen.getByText(/Annualized Volatility/i)).toBeInTheDocument()
+    expect(screen.getByText(/CVaR/i)).toBeInTheDocument()
+    expect(screen.getByText(/Annual Volatility/i)).toBeInTheDocument()
   })
 
-  it('toggles technical indicator overlays (SMA 20, SMA 50, Vol)', () => {
+  it('toggles technical indicator tray items (EMA 9, EMA 21, SMA 20, BB, VWAP, Vol)', () => {
     render(<PriceChart ticker="AAPL" currency="USD" />)
+
+    const ema9Btn = screen.getByRole('button', { name: /EMA 9/i })
+    fireEvent.click(ema9Btn)
+    expect(ema9Btn).toHaveClass('text-[#00B2FF]')
+
+    const ema21Btn = screen.getByRole('button', { name: /EMA 21/i })
+    fireEvent.click(ema21Btn)
+    expect(ema21Btn).toHaveClass('text-[#00E599]')
 
     const sma20Btn = screen.getByRole('button', { name: /SMA 20/i })
     fireEvent.click(sma20Btn)
-    expect(sma20Btn).toHaveClass('bg-blue-900/60')
+    expect(sma20Btn).toHaveClass('text-[#3B82F6]')
 
-    const sma50Btn = screen.getByRole('button', { name: /SMA 50/i })
-    fireEvent.click(sma50Btn)
-    expect(sma50Btn).toHaveClass('bg-amber-900/60')
+    const bbBtn = screen.getByRole('button', { name: /BB \(20,2\)/i })
+    fireEvent.click(bbBtn)
+    expect(bbBtn).toHaveClass('border-[#8C96A5]/50')
+
+    const vwapBtn = screen.getByRole('button', { name: /VWAP/i })
+    fireEvent.click(vwapBtn)
+    expect(vwapBtn).toHaveClass('text-[#FACC15]')
 
     const volBtn = screen.getByRole('button', { name: /Vol/i })
     fireEvent.click(volBtn) // Toggle off
-    expect(volBtn).not.toHaveClass('bg-zinc-800')
+    expect(volBtn).not.toHaveClass('bg-[#161C26]')
+  })
+
+  it('toggles expand / theater canvas mode', () => {
+    render(<PriceChart ticker="AAPL" currency="USD" />)
+
+    const expandBtn = screen.getByRole('button', { name: /Expand/i })
+    expect(expandBtn).toBeInTheDocument()
+    fireEvent.click(expandBtn)
+
+    expect(screen.getByRole('button', { name: /Standard/i })).toBeInTheDocument()
   })
 })
