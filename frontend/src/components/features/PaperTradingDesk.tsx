@@ -231,8 +231,11 @@ export function PaperTradingDesk({
   const totalUnrealizedPnl = positions
     .filter((p) => p.currency === actualCurrency)
     .reduce((sum, p) => {
-      const grossDiff = (p.currentPrice - p.entryPrice) * p.shares
-      const exitFee = Math.round(p.currentPrice * p.shares * 0.0025)
+      const grossDiff = p.side === 'BUY'
+        ? (p.currentPrice - p.entryPrice) * p.shares
+        : (p.entryPrice - p.currentPrice) * p.shares
+      const exitFeeRate = p.side === 'BUY' ? 0.0025 : 0.0015
+      const exitFee = Math.round(p.currentPrice * p.shares * exitFeeRate)
       return sum + (grossDiff - exitFee)
     }, 0)
 
@@ -706,7 +709,9 @@ export function PaperTradingDesk({
                   <div>
                     <span className="text-[#6F7887]">P&L: </span>
                     {(() => {
-                      const pnl = (currentPrice - activePosition.entryPrice) * activePosition.shares
+                      const pnl = activePosition.side === 'BUY'
+                        ? (currentPrice - activePosition.entryPrice) * activePosition.shares
+                        : (activePosition.entryPrice - currentPrice) * activePosition.shares
                       const pnlPct = activePosition.entryPrice > 0 ? (pnl / (activePosition.entryPrice * activePosition.shares)) * 100 : 0
                       return (
                         <span className={cn('font-bold tabular-nums', pnl >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
@@ -753,7 +758,9 @@ export function PaperTradingDesk({
                 </thead>
                 <tbody className="divide-y divide-[#161C26]">
                   {positions.map((pos) => {
-                    const diff = (pos.currentPrice - pos.entryPrice) * pos.shares
+                    const diff = pos.side === 'BUY'
+                      ? (pos.currentPrice - pos.entryPrice) * pos.shares
+                      : (pos.entryPrice - pos.currentPrice) * pos.shares
                     const pnlPct = pos.entryPrice > 0 ? (diff / (pos.entryPrice * pos.shares)) * 100 : 0
                     return (
                       <tr key={pos.id} className="hover:bg-[#121620]">

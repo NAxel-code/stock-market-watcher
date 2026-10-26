@@ -99,4 +99,92 @@ describe('usePaperTradingStore', () => {
     expect(pos.takeProfit).toBe(3300)
     expect(pos.stopLoss).toBe(2900)
   })
+
+  it('automatically closes long position when placing a SELL order for equal or more shares', () => {
+    const store = usePaperTradingStore.getState()
+    store.openPosition({
+      ticker: 'BBRI.JK',
+      side: 'BUY',
+      shares: 500,
+      lots: 5,
+      entryPrice: 4000,
+      currentPrice: 4000,
+      currency: 'IDR',
+    })
+
+    expect(usePaperTradingStore.getState().positions.length).toBe(1)
+
+    // Place SELL order for 500 shares at 4400
+    const sellRes = usePaperTradingStore.getState().openPosition({
+      ticker: 'BBRI.JK',
+      side: 'SELL',
+      shares: 500,
+      lots: 5,
+      entryPrice: 4400,
+      currentPrice: 4400,
+      currency: 'IDR',
+    })
+
+    expect(sellRes.success).toBe(true)
+    const state = usePaperTradingStore.getState()
+    expect(state.positions.length).toBe(0)
+    expect(state.history.length).toBe(1)
+    expect(state.history[0].ticker).toBe('BBRI.JK')
+    expect(state.history[0].realizedPnl).toBeGreaterThan(0)
+  })
+
+  it('partially trims long position when placing a SELL order for fewer shares', () => {
+    const store = usePaperTradingStore.getState()
+    store.openPosition({
+      ticker: 'BMRI.JK',
+      side: 'BUY',
+      shares: 1000,
+      lots: 10,
+      entryPrice: 5000,
+      currentPrice: 5000,
+      currency: 'IDR',
+    })
+
+    // Sell 400 shares (4 lots) at 5500
+    const trimRes = usePaperTradingStore.getState().openPosition({
+      ticker: 'BMRI.JK',
+      side: 'SELL',
+      shares: 400,
+      lots: 4,
+      entryPrice: 5500,
+      currentPrice: 5500,
+      currency: 'IDR',
+    })
+
+    expect(trimRes.success).toBe(true)
+    const state = usePaperTradingStore.getState()
+    expect(state.positions.length).toBe(1)
+    expect(state.positions[0].shares).toBe(600)
+    expect(state.positions[0].lots).toBe(6)
+    expect(state.history.length).toBe(1)
+    expect(state.history[0].shares).toBe(400)
+  })
+
+  it('closes a short position with profit releasing collateral accurately', () => {
+    const store = usePaperTradingStore.getState()
+    const openRes = store.openPosition({
+      ticker: 'TSLA',
+      side: 'SELL',
+      shares: 10,
+      entryPrice: 250,
+      currentPrice: 250,
+      currency: 'USD',
+    })
+
+    const initialCash = usePaperTradingStore.getState().cashBalanceUSD
+    // Stock falls to 200 (short profit)
+    const closeRes = usePaperTradingStore.getState().closePosition(openRes.positionId!, 200)
+
+    expect(closeRes.success).toBe(true)
+    const state = usePaperTradingStore.getState()
+    expect(state.positions.length).toBe(0)
+    expect(state.history[0].realizedPnl).toBeGreaterThan(0)
+    // Cash should have received original collateral + profit
+    expect(state.cashBalanceUSD).toBeGreaterThan(initialCash + 2500)
+  })
 })

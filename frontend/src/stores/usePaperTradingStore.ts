@@ -77,17 +77,103 @@ export const usePaperTradingStore = create<PaperTradingState>()(
       history: [],
 
       openPosition: (params) => {
-        const currency = params.currency || (isIdxTicker(params.ticker) ? 'IDR' : 'USD')
+        const symbol = params.ticker.toUpperCase()
+        const currency = params.currency || (isIdxTicker(symbol) ? 'IDR' : 'USD')
+        const isIDR = currency === 'IDR'
+        const currentBalance = isIDR ? get().cashBalanceIDR : get().cashBalanceUSD
+
+        // If user is placing a SELL order and already has an open LONG position
+        if (params.side === 'SELL') {
+          const existingLong = get().positions.find(
+            (p) => p.ticker.toUpperCase() === symbol && p.side === 'BUY'
+          )
+
+          if (existingLong) {
+            // Full position exit
+            if (params.shares >= existingLong.shares) {
+              return get().closePosition(existingLong.id, params.entryPrice)
+            }
+
+            // Partial position trim / partial sell
+            const soldShares = params.shares
+            const grossExitValue = params.entryPrice * soldShares
+            const exitFee = Math.round(grossExitValue * 0.0025)
+            const netExitProceeds = grossExitValue - exitFee
+
+            const grossEntryValue = existingLong.entryPrice * soldShares
+            const proRataEntryFee = Math.round(existingLong.feePaid * (soldShares / existingLong.shares))
+            const totalFees = proRataEntryFee + exitFee
+
+            const realizedPnl = (grossExitValue - grossEntryValue) - totalFees
+            const realizedPnlPercent = grossEntryValue > 0 ? (realizedPnl / grossEntryValue) * 100 : 0
+
+            const remainingShares = existingLong.shares - soldShares
+            const remainingLots = existingLong.lots
+              ? Math.max(1, existingLong.lots - (params.lots || Math.round(soldShares / 100)))
+              : undefined
+
+            const historyRecord: PaperTradeHistory = {
+              id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+              ticker: symbol,
+              side: 'BUY',
+              shares: soldShares,
+              lots: params.lots,
+              entryPrice: existingLong.entryPrice,
+              exitPrice: params.entryPrice,
+              currency: existingLong.currency,
+              realizedPnl,
+              realizedPnlPercent,
+              feePaid: totalFees,
+              openedAt: existingLong.openedAt,
+              closedAt: new Date().toISOString(),
+            }
+
+            if (isIDR) {
+              set((s) => ({
+                cashBalanceIDR: s.cashBalanceIDR + netExitProceeds,
+                positions: s.positions.map((p) =>
+                  p.id === existingLong.id
+                    ? {
+                        ...p,
+                        shares: remainingShares,
+                        lots: remainingLots,
+                        feePaid: p.feePaid - proRataEntryFee,
+                      }
+                    : p
+                ),
+                history: [historyRecord, ...s.history],
+              }))
+            } else {
+              set((s) => ({
+                cashBalanceUSD: s.cashBalanceUSD + netExitProceeds,
+                positions: s.positions.map((p) =>
+                  p.id === existingLong.id
+                    ? {
+                        ...p,
+                        shares: remainingShares,
+                        lots: remainingLots,
+                        feePaid: p.feePaid - proRataEntryFee,
+                      }
+                    : p
+                ),
+                history: [historyRecord, ...s.history],
+              }))
+            }
+
+            return {
+              success: true,
+              message: `Partially sold ${soldShares.toLocaleString()} shares of ${symbol}. Realized P&L: ${realizedPnl >= 0 ? '+' : ''}${isIDR ? `Rp ${realizedPnl.toLocaleString('id-ID')}` : `$${realizedPnl.toFixed(2)}`}`,
+            }
+          }
+        }
+
+        // Opening a new position (BUY or short SELL)
         const grossValue = params.entryPrice * params.shares
-        // Standard fee: 0.15% for BUY, 0.25% for SELL
         const feeRate = params.side === 'BUY' ? 0.0015 : 0.0025
         const fee = Math.round(grossValue * feeRate)
         const totalCapitalRequired = grossValue + fee
 
-        const isIDR = currency === 'IDR'
-        const currentBalance = isIDR ? get().cashBalanceIDR : get().cashBalanceUSD
-
-        if (params.side === 'BUY' && currentBalance < totalCapitalRequired) {
+        if (currentBalance < totalCapitalRequired) {
           return {
             success: false,
             message: `Insufficient virtual cash. Required: ${currency === 'IDR' ? `Rp ${totalCapitalRequired.toLocaleString('id-ID')}` : `$${totalCapitalRequired.toFixed(2)}`}, Available: ${currency === 'IDR' ? `Rp ${currentBalance.toLocaleString('id-ID')}` : `$${currentBalance.toFixed(2)}`}`,
@@ -96,7 +182,7 @@ export const usePaperTradingStore = create<PaperTradingState>()(
 
         const newPosition: PaperPosition = {
           id: `pos_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-          ticker: params.ticker.toUpperCase(),
+          ticker: symbol,
           companyName: params.companyName,
           side: params.side,
           shares: params.shares,
@@ -124,7 +210,7 @@ export const usePaperTradingStore = create<PaperTradingState>()(
 
         return {
           success: true,
-          message: `Simulated ${params.side} order executed for ${params.ticker}`,
+          message: `Simulated ${params.side} order executed for ${symbol}`,
           positionId: newPosition.id,
         }
       },
@@ -141,20 +227,30 @@ export const usePaperTradingStore = create<PaperTradingState>()(
         const isIDR = position.currency === 'IDR'
 
         const grossExitValue = exitPrice * position.shares
-        // Exit broker fee (0.25% for sell exit)
-        const exitFee = Math.round(grossExitValue * 0.0025)
+        // Exit fee: 0.25% for selling long position, 0.15% for buying to cover short
+        const exitFeeRate = position.side === 'BUY' ? 0.0025 : 0.0015
+        const exitFee = Math.round(grossExitValue * exitFeeRate)
         const netExitProceeds = grossExitValue - exitFee
 
-        // Gross entry value
+        // Gross entry value and total transaction fees
         const grossEntryValue = position.entryPrice * position.shares
         const totalFees = position.feePaid + exitFee
 
-        // Realized PnL = Net Proceeds - (Gross Entry + Entry Fee)
+        // Realized PnL:
+        // Long (BUY): (Exit - Entry) - Total Fees
+        // Short (SELL): (Entry - Exit) - Total Fees
         const realizedPnl = position.side === 'BUY'
           ? (grossExitValue - grossEntryValue) - totalFees
           : (grossEntryValue - grossExitValue) - totalFees
 
         const realizedPnlPercent = grossEntryValue > 0 ? (realizedPnl / grossEntryValue) * 100 : 0
+
+        // Cash credited back to account:
+        // Long: net exit proceeds
+        // Short: returned collateral (grossEntryValue + position.feePaid) + realizedPnl
+        const cashCredit = position.side === 'BUY'
+          ? netExitProceeds
+          : (grossEntryValue + position.feePaid) + realizedPnl
 
         const historyRecord: PaperTradeHistory = {
           id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -174,13 +270,13 @@ export const usePaperTradingStore = create<PaperTradingState>()(
 
         if (isIDR) {
           set((s) => ({
-            cashBalanceIDR: s.cashBalanceIDR + netExitProceeds,
+            cashBalanceIDR: Math.max(0, s.cashBalanceIDR + cashCredit),
             positions: s.positions.filter((p) => p.id !== positionId),
             history: [historyRecord, ...s.history],
           }))
         } else {
           set((s) => ({
-            cashBalanceUSD: s.cashBalanceUSD + netExitProceeds,
+            cashBalanceUSD: Math.max(0, s.cashBalanceUSD + cashCredit),
             positions: s.positions.filter((p) => p.id !== positionId),
             history: [historyRecord, ...s.history],
           }))
