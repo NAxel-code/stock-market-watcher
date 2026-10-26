@@ -10,15 +10,16 @@ import { IdxLotCalculator } from '@/components/features/IdxLotCalculator'
 import { PriceAlertDialog } from '@/components/features/PriceAlertDialog'
 import { MultiHorizonReturns } from '@/components/features/MultiHorizonReturns'
 import { AnalysisDeskTab } from '@/components/features/AnalysisDeskTab'
+import { PaperTradingDesk } from '@/components/features/PaperTradingDesk'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker, getStockCurrency } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
-import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert, Compass, BarChart2, Calculator } from 'lucide-react'
+import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert, Compass, BarChart2, Calculator, Landmark } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
 
 export function StockDetailClient({ ticker }: { ticker: string }) {
-  const [activeTab, setActiveTab] = useState<'desk' | 'chart' | 'calculator'>('desk')
+  const [activeTab, setActiveTab] = useState<'desk' | 'chart' | 'simulator' | 'calculator'>('desk')
   const { data: quote, isLoading, error } = useStockData(ticker)
   const { data: history1y } = useStockHistory(ticker, '1y')
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useUIStore()
@@ -207,6 +208,21 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           <BarChart2 className="h-3.5 w-3.5 text-[#00B2FF]" />
           <span>Interactive Chart</span>
         </button>
+        <button
+          onClick={() => setActiveTab('simulator')}
+          className={cn(
+            'flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer',
+            activeTab === 'simulator'
+              ? 'bg-[#121620] text-[#00E599] border border-[#00E599]/30 shadow-xs'
+              : 'text-[#6F7887] hover:text-[#F0F4F8]'
+          )}
+        >
+          <Landmark className="h-3.5 w-3.5 text-[#00E599]" />
+          <span>Paper Trading</span>
+          <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30">
+            SIM
+          </span>
+        </button>
         {isIdx && (
           <button
             onClick={() => setActiveTab('calculator')}
@@ -226,6 +242,16 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {/* Tab Content: Technical Desk */}
       {activeTab === 'desk' && (
         <AnalysisDeskTab ticker={ticker} />
+      )}
+
+      {/* Tab Content: Paper Trading Simulator */}
+      {activeTab === 'simulator' && (
+        <PaperTradingDesk
+          ticker={quote.ticker}
+          currentPrice={quote.current_price}
+          companyName={quote.company_name}
+          currency={stockCurrency}
+        />
       )}
 
       {/* Tab Content: Interactive Chart & Stats */}
