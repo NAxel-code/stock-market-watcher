@@ -25,8 +25,8 @@ from app.services.yahoo_finance import get_batch_quotes, get_quote
 
 logger = logging.getLogger(__name__)
 
-# Cache overview response for 60 seconds
-_overview_cache: TTLCache[str, Any] = TTLCache(maxsize=10, ttl=60)
+# Cache overview response for 120 seconds
+_overview_cache: TTLCache[str, Any] = TTLCache(maxsize=20, ttl=120)
 
 # 1. INDICES CONFIG
 INDICES_CONFIG = [
@@ -85,31 +85,43 @@ COMMODITIES_CONFIG = [
     {"ticker": "CL=F", "name": "WTI Crude Oil", "source": "NYMEX", "unit": "$/bbl", "fallback_price": 70.15, "fallback_chg": 0.72, "fallback_pct": 1.04},
     {"ticker": "GC=F", "name": "Gold Spot", "source": "COMEX", "unit": "$/oz", "fallback_price": 2685.50, "fallback_chg": 14.20, "fallback_pct": 0.53},
     {"ticker": "HG=F", "name": "Copper Futures", "source": "COMEX", "unit": "$/lb", "fallback_price": 4.15, "fallback_chg": -0.02, "fallback_pct": -0.48},
-    # SEA & Regional Commodities
-    {"ticker": "COAL-NCF", "name": "Newcastle Thermal Coal", "source": "World Bank / ICE", "unit": "$/MT", "fallback_price": 142.50, "fallback_chg": -1.20, "fallback_pct": -0.83},
-    {"ticker": "NICKEL-LME", "name": "LME Nickel Cash", "source": "London Metal Exchange", "unit": "$/MT", "fallback_price": 16250.0, "fallback_chg": 180.0, "fallback_pct": 1.12},
-    {"ticker": "CPO-MDEX", "name": "Crude Palm Oil (CPO)", "source": "Bursa Malaysia / ICDX", "unit": "MYR/MT", "fallback_price": 4820.0, "fallback_chg": 45.0, "fallback_pct": 0.94},
+    # SEA & Regional Commodities (benchmark references)
+    {"ticker": "COAL-NCF", "name": "Newcastle Thermal Coal", "source": "World Bank / ICE", "unit": "$/MT", "fallback_price": 142.50, "fallback_chg": -1.20, "fallback_pct": -0.83, "is_synthetic": True},
+    {"ticker": "NICKEL-LME", "name": "LME Nickel Cash", "source": "London Metal Exchange", "unit": "$/MT", "fallback_price": 16250.0, "fallback_chg": 180.0, "fallback_pct": 1.12, "is_synthetic": True},
+    {"ticker": "CPO-MDEX", "name": "Crude Palm Oil (CPO)", "source": "Bursa Malaysia / ICDX", "unit": "MYR/MT", "fallback_price": 4820.0, "fallback_chg": 45.0, "fallback_pct": 0.94, "is_synthetic": True},
 ]
 
 
-def _build_instrument(cfg: dict[str, Any], category: str, now_iso: str) -> MarketInstrument:
+def _build_instrument(cfg: dict[str, Any], category: str, now_iso: str, quotes_dict: dict[str, Any] | None = None) -> MarketInstrument:
     ticker = cfg["ticker"]
     name = cfg["name"]
     source = cfg["source"]
     unit = cfg.get("unit", "$")
 
-    try:
-        quote = get_quote(ticker)
-        price = quote.current_price
-        change = quote.change
-        change_pct = quote.change_percent
-        is_stale = quote.is_stale
-    except Exception as exc:
-        logger.debug("Quote fetch error for %s (%s), using fallback: %s", ticker, name, exc)
+    if cfg.get("is_synthetic"):
         price = cfg.get("fallback_price", 0.0)
         change = cfg.get("fallback_chg", 0.0)
         change_pct = cfg.get("fallback_pct", 0.0)
         is_stale = False
+    elif quotes_dict is not None and ticker.upper() in quotes_dict:
+        quote = quotes_dict[ticker.upper()]
+        price = quote.current_price
+        change = quote.change
+        change_pct = quote.change_percent
+        is_stale = quote.is_stale
+    else:
+        try:
+            quote = get_quote(ticker)
+            price = quote.current_price
+            change = quote.change
+            change_pct = quote.change_percent
+            is_stale = quote.is_stale
+        except Exception as exc:
+            logger.debug("Quote fetch error for %s (%s), using fallback: %s", ticker, name, exc)
+            price = cfg.get("fallback_price", 0.0)
+            change = cfg.get("fallback_chg", 0.0)
+            change_pct = cfg.get("fallback_pct", 0.0)
+            is_stale = False
 
     return MarketInstrument(
         ticker=ticker,
@@ -179,16 +191,21 @@ def compute_unusual_movers() -> list[UnusualMover]:
 
 
 def get_markets_overview() -> MarketsOverviewResponse:
-    """Retrieve multi-asset markets screen overview."""
+    """Retrieve multi-asset markets screen overview with batch pre-fetching."""
     if "overview" in _overview_cache:
         return _overview_cache["overview"]
 
     now_iso = datetime.now(timezone.utc).isoformat()
 
-    indices = [_build_instrument(cfg, "INDEX", now_iso) for cfg in INDICES_CONFIG]
-    etfs = [_build_instrument(cfg, "ETF", now_iso) for cfg in ETFS_CONFIG]
-    fx_rates = [_build_instrument(cfg, "FX", now_iso) for cfg in FX_CONFIG]
-    commodities = [_build_instrument(cfg, "COMMODITY", now_iso) for cfg in COMMODITIES_CONFIG]
+    all_configs = INDICES_CONFIG + ETFS_CONFIG + FX_CONFIG + COMMODITIES_CONFIG
+    symbols_to_fetch = [cfg["ticker"] for cfg in all_configs if not cfg.get("is_synthetic")]
+    quotes_list = get_batch_quotes(symbols_to_fetch)
+    quotes_dict = {q.ticker.upper(): q for q in quotes_list}
+
+    indices = [_build_instrument(cfg, "INDEX", now_iso, quotes_dict) for cfg in INDICES_CONFIG]
+    etfs = [_build_instrument(cfg, "ETF", now_iso, quotes_dict) for cfg in ETFS_CONFIG]
+    fx_rates = [_build_instrument(cfg, "FX", now_iso, quotes_dict) for cfg in FX_CONFIG]
+    commodities = [_build_instrument(cfg, "COMMODITY", now_iso, quotes_dict) for cfg in COMMODITIES_CONFIG]
     unusual_moves = compute_unusual_movers()
 
     response = MarketsOverviewResponse(
