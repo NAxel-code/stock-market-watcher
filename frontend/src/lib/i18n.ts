@@ -4,6 +4,8 @@ export const translations = {
   en: {
     // Navigation & Common
     dashboard: 'Dashboard',
+    markets: 'Markets',
+    portfolio: 'Portfolio',
     watchlist: 'Watchlist',
     search: 'Search',
     account: 'Account',
@@ -65,6 +67,8 @@ export const translations = {
   id: {
     // Navigation & Common
     dashboard: 'Dasbor',
+    markets: 'Pasar',
+    portfolio: 'Portofolio',
     watchlist: 'Daftar Pantau',
     search: 'Cari',
     account: 'Akun',

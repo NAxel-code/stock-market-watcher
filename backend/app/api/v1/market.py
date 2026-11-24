@@ -1,9 +1,21 @@
 from fastapi import APIRouter, Query, Response
 
-from app.models.schemas import FXRatesResponse, MarketStatusResponse, MarketSummaryResponse
-from app.services import data_collector, yahoo_finance as yf_service
+from app.models.schemas import (
+    FXRatesResponse,
+    MarketStatusResponse,
+    MarketSummaryResponse,
+    MarketsOverviewResponse,
+)
+from app.services import data_collector, markets_screen, yahoo_finance as yf_service
 
 router = APIRouter(prefix="/market", tags=["market"])
+
+
+@router.get("/overview", response_model=MarketsOverviewResponse)
+def get_markets_overview_endpoint(response: Response) -> MarketsOverviewResponse:
+    """Get multi-asset markets screen overview: Indices, ETFs, FX, Yields, Commodities, and Unusual Moves."""
+    response.headers["Cache-Control"] = "public, max-age=60, s-maxage=60, stale-while-revalidate=120"
+    return markets_screen.get_markets_overview()
 
 
 @router.get("/summary", response_model=MarketSummaryResponse)

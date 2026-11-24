@@ -19,7 +19,7 @@ describe('MarketStatusRibbon component', () => {
     vi.useRealTimers()
   })
 
-  it('renders live ticking Jakarta clock and market status', () => {
+  it('renders live ticking local device clock and market status', () => {
     vi.mocked(useQuery).mockReturnValue({
       data: {
         idx: {
@@ -40,14 +40,14 @@ describe('MarketStatusRibbon component', () => {
 
     expect(screen.getByText(/IDX \(BEI\):/i)).toBeInTheDocument()
     expect(screen.getByText(/Session 2 \(Open\)/i)).toBeInTheDocument()
-    expect(screen.getByText(/Jakarta:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Local:/i)).toBeInTheDocument()
 
     // Fast-forward 2 seconds
     act(() => {
       vi.advanceTimersByTime(2000)
     })
 
-    expect(screen.getByText(/Jakarta:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Local:/i)).toBeInTheDocument()
   })
 
   it('renders SGX market status and FX rates ticker when available', () => {
@@ -81,6 +81,6 @@ describe('MarketStatusRibbon component', () => {
     expect(screen.getByText(/Morning Session/i)).toBeInTheDocument()
     expect(screen.getByText('USD/SGD')).toBeInTheDocument()
     expect(screen.getByText('1.3450')).toBeInTheDocument()
-    expect(screen.getByText('USD/IDR')).toBeInTheDocument()
+    expect(screen.getAllByText('USD/IDR').length).toBeGreaterThanOrEqual(1)
   })
 })

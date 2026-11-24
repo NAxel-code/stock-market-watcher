@@ -86,3 +86,32 @@ CREATE POLICY IF NOT EXISTS "alerts_user_policy"
     ON public.alerts FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
+
+-- Portfolio Holdings (Multi-asset lots, cost bases, and fees)
+CREATE TABLE IF NOT EXISTS public.portfolio_holdings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    ticker VARCHAR(20) NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    exchange VARCHAR(20) NOT NULL,
+    asset_type VARCHAR(20) DEFAULT 'EQUITY',
+    shares DECIMAL(16, 4) NOT NULL,
+    lot_size INT DEFAULT 1,
+    cost_basis DECIMAL(16, 4) NOT NULL,
+    currency VARCHAR(10) NOT NULL,
+    purchase_date DATE,
+    sector VARCHAR(100),
+    country VARCHAR(10),
+    fees DECIMAL(12, 2) DEFAULT 0.0,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_portfolio_user_id ON public.portfolio_holdings(user_id);
+
+ALTER TABLE public.portfolio_holdings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "portfolio_user_policy"
+    ON public.portfolio_holdings FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);

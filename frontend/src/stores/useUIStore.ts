@@ -6,6 +6,8 @@ import type { DisplayCurrency } from '@/lib/currency'
 import { FALLBACK_FX_RATES } from '@/lib/currency'
 import type { Language } from '@/lib/i18n'
 
+export type TimezoneMode = 'LOCAL' | 'WIB' | 'SGT' | 'EST' | 'UTC'
+
 export const DEFAULT_WATCHLIST = [
   // US Market Top Traded (16 stocks)
   'AAPL', 'NVDA', 'MSFT', 'AMZN', 'GOOGL', 'META', 'TSLA', 'AMD',
@@ -47,6 +49,8 @@ interface UIStore {
   setFXRates: (rates: Record<string, number>) => void
   language: Language
   setLanguage: (language: Language) => void
+  timezoneMode: TimezoneMode
+  setTimezoneMode: (mode: TimezoneMode) => void
 }
 
 export const useUIStore = create<UIStore>()(
@@ -135,6 +139,8 @@ export const useUIStore = create<UIStore>()(
       setFXRates: (rates) => set((state) => ({ fxRates: { ...state.fxRates, ...rates } })),
       language: 'en',
       setLanguage: (language) => set({ language }),
+      timezoneMode: 'LOCAL',
+      setTimezoneMode: (timezoneMode) => set({ timezoneMode }),
     }),
     {
       name: 'stockpulse-ui-store',
@@ -145,6 +151,7 @@ export const useUIStore = create<UIStore>()(
         sidebarOpen: state.sidebarOpen,
         displayCurrency: state.displayCurrency,
         language: state.language,
+        timezoneMode: state.timezoneMode,
       }),
     }
   )

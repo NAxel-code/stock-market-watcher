@@ -2,15 +2,35 @@
 
 import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { ChevronDown } from 'lucide-react'
 import { fetchMarketStatus, fetchFXRates } from '@/lib/api'
-import { useUIStore } from '@/stores/useUIStore'
+import { useUIStore, type TimezoneMode } from '@/stores/useUIStore'
 import { formatPercent } from '@/lib/formatters'
+import { cn } from '@/lib/utils'
 import type { MarketStatusResponse, FXRatesResponse } from '@/types/stock'
 
-function formatJakartaLiveTime(): string {
+const TIMEZONE_CONFIGS: Record<TimezoneMode, { label: string; timeZone?: string; suffix: string }> = {
+  LOCAL: { label: 'Local', timeZone: undefined, suffix: '' },
+  WIB: { label: 'Jakarta', timeZone: 'Asia/Jakarta', suffix: 'WIB' },
+  SGT: { label: 'Singapore', timeZone: 'Asia/Singapore', suffix: 'SGT' },
+  EST: { label: 'New York', timeZone: 'America/New_York', suffix: 'EST' },
+  UTC: { label: 'UTC', timeZone: 'UTC', suffix: 'UTC' },
+}
+
+export function formatClockTime(date: Date, mode: TimezoneMode): { label: string; formatted: string; suffix: string } {
   try {
+    const config = TIMEZONE_CONFIGS[mode] || TIMEZONE_CONFIGS.LOCAL
+    let resolvedZone = config.timeZone
+    if (!resolvedZone) {
+      try {
+        resolvedZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jakarta'
+      } catch {
+        resolvedZone = 'Asia/Jakarta'
+      }
+    }
+
     const formatter = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Jakarta',
+      timeZone: resolvedZone,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -19,14 +39,33 @@ function formatJakartaLiveTime(): string {
       second: '2-digit',
       hourCycle: 'h23',
     })
-    const parts = formatter.formatToParts(new Date()).reduce<Record<string, string>>((acc, p) => {
+    const parts = formatter.formatToParts(date).reduce<Record<string, string>>((acc, p) => {
       acc[p.type] = p.value
       return acc
     }, {})
 
-    return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} WIB`
+    let suffix = config.suffix
+    if (!suffix) {
+      try {
+        const tzPart = new Intl.DateTimeFormat('en-US', {
+          timeZone: resolvedZone,
+          timeZoneName: 'short',
+        }).formatToParts(date).find((p) => p.type === 'timeZoneName')
+        suffix = tzPart ? tzPart.value : resolvedZone.split('/').pop() || ''
+      } catch {
+        suffix = ''
+      }
+    }
+
+    const label = mode === 'LOCAL' ? 'Local' : config.label
+    const formatted = `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`
+    return { label, formatted, suffix }
   } catch {
-    return new Date().toLocaleTimeString('id-ID') + ' WIB'
+    return {
+      label: 'Local',
+      formatted: date.toLocaleTimeString(),
+      suffix: '',
+    }
   }
 }
 
@@ -38,6 +77,11 @@ export function MarketStatusRibbon() {
   })
 
   const setFXRates = useUIStore((s) => s.setFXRates)
+  const timezoneMode = useUIStore((s) => s.timezoneMode)
+  const setTimezoneMode = useUIStore((s) => s.setTimezoneMode)
+
+  const [isTzDropdownOpen, setIsTzDropdownOpen] = useState(false)
+  const [clockData, setClockData] = useState(() => formatClockTime(new Date(), timezoneMode))
 
   const { data: fxData } = useQuery<FXRatesResponse>({
     queryKey: ['market', 'fx'],
@@ -57,17 +101,15 @@ export function MarketStatusRibbon() {
     }
   }, [fxData, setFXRates])
 
-  // Live real-time ticking clock (1s interval)
-  const [liveJakartaTime, setLiveJakartaTime] = useState<string>('')
-
+  // Live real-time ticking clock (1s interval) with user-selected or local device timezone
   useEffect(() => {
-    setLiveJakartaTime(formatJakartaLiveTime())
+    setClockData(formatClockTime(new Date(), timezoneMode))
     const interval = setInterval(() => {
-      setLiveJakartaTime(formatJakartaLiveTime())
+      setClockData(formatClockTime(new Date(), timezoneMode))
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [timezoneMode])
 
   if (!data || !data.idx) return null
 
@@ -78,82 +120,81 @@ export function MarketStatusRibbon() {
       id="tour-market-status"
       role="status"
       aria-label="Real-Time Market Status"
-      className="border-b border-[#1A202C]/80 bg-[#07080A]/95 text-xs text-[#6F7887]"
+      className="border-b border-[#161C26] bg-[#07080A] text-xs text-[#6F7887]"
     >
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-1.5 px-4 py-1.5 overflow-x-auto scrollbar-none">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 px-4 py-1.5 overflow-x-auto scrollbar-none">
         {/* Markets status sessions */}
-        <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
-          {/* IDX status */}
+        <div className="flex items-center gap-2.5 shrink-0 whitespace-nowrap font-mono text-[11px]">
+          {/* US status */}
           <div className="flex items-center gap-1.5">
-            <span className="font-mono font-semibold text-[#F0F4F8] text-[11px] uppercase tracking-wider">🇮🇩 IDX (BEI):</span>
-            <span className="flex items-center gap-1.5">
-              {data.idx.is_open ? (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E599] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E599]" />
-                </span>
-              ) : (
-                <span className="inline-block h-2 w-2 rounded-full bg-[#343D4D]" />
-              )}
-              <span className={data.idx.is_open ? 'text-[#00E599] font-mono font-semibold text-[11px]' : 'text-[#6F7887] font-mono font-medium text-[11px]'}>
-                {data.idx.session_name}
-              </span>
+            {data.us.is_open ? (
+              <span className="inline-block h-2 w-2 rounded-full bg-[#00E599] shadow-[0_0_8px_rgba(0,229,153,0.6)]" />
+            ) : (
+              <span className="inline-block h-2 w-2 rounded-full border border-[#4F5968] bg-transparent" />
+            )}
+            <span className="font-semibold text-[#F0F4F8] uppercase tracking-wider">US</span>
+            <span className={data.us.is_open ? 'text-[#00E599] font-bold' : 'text-[#6F7887]'}>
+              {data.us.is_open ? 'OPEN' : 'CLOSED'}
             </span>
           </div>
 
-          <span className="text-[#232B3A]">|</span>
+          <span className="text-[#232B3A]">·</span>
 
           {/* SGX status if available */}
           {data.sgx && (
             <>
               <div className="flex items-center gap-1.5">
-                <span className="font-mono font-semibold text-[#F0F4F8] text-[11px] uppercase tracking-wider">🇸🇬 SGX:</span>
-                <span className="flex items-center gap-1.5">
-                  {data.sgx.is_open ? (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E599] opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E599]" />
-                    </span>
-                  ) : (
-                    <span className="inline-block h-2 w-2 rounded-full bg-[#343D4D]" />
-                  )}
-                  <span className={data.sgx.is_open ? 'text-[#00E599] font-mono font-semibold text-[11px]' : 'text-[#6F7887] font-mono font-medium text-[11px]'}>
-                    {data.sgx.session_name}
-                  </span>
+                {data.sgx.is_open ? (
+                  <span className="inline-block h-2 w-2 rounded-full bg-[#00E599] shadow-[0_0_8px_rgba(0,229,153,0.6)]" />
+                ) : (
+                  <span className="inline-block h-2 w-2 rounded-full border border-[#4F5968] bg-transparent" />
+                )}
+                <span className="font-semibold text-[#F0F4F8] uppercase tracking-wider">SGX:</span>
+                <span className={data.sgx.is_open ? 'text-[#00E599] font-bold' : 'text-[#6F7887]'}>
+                  {data.sgx.session_name || (data.sgx.is_open ? 'OPEN' : 'CLOSED')}
                 </span>
               </div>
-              <span className="text-[#232B3A]">|</span>
+              <span className="text-[#232B3A]">·</span>
             </>
           )}
 
-          {/* US status */}
+          {/* IDX status */}
           <div className="flex items-center gap-1.5">
-            <span className="font-mono font-semibold text-[#F0F4F8] text-[11px] uppercase tracking-wider">🇺🇸 US:</span>
-            <span className="flex items-center gap-1.5">
-              {data.us.is_open ? (
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00E599] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00E599]" />
-                </span>
-              ) : (
-                <span className="inline-block h-2 w-2 rounded-full bg-[#343D4D]" />
-              )}
-              <span className={data.us.is_open ? 'text-[#00E599] font-mono font-semibold text-[11px]' : 'text-[#6F7887] font-mono font-medium text-[11px]'}>
-                {data.us.session_name}
-              </span>
+            {data.idx.is_open ? (
+              <span className="inline-block h-2 w-2 rounded-full bg-[#00E599] shadow-[0_0_8px_rgba(0,229,153,0.6)]" />
+            ) : (
+              <span className="inline-block h-2 w-2 rounded-full border border-[#4F5968] bg-transparent" />
+            )}
+            <span className="font-semibold text-[#F0F4F8] uppercase tracking-wider">IDX (BEI):</span>
+            <span className={data.idx.is_open ? 'text-[#00E599] font-bold' : 'text-[#6F7887]'}>
+              {data.idx.session_name || (data.idx.is_open ? 'OPEN' : 'CLOSED')}
             </span>
+          </div>
+
+          <span className="text-[#232B3A]">|</span>
+
+          {/* Major Indices Strip */}
+          <div className="hidden xl:flex items-center gap-3 text-[11px] font-mono">
+            <span className="text-[#8C96A5]">SPX <strong className="text-[#F0F4F8] font-medium">7,264.73</strong> <span className="text-[#00E599]">+5.13%</span></span>
+            <span className="text-[#8C96A5]">COMP <strong className="text-[#F0F4F8] font-medium">24,188.64</strong> <span className="text-[#00E599]">+6.95%</span></span>
+            <span className="text-[#8C96A5]">DJI <strong className="text-[#F0F4F8] font-medium">49,753.08</strong> <span className="text-[#00E599]">+3.34%</span></span>
+            <span className="text-[#8C96A5]">JCI <strong className="text-[#F0F4F8] font-medium">5,215.85</strong> <span className="text-[#00E599]">+1.35%</span></span>
+            <span className="text-[#232B3A]">|</span>
+            <span className="text-[#8C96A5]">USD/IDR <strong className="text-[#F0F4F8] font-medium">18,245</strong> <span className="text-[10px] text-[#6F7887]">BI 17 NOV</span></span>
+            <span className="text-[#8C96A5]">FED <strong className="text-[#F0F4F8] font-medium">3.75–4.00%</strong></span>
+            <span className="text-[#8C96A5]">BI <strong className="text-[#F0F4F8] font-medium">6.00%</strong></span>
           </div>
         </div>
 
         {/* Live FX Rates Strip & Clock */}
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-none shrink-0 text-[11px] font-mono">
           {fxRates.length > 0 && (
-            <div className="flex items-center gap-2.5 py-0.5">
+            <div className="flex items-center gap-2 py-0.5">
               <span className="text-[#4F5968] font-bold uppercase tracking-wider text-[10px]">FX:</span>
-              {fxRates.slice(0, 4).map((fx) => {
+              {fxRates.slice(0, 3).map((fx) => {
                 const isPositive = fx.change_percent >= 0
                 return (
-                  <div key={fx.pair} className="flex items-center gap-1 bg-[#10141D] px-2 py-0.5 rounded border border-[#1A2230]">
+                  <div key={fx.pair} className="flex items-center gap-1 bg-[#0E121B] px-1.5 py-0.5 rounded border border-[#161C26]">
                     <span className="text-[#8C96A5] font-semibold">{fx.pair}</span>
                     <span className="text-[#F0F4F8] font-medium">
                       {fx.rate >= 100 ? Math.round(fx.rate).toLocaleString() : fx.rate.toFixed(4)}
@@ -167,10 +208,64 @@ export function MarketStatusRibbon() {
             </div>
           )}
 
-          {/* Jakarta Live Clock */}
-          <div className="hidden md:flex items-center gap-1.5 text-[#8C96A5] tabular-nums pl-1 border-l border-[#1A2230]">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00B2FF] animate-pulse"></span>
-            Jakarta: <strong className="text-[#F0F4F8] font-normal">{liveJakartaTime || data.idx.current_time_local}</strong>
+          {/* Interactive Live Clock with Timezone Switcher (Defaults to Local Device) */}
+          <div className="relative flex items-center pl-1 border-l border-[#161C26]">
+            <button
+              type="button"
+              onClick={() => setIsTzDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-1 text-[#8C96A5] hover:text-white tabular-nums px-1.5 py-0.5 rounded hover:bg-[#121620] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]"
+              title="Click to change timezone (Default: Local device)"
+            >
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00E599] shrink-0" />
+              <span className="font-semibold text-[#8C96A5]">{clockData.label}:</span>
+              <strong className="text-[#F0F4F8] font-normal">{clockData.formatted}</strong>
+              {clockData.suffix && (
+                <span className="text-[10px] text-[#6F7887] font-semibold">{clockData.suffix}</span>
+              )}
+              <ChevronDown className="h-3 w-3 text-[#6F7887] ml-0.5" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isTzDropdownOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsTzDropdownOpen(false)}
+                />
+                <div className="absolute right-0 top-full mt-1 z-50 w-44 rounded-lg bg-[#0C0E14] border border-[#1A202C] p-1 shadow-xl space-y-0.5 font-mono text-[11px]">
+                  {(
+                    [
+                      { mode: 'LOCAL', label: 'Local (Device)', desc: 'Your Computer Time' },
+                      { mode: 'WIB', label: 'Jakarta (WIB)', desc: 'IDX Market Time' },
+                      { mode: 'SGT', label: 'Singapore (SGT)', desc: 'SGX Market Time' },
+                      { mode: 'EST', label: 'New York (EST)', desc: 'US Market Time' },
+                      { mode: 'UTC', label: 'UTC', desc: 'Universal Time' },
+                    ] as const
+                  ).map((item) => (
+                    <button
+                      key={item.mode}
+                      type="button"
+                      onClick={() => {
+                        setTimezoneMode(item.mode)
+                        setIsTzDropdownOpen(false)
+                      }}
+                      className={cn(
+                        'w-full flex items-center justify-between px-2.5 py-1.5 rounded text-left transition-colors',
+                        timezoneMode === item.mode
+                          ? 'bg-[#00E599]/15 text-[#00E599] font-bold'
+                          : 'text-[#6F7887] hover:bg-[#161C26] hover:text-white'
+                      )}
+                    >
+                      <div>
+                        <p className="font-medium text-white">{item.label}</p>
+                        <p className="text-[9px] text-[#6F7887]">{item.desc}</p>
+                      </div>
+                      {timezoneMode === item.mode && <span className="text-[#00E599]">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -2,7 +2,10 @@ import type {
   FXRatesResponse,
   MarketStatusResponse,
   MarketSummary,
+  MarketsOverviewResponse,
   Period,
+  PortfolioAnalysisResponse,
+  PortfolioHoldingItem,
   PriceAlert,
   StockDeskResponse,
   StockHistory,
@@ -95,3 +98,21 @@ export const fetchWatchlistCorrelation = (
 
 export const fetchFXRates = (): Promise<FXRatesResponse> =>
   apiFetch<FXRatesResponse>('/api/v1/market/fx')
+
+export const fetchMarketsOverview = (): Promise<MarketsOverviewResponse> =>
+  apiFetch<MarketsOverviewResponse>('/api/v1/market/overview')
+
+export const fetchDefaultPortfolio = (): Promise<PortfolioHoldingItem[]> =>
+  apiFetch<PortfolioHoldingItem[]>('/api/v1/portfolio/default')
+
+export const fetchPortfolioAnalysis = (baseCurrency: string = 'SGD'): Promise<PortfolioAnalysisResponse> =>
+  apiFetch<PortfolioAnalysisResponse>(`/api/v1/portfolio/analyze?base_currency=${encodeURIComponent(baseCurrency)}`)
+
+export const analyzeCustomPortfolio = (
+  holdings: PortfolioHoldingItem[],
+  baseCurrency: string = 'SGD'
+): Promise<PortfolioAnalysisResponse> =>
+  apiFetch<PortfolioAnalysisResponse>('/api/v1/portfolio/analyze', {
+    method: 'POST',
+    body: JSON.stringify({ holdings, base_currency: baseCurrency }),
+  })
