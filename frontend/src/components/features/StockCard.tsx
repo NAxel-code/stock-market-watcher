@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { TrendingUp, TrendingDown, X } from 'lucide-react'
 import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { convertCurrency, formatConvertedPrice } from '@/lib/currency'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Sparkline } from '@/components/features/Sparkline'
@@ -56,6 +58,17 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
 
   const isPositive = quote.change_percent >= 0
   const stockCurrency = getStockCurrency(quote)
+  const { displayCurrency, fxRates } = useUIStore()
+
+  const isConverted = displayCurrency !== 'NATIVE' && displayCurrency !== stockCurrency
+  const convertedAmount = isConverted
+    ? convertCurrency(quote.current_price, stockCurrency, displayCurrency, fxRates)
+    : null
+  const convertedPriceStr = convertedAmount !== null && isConverted
+    ? formatConvertedPrice(convertedAmount, displayCurrency)
+    : null
+
+  const exchangeLabel = stockCurrency === 'IDR' ? 'IDX' : stockCurrency === 'SGD' ? 'SGX' : 'US'
 
   return (
     <div
@@ -89,11 +102,13 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
                   'text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border',
                   stockCurrency === 'IDR'
                     ? 'text-[#00E599] bg-[#00E599]/10 border-[#00E599]/30'
+                    : stockCurrency === 'SGD'
+                    ? 'text-[#FFB800] bg-[#FFB800]/10 border-[#FFB800]/30'
                     : 'text-[#00B2FF] bg-[#00B2FF]/10 border-[#00B2FF]/30'
                 )}
-                title={`Exchange: ${stockCurrency === 'IDR' ? 'Indonesia (IDX)' : 'United States (US)'}`}
+                title={`Exchange: ${exchangeLabel}`}
               >
-                {stockCurrency === 'IDR' ? 'IDX' : 'US'}
+                {exchangeLabel}
               </span>
               {quote.sector && (
                 <span className="text-[9px] font-mono text-[#8C96A5] bg-[#07080A] border border-[#161C26] px-1.5 py-0.2 rounded truncate max-w-[85px]">
@@ -111,15 +126,22 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
 
         <div className="mt-3 flex items-end justify-between">
           <div>
-            <div className="flex items-baseline gap-1.5">
+            <div className="flex items-baseline gap-1.5 flex-wrap">
               <span className="text-xl font-bold font-mono tabular-nums tracking-tight text-[#F0F4F8]">
                 {formatCurrency(quote.current_price, stockCurrency)}
               </span>
+              {convertedPriceStr && (
+                <span className="text-xs font-mono font-medium text-[#8C96A5] tracking-tight bg-[#121620] px-1 py-0.5 rounded border border-[#1A2230]">
+                  {convertedPriceStr}
+                </span>
+              )}
               <span
                 className={cn(
                   'text-[8px] font-mono font-bold px-1.5 py-0.2 rounded border uppercase tracking-wider',
                   stockCurrency === 'IDR'
                     ? 'text-[#00E599] bg-[#00E599]/10 border-[#00E599]/30'
+                    : stockCurrency === 'SGD'
+                    ? 'text-[#FFB800] bg-[#FFB800]/10 border-[#FFB800]/30'
                     : 'text-[#00B2FF] bg-[#00B2FF]/10 border-[#00B2FF]/30'
                 )}
                 title={`Currency: ${stockCurrency}`}
@@ -135,8 +157,9 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
             </div>
           </div>
           {quote.sparkline_7d && quote.sparkline_7d.length >= 2 && (
-            <div className="pb-1">
-              <Sparkline data={quote.sparkline_7d} width={76} height={26} />
+            <div className="flex flex-col items-end pb-1" title="7-Day Price Trend">
+              <span className="text-[8px] font-mono text-[#6F7887] font-semibold -mb-0.5">7D</span>
+              <Sparkline data={quote.sparkline_7d} width={76} height={24} />
             </div>
           )}
         </div>

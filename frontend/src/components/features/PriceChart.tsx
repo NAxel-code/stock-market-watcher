@@ -537,12 +537,28 @@ export function PriceChart({
       }
     })
 
+    // Ensure candles nicely fit and fill the viewport width (avoids squeezed chart on 1M / custom intervals)
+    if (processedData.length > 0 && typeof chart.timeScale === 'function') {
+      try {
+        chart.timeScale().fitContent()
+      } catch {
+        // mock/test fallback
+      }
+    }
+
     // ResizeObserver for fluid responsiveness
     const resizeObserver = new ResizeObserver((entries) => {
       if (!entries || entries.length === 0) return
       const { width } = entries[0].contentRect
       if (width > 0 && chart) {
         chart.applyOptions({ width })
+        if (typeof chart.timeScale === 'function') {
+          try {
+            chart.timeScale().fitContent()
+          } catch {
+            // mock/test fallback
+          }
+        }
       }
     })
     resizeObserver.observe(container)
@@ -913,7 +929,6 @@ export function PriceChart({
               activeLegend.change >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
             )}
           >
-            {activeLegend.change >= 0 ? '+' : ''}
             {formatPercent(activeLegend.changePercent)}
           </span>
         </div>

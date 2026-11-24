@@ -125,8 +125,9 @@ export function AnalysisDeskTab({ ticker }: AnalysisDeskTabProps) {
           </div>
 
           <div className="flex items-center gap-2 self-start md:self-center shrink-0">
+            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider hidden sm:inline">Desk Verdict:</span>
             <span
-              className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide border ${
+              className={`px-3 py-1 rounded-full text-xs font-mono font-bold tracking-wide border ${
                 stage.bias === 'BULLISH'
                   ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
                   : stage.bias === 'BEARISH'
@@ -134,10 +135,10 @@ export function AnalysisDeskTab({ ticker }: AnalysisDeskTabProps) {
                   : 'bg-amber-500/15 border-amber-500/40 text-amber-400'
               }`}
             >
-              {stage.bias} BIAS
+              {trade_plan.verdict || `${stage.bias} BIAS`}
             </span>
-            <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-zinc-800/90 border border-zinc-700 text-zinc-200">
-              {stage.confidence_pct}% Confidence
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-mono text-zinc-300 bg-zinc-800/80 border border-zinc-700">
+              {stage.bias} BIAS
             </span>
           </div>
         </div>
@@ -287,15 +288,15 @@ export function AnalysisDeskTab({ ticker }: AnalysisDeskTabProps) {
                       {sc.name}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-mono font-bold ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
                         isUp
-                          ? 'bg-emerald-500/20 text-emerald-400'
+                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
                           : isDown
-                          ? 'bg-rose-500/20 text-rose-400'
-                          : 'bg-zinc-800 text-zinc-300'
+                          ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                          : 'bg-zinc-800 text-zinc-300 border border-zinc-700'
                       }`}
                     >
-                      {sc.probability_pct}% Prob
+                      {sc.direction} SCENARIO
                     </span>
                   </div>
 
@@ -494,7 +495,7 @@ export function AnalysisDeskTab({ ticker }: AnalysisDeskTabProps) {
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-200 flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-emerald-400" /> Momentum & Chaikin Money Flow
+              <TrendingUp className="h-4 w-4 text-emerald-400" /> Momentum & Buying Pressure (CMF)
             </span>
             <span
               className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${

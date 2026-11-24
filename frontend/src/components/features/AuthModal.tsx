@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { User, LogIn, LogOut, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,6 +19,12 @@ export function AuthModal() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const { user, setUser } = useUIStore()
+
+  useEffect(() => {
+    const openHandler = () => setOpen(true)
+    window.addEventListener('stockpulse:open-auth', openHandler)
+    return () => window.removeEventListener('stockpulse:open-auth', openHandler)
+  }, [])
 
   const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()

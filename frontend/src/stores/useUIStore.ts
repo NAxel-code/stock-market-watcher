@@ -2,6 +2,9 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type { PriceAlert } from '@/types/stock'
+import type { DisplayCurrency } from '@/lib/currency'
+import { FALLBACK_FX_RATES } from '@/lib/currency'
+import type { Language } from '@/lib/i18n'
 
 export const DEFAULT_WATCHLIST = [
   // US Market Top Traded (16 stocks)
@@ -38,6 +41,12 @@ interface UIStore {
   isTourActive: boolean
   startSpotlightTour: () => void
   closeTour: () => void
+  displayCurrency: DisplayCurrency
+  setDisplayCurrency: (currency: DisplayCurrency) => void
+  fxRates: Record<string, number>
+  setFXRates: (rates: Record<string, number>) => void
+  language: Language
+  setLanguage: (language: Language) => void
 }
 
 export const useUIStore = create<UIStore>()(
@@ -120,6 +129,12 @@ export const useUIStore = create<UIStore>()(
       isTourActive: false,
       startSpotlightTour: () => set({ isTourActive: true, isTutorialOpen: false }),
       closeTour: () => set({ isTourActive: false }),
+      displayCurrency: 'NATIVE',
+      setDisplayCurrency: (displayCurrency) => set({ displayCurrency }),
+      fxRates: FALLBACK_FX_RATES,
+      setFXRates: (rates) => set((state) => ({ fxRates: { ...state.fxRates, ...rates } })),
+      language: 'en',
+      setLanguage: (language) => set({ language }),
     }),
     {
       name: 'stockpulse-ui-store',
@@ -128,6 +143,8 @@ export const useUIStore = create<UIStore>()(
         watchlist: state.watchlist,
         alerts: state.alerts,
         sidebarOpen: state.sidebarOpen,
+        displayCurrency: state.displayCurrency,
+        language: state.language,
       }),
     }
   )

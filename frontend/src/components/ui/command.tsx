@@ -39,12 +39,14 @@ function CommandDialog({
   children,
   className,
   showCloseButton = false,
+  shouldFilter,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
   title?: string
   description?: string
   className?: string
   showCloseButton?: boolean
+  shouldFilter?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -60,7 +62,10 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
       >
-        <Command className="[&_[data-slot=command-input-wrapper]_svg]:size-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-item]]:px-3 [&_[data-slot=command-item]]:py-2">
+        <Command
+          shouldFilter={shouldFilter}
+          className="[&_[data-slot=command-input-wrapper]_svg]:size-5 [&_[data-slot=command-input-wrapper]]:h-12 [&_[data-slot=command-item]]:px-3 [&_[data-slot=command-item]]:py-2"
+        >
           {children}
         </Command>
       </DialogContent>

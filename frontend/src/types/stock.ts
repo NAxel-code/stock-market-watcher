@@ -48,6 +48,22 @@ export interface StockSearchResult {
   name: string
   exchange: string
   type: string
+  currency?: string
+  is_primary?: boolean
+}
+
+export interface FXRateItem {
+  pair: string
+  from_currency: string
+  to_currency: string
+  rate: number
+  change: number
+  change_percent: number
+}
+
+export interface FXRatesResponse {
+  rates: FXRateItem[]
+  as_of: string
 }
 
 export interface MarketIndex {
@@ -84,6 +100,7 @@ export interface MarketSessionInfo {
 export interface MarketStatusResponse {
   idx: MarketSessionInfo
   us: MarketSessionInfo
+  sgx?: MarketSessionInfo
 }
 
 export interface PriceAlert {

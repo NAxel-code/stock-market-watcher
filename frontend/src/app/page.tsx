@@ -41,7 +41,7 @@ export default function DashboardPage() {
               Active Equities Universe
             </h2>
           </div>
-          <p className="text-[11px] font-mono text-[#6F7887]">TOP BLUECHIPS (US & IDX)</p>
+          <p className="text-[11px] font-mono text-[#6F7887]">TOP BLUECHIPS (US, SGX & IDX)</p>
         </div>
         <Suspense fallback={
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

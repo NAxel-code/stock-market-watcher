@@ -1,6 +1,7 @@
 export function formatCurrency(value: number, currency = 'USD'): string {
-  // For IDR-denominated stocks (Indonesian market), format as Rp without decimals
-  if (currency === 'IDR') {
+  const curr = currency.toUpperCase()
+  // Indonesian Rupiah: formatted without decimals in ID locale
+  if (curr === 'IDR') {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
@@ -8,16 +9,34 @@ export function formatCurrency(value: number, currency = 'USD'): string {
       maximumFractionDigits: 0,
     }).format(value)
   }
+  // Singapore Dollar: S$
+  if (curr === 'SGD') {
+    return new Intl.NumberFormat('en-SG', {
+      style: 'currency',
+      currency: 'SGD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
+  // Japanese Yen: ¥
+  if (curr === 'JPY') {
+    return new Intl.NumberFormat('ja-JP', {
+      style: 'currency',
+      currency: 'JPY',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value)
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency,
+    currency: curr,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
 }
 
 /**
- * Format market index points (e.g. S&P 500, NASDAQ, Dow Jones, IHSG).
+ * Format market index points (e.g. S&P 500, NASDAQ, Dow Jones, IHSG, STI).
  * Indices are NOT currency amounts and must not display $ or Rp symbols.
  */
 export function formatIndexPoints(value: number): string {
@@ -29,18 +48,33 @@ export function formatIndexPoints(value: number): string {
 
 /**
  * Robust currency resolver for stock items.
- * Guaranteed to return 'IDR' for Indonesian stocks (*.JK) and 'USD' for US stocks.
+ * Uses the API's currency field directly; falls back to market suffix only if missing.
  */
 export function getStockCurrency(
   item?: { ticker?: string; currency?: string; is_idx?: boolean } | string | null
-): 'IDR' | 'USD' {
+): string {
   if (!item) return 'USD'
+  if (typeof item === 'object') {
+    if (item.currency) {
+      return item.currency.toUpperCase()
+    }
+    if (item.is_idx) {
+      return 'IDR'
+    }
+  }
   const ticker = typeof item === 'string' ? item : item.ticker || ''
-  if (isIdxTicker(ticker) || (typeof item === 'object' && item.is_idx)) {
+  const tUpper = ticker.toUpperCase()
+  if (isIdxTicker(tUpper)) {
     return 'IDR'
   }
-  if (typeof item === 'object' && item.currency === 'IDR') {
-    return 'IDR'
+  if (tUpper.endsWith('.SI')) {
+    return 'SGD'
+  }
+  if (tUpper.endsWith('.T')) {
+    return 'JPY'
+  }
+  if (tUpper.endsWith('.L')) {
+    return 'GBP'
   }
   return 'USD'
 }
@@ -59,11 +93,18 @@ export function formatVolume(value: number): string {
 
 export function formatMarketCap(value?: number, currency = 'USD'): string {
   if (!value) return 'N/A'
-  if (currency === 'IDR') {
+  const curr = currency.toUpperCase()
+  if (curr === 'IDR') {
     if (value >= 1e12) return `Rp ${(value / 1e12).toFixed(2)} T`
     if (value >= 1e9) return `Rp ${(value / 1e9).toFixed(2)} M`
     if (value >= 1e6) return `Rp ${(value / 1e6).toFixed(2)} Jt`
     return `Rp ${value.toLocaleString('id-ID')}`
+  }
+  if (curr === 'SGD') {
+    if (value >= 1e12) return `S$${(value / 1e12).toFixed(2)}T`
+    if (value >= 1e9) return `S$${(value / 1e9).toFixed(2)}B`
+    if (value >= 1e6) return `S$${(value / 1e6).toFixed(2)}M`
+    return `S$${value.toFixed(2)}`
   }
   if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`
   if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`

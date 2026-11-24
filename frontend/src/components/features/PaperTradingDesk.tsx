@@ -40,7 +40,8 @@ interface PaperTradingDeskProps {
   ticker: string
   currentPrice: number
   companyName?: string
-  currency?: 'IDR' | 'USD'
+  currency?: string
+  volume?: number
 }
 
 export function PaperTradingDesk({
@@ -48,9 +49,11 @@ export function PaperTradingDesk({
   currentPrice,
   companyName,
   currency = 'USD',
+  volume,
 }: PaperTradingDeskProps) {
   const isIdx = isIdxTicker(ticker) || currency === 'IDR'
-  const actualCurrency: 'IDR' | 'USD' = isIdx ? 'IDR' : currency
+  const actualCurrency: 'IDR' | 'USD' = isIdx ? 'IDR' : 'USD'
+  const [showAlmgrenChriss, setShowAlmgrenChriss] = useState<boolean>(false)
 
   // Store access
   const {
@@ -228,6 +231,28 @@ export function PaperTradingDesk({
 
   const totalPortfolioEquity = cashBalance + totalOpenPositionValue
 
+  // Almgren-Chriss Market Impact Model
+  const executionModel = useMemo(() => {
+    const adv = volume && volume > 0 ? volume : 15_000_000
+    const participationRate = (totalShares / adv) * 100
+    const isRetail = lots < 500 && participationRate < 0.1
+
+    // Power-law slippage estimate
+    const rawSlippagePct = 0.12 * Math.pow(totalShares / (adv * 0.1), 0.6)
+    const slippagePct = Math.min(Math.max(rawSlippagePct, 0.01), 5.0)
+    const slippageCost = Math.round(grossCapital * (slippagePct / 100))
+    const impactPerShare = Math.round(effectivePrice * (slippagePct / 100))
+
+    return {
+      adv,
+      participationRate: participationRate.toFixed(3),
+      slippagePct: slippagePct.toFixed(2),
+      slippageCost,
+      impactPerShare,
+      isRetail,
+    }
+  }, [totalShares, grossCapital, effectivePrice, lots, volume])
+
   const totalUnrealizedPnl = positions
     .filter((p) => p.currency === actualCurrency)
     .reduce((sum, p) => {
@@ -357,7 +382,7 @@ export function PaperTradingDesk({
                     : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
                 )}
               >
-                BUY (Long Entry)
+                BUY
               </button>
               <button
                 type="button"
@@ -369,7 +394,7 @@ export function PaperTradingDesk({
                     : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
                 )}
               >
-                SELL (Short / Exit)
+                SELL
               </button>
             </div>
 
@@ -530,6 +555,45 @@ export function PaperTradingDesk({
                 </div>
               )}
             </div>
+
+            {/* Integrated Almgren-Chriss Market Impact & Lot Execution */}
+            {isIdx && (
+              <div className="space-y-2 rounded bg-[#07080A] p-2.5 border border-[#161C26]">
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-[#8C96A5] flex items-center gap-1.5 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#00E599]" />
+                    {executionModel.isRetail ? 'Retail Execution (< 500 lots)' : 'Institutional Execution'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowAlmgrenChriss(!showAlmgrenChriss)}
+                    className="text-[#00B2FF] hover:underline text-[10px] cursor-pointer"
+                  >
+                    {showAlmgrenChriss ? 'Hide Impact Model' : 'Impact Model (Almgren-Chriss)'}
+                  </button>
+                </div>
+
+                {executionModel.isRetail && !showAlmgrenChriss ? (
+                  <div className="text-[10px] text-[#6F7887] font-mono">
+                    Standard Retail Order ({lots} lot): Zero adverse price impact (Participation: {executionModel.participationRate}% of ADV).
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-1 border-t border-[#161C26] font-mono text-[11px]">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-[#0D0F14] p-1.5 rounded border border-[#161C26]">
+                        <span className="text-[9px] text-[#6F7887] block uppercase">Participation Rate</span>
+                        <span className="font-bold text-[#F0F4F8]">{executionModel.participationRate}%</span>
+                      </div>
+                      <div className="bg-[#0D0F14] p-1.5 rounded border border-[#161C26]">
+                        <span className="text-[9px] text-[#6F7887] block uppercase">Est. Slippage Impact</span>
+                        <span className="font-bold text-[#FFB800]">~{executionModel.slippagePct}%</span>
+                        <span className="text-[9px] text-[#6F7887] block">({formatCurrency(executionModel.slippageCost, 'IDR')})</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Risk & Reward Bracket (TP & SL) */}
             <div className="space-y-2 pt-2 border-t border-[#161C26]">

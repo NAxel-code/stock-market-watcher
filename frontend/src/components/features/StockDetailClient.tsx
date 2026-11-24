@@ -13,6 +13,7 @@ import { AnalysisDeskTab } from '@/components/features/AnalysisDeskTab'
 import { PaperTradingDesk } from '@/components/features/PaperTradingDesk'
 import { Button } from '@/components/ui/button'
 import { formatCurrency, formatPercent, formatMarketCap, formatVolume, isIdxTicker, getStockCurrency } from '@/lib/formatters'
+import { convertCurrency, formatConvertedPrice } from '@/lib/currency'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Plus, Minus, ShieldAlert, Compass, BarChart2, Calculator, Landmark } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,10 +23,18 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
   const [activeTab, setActiveTab] = useState<'desk' | 'chart' | 'simulator' | 'calculator'>('desk')
   const { data: quote, isLoading, error } = useStockData(ticker)
   const { data: history1y } = useStockHistory(ticker, '1y')
-  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useUIStore()
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist, displayCurrency, fxRates } = useUIStore()
   const inWatchlist = isInWatchlist(ticker)
   const isIdx = isIdxTicker(ticker) || Boolean(quote?.is_idx)
-  const stockCurrency = quote ? getStockCurrency(quote) : (isIdx ? 'IDR' : 'USD')
+  const stockCurrency = quote ? getStockCurrency(quote) : (isIdx ? 'IDR' : ticker.endsWith('.SI') ? 'SGD' : 'USD')
+
+  const isConverted = displayCurrency !== 'NATIVE' && displayCurrency !== stockCurrency
+  const convertedAmount = isConverted && quote
+    ? convertCurrency(quote.current_price, stockCurrency, displayCurrency, fxRates)
+    : null
+  const convertedPriceStr = convertedAmount !== null && isConverted
+    ? formatConvertedPrice(convertedAmount, displayCurrency)
+    : null
 
   const handleWatchlistToggle = () => {
     if (inWatchlist) {
@@ -111,24 +120,38 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       {/* Price & Auto Rejection Bands */}
       <div className="flex flex-wrap items-baseline justify-between gap-4">
         <div>
-          <div className="flex items-baseline gap-2.5">
+          <div className="flex items-baseline gap-2.5 flex-wrap">
             <div className="text-4xl font-bold font-mono tabular-nums tracking-tight text-[#F0F4F8]">
               {formatCurrency(quote.current_price, stockCurrency)}
             </div>
+            {convertedPriceStr && (
+              <span className="text-base font-mono font-medium text-[#8C96A5] tracking-tight bg-[#121620] px-2.5 py-0.5 rounded border border-[#1A2230]">
+                {convertedPriceStr}
+              </span>
+            )}
             <span
               className={cn(
                 'text-[10px] font-bold px-2 py-0.5 rounded border font-mono tracking-wider uppercase',
                 stockCurrency === 'IDR'
                   ? 'bg-[#00E599]/10 text-[#00E599] border-[#00E599]/30'
+                  : stockCurrency === 'SGD'
+                  ? 'bg-[#FFB800]/10 text-[#FFB800] border-[#FFB800]/30'
                   : 'bg-[#00B2FF]/10 text-[#00B2FF] border-[#00B2FF]/30'
               )}
-              title={`Currency: ${stockCurrency === 'IDR' ? 'Indonesian Rupiah' : 'US Dollar'}`}
+              title={`Currency: ${stockCurrency}`}
             >
               {stockCurrency}
             </span>
           </div>
           <div className="text-[11px] text-[#6F7887] font-mono mt-1">
-            DENOMINATION: <span className="text-[#8C96A5]">{stockCurrency === 'IDR' ? 'Indonesian Rupiah (IDR / Rp)' : 'US Dollar (USD / $)'}</span>
+            DENOMINATION:{' '}
+            <span className="text-[#8C96A5]">
+              {stockCurrency === 'IDR'
+                ? 'Indonesian Rupiah (IDR / Rp)'
+                : stockCurrency === 'SGD'
+                ? 'Singapore Dollar (SGD / S$)'
+                : 'US Dollar (USD / $)'}
+            </span>
           </div>
           <div className={cn('flex items-center gap-1.5 mt-1 text-base font-mono font-bold tabular-nums', isPositive ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
             {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
@@ -180,7 +203,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1 p-1 bg-[#0D0F14] rounded-md border border-[#161C26] w-fit">
+      <div className="flex items-center gap-1 p-1 bg-[#0D0F14] rounded-md border border-[#161C26] w-fit max-w-full overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('desk')}
           className={cn(
@@ -251,6 +274,7 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
           currentPrice={quote.current_price}
           companyName={quote.company_name}
           currency={stockCurrency}
+          volume={quote.volume}
         />
       )}
 
@@ -267,11 +291,12 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
             />
           </div>
 
-          {/* Multi-Horizon Returns Matrix (CoinGecko Style) */}
+          {/* Multi-Horizon Returns Matrix */}
           <MultiHorizonReturns
             currentPrice={quote.current_price}
             dayChangePercent={quote.change_percent}
             history1y={history1y?.data}
+            sparkline7d={quote.sparkline_7d}
           />
 
           {/* TradingView-Style Interactive Chart with Volume */}

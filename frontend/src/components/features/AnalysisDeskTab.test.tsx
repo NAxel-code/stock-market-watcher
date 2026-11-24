@@ -152,17 +152,17 @@ describe('AnalysisDeskTab component', () => {
 
     // Stage Header
     expect(screen.getByText('Stage 4 - Markdown / Downtrend')).toBeInTheDocument()
-    expect(screen.getByText('90% Confidence')).toBeInTheDocument()
+    expect(screen.getByText('BEARISH BIAS')).toBeInTheDocument()
 
     // Trade Plan
-    expect(screen.getByText('AVOID')).toBeInTheDocument()
+    expect(screen.getAllByText('AVOID').length).toBeGreaterThan(0)
     expect(screen.getByText(/Capital preservation priority/i)).toBeInTheDocument()
 
     // 3 Scenarios
     expect(screen.getByText('Bearish Continuation')).toBeInTheDocument()
-    expect(screen.getByText('65% Prob')).toBeInTheDocument()
+    expect(screen.getByText('DOWN SCENARIO')).toBeInTheDocument()
     expect(screen.getByText('Bullish Rebound')).toBeInTheDocument()
-    expect(screen.getByText('15% Prob')).toBeInTheDocument()
+    expect(screen.getByText('UP SCENARIO')).toBeInTheDocument()
 
     // Market Structure & Multi-Pillar Grid
     expect(screen.getByText('LH-LL')).toBeInTheDocument()

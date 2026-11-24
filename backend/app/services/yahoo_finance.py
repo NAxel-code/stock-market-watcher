@@ -1,6 +1,7 @@
 """Yahoo Finance service with multi-level fallback, IDX mechanics, and circuit breaker."""
 
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 import yfinance as yf
@@ -9,6 +10,8 @@ from cachetools import TTLCache
 from app.core.exceptions import ExternalAPIError, StockNotFoundError
 from app.models.schemas import (
     AnalysisDeskResponse,
+    FXRateItem,
+    FXRatesResponse,
     HistoryPoint,
     MarketIndex,
     MarketSessionInfo,
@@ -35,6 +38,7 @@ _history_cache: TTLCache[str, dict[str, Any]] = TTLCache(maxsize=200, ttl=3600)
 _search_cache: TTLCache[str, list[dict[str, Any]]] = TTLCache(maxsize=100, ttl=600)
 _market_cache: TTLCache[str, dict[str, Any]] = TTLCache(maxsize=10, ttl=60)
 _sparkline_cache: TTLCache[str, list[float]] = TTLCache(maxsize=500, ttl=3600)
+_fx_cache: TTLCache[str, list[dict[str, Any]]] = TTLCache(maxsize=1, ttl=60)
 
 # Stale cache fallback
 _stale_quote_cache: dict[str, dict[str, Any]] = {}
@@ -76,6 +80,14 @@ DEFAULT_SECTORS: dict[str, tuple[str, str]] = {
     "INDF.JK": ("Consumer Defensive", "Packaged Foods"),
     "AMRT.JK": ("Consumer Defensive", "Grocery Stores"),
     "UNVR.JK": ("Consumer Defensive", "Household & Personal Products"),
+    # SGX (Singapore Exchange) Top Blue Chips
+    "D05.SI": ("Financial Services", "Banks—Regional"),
+    "O39.SI": ("Financial Services", "Banks—Regional"),
+    "U11.SI": ("Financial Services", "Banks—Regional"),
+    "Z74.SI": ("Communication Services", "Telecom Services"),
+    "C6L.SI": ("Industrials", "Airlines"),
+    "BN4.SI": ("Industrials", "Conglomerates"),
+    "G13.SI": ("Consumer Defensive", "Agricultural Operations"),
 }
 
 US_INDICES = [
@@ -88,7 +100,11 @@ IDX_INDICES = [
     {"ticker": "^JKSE", "name": "IHSG (IDX)"},
 ]
 
-ALL_INDICES = US_INDICES + IDX_INDICES
+SGX_INDICES = [
+    {"ticker": "^STI", "name": "Straits Times (SGX)"},
+]
+
+ALL_INDICES = US_INDICES + IDX_INDICES + SGX_INDICES
 
 DEFAULT_WATCHLIST = [
     # US Market Top Traded (16 stocks)
@@ -97,6 +113,8 @@ DEFAULT_WATCHLIST = [
     # IDX (BEI) Top Traded & LQ45 (16 stocks)
     "BBCA.JK", "BBRI.JK", "BMRI.JK", "BBNI.JK", "TLKM.JK", "ASII.JK", "GOTO.JK", "ADRO.JK",
     "ANTM.JK", "BUMI.JK", "PGAS.JK", "PTBA.JK", "ICBP.JK", "INDF.JK", "AMRT.JK", "UNVR.JK",
+    # SGX (Singapore) Primary Traded
+    "D05.SI", "O39.SI", "U11.SI", "Z74.SI",
 ]
 
 PERIOD_MAP = {
@@ -104,7 +122,7 @@ PERIOD_MAP = {
     "1w": ("5d", "60m"),
     "1m": ("1mo", "1d"),
     "3m": ("3mo", "1d"),
-    "1y": ("1y", "1wk"),
+    "1y": ("1y", "1d"),
 }
 
 
@@ -146,6 +164,14 @@ def _enrich_quote_metadata(data: dict[str, Any], ticker: str) -> None:
         data["tick_size"] = limits["tick_size"]
         if not data.get("currency") or data["currency"] == "USD":
             data["currency"] = "IDR"
+    elif ticker.upper().endswith(".SI"):
+        data["is_idx"] = False
+        data["lot_size"] = 100
+        data["ara_price"] = None
+        data["arb_price"] = None
+        data["tick_size"] = None
+        if not data.get("currency") or data["currency"] == "USD":
+            data["currency"] = "SGD"
     else:
         data["is_idx"] = False
         data["lot_size"] = 1
@@ -212,6 +238,7 @@ def get_quote(ticker: str) -> StockQuoteResponse:
             change = current_price - prev_close
             change_pct = (change / prev_close * 100) if prev_close else 0.0
 
+            fallback_curr = "IDR" if ticker.upper().endswith(".JK") else ("SGD" if ticker.upper().endswith(".SI") else "USD")
             data = {
                 "ticker": ticker.upper(),
                 "company_name": ticker.upper(),
@@ -225,7 +252,7 @@ def get_quote(ticker: str) -> StockQuoteResponse:
                 "day_low": None,
                 "fifty_two_week_high": None,
                 "fifty_two_week_low": None,
-                "currency": "USD",
+                "currency": fallback_curr,
                 "sector": None,
                 "industry": None,
             }
@@ -234,6 +261,12 @@ def get_quote(ticker: str) -> StockQuoteResponse:
             prev_close = _safe_float(info.get("regularMarketPreviousClose") or info.get("previousClose"))
             change = _safe_float(info.get("regularMarketChange"))
             change_pct = _safe_float(info.get("regularMarketChangePercent"))
+
+            api_currency = info.get("currency")
+            if not api_currency or (api_currency == "USD" and (ticker.upper().endswith(".JK") or ticker.upper().endswith(".SI"))):
+                resolved_curr = "IDR" if ticker.upper().endswith(".JK") else ("SGD" if ticker.upper().endswith(".SI") else "USD")
+            else:
+                resolved_curr = api_currency
 
             data = {
                 "ticker": ticker.upper(),
@@ -248,7 +281,7 @@ def get_quote(ticker: str) -> StockQuoteResponse:
                 "day_low": info.get("regularMarketDayLow") or info.get("dayLow"),
                 "fifty_two_week_high": info.get("fiftyTwoWeekHigh"),
                 "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
-                "currency": info.get("currency", "USD"),
+                "currency": resolved_curr,
                 "sector": info.get("sector"),
                 "industry": info.get("industry"),
             }
@@ -339,6 +372,46 @@ def get_history(ticker: str, period: str = "1m") -> StockHistoryResponse:
         raise ExternalAPIError(f"Failed to fetch history for {ticker}") from exc
 
 
+def _clean_exchange_name(exch: str, symbol: str) -> str:
+    s_upper = symbol.upper()
+    e_upper = exch.upper()
+    if s_upper.endswith(".JK") or e_upper in ("JKT", "IDX"):
+        return "IDX"
+    if s_upper.endswith(".SI") or e_upper in ("SES", "SGX"):
+        return "SGX"
+    if e_upper in ("NYQ", "NYSE"):
+        return "NYSE"
+    if e_upper in ("NMS", "NGS", "NASDAQ"):
+        return "NASDAQ"
+    if e_upper in ("PNK", "OTC", "OTHER OTC", "GREY", "OOTC"):
+        return "OTC"
+    return exch
+
+
+def _resolve_ticker_currency(ticker: str, exchange: str) -> str:
+    t_u = ticker.upper()
+    e_u = exchange.upper()
+    if t_u.endswith(".JK") or e_u in ("JKT", "IDX"):
+        return "IDR"
+    if t_u.endswith(".SI") or e_u in ("SES", "SGX"):
+        return "SGD"
+    if t_u.endswith(".T") or e_u in ("TYO", "JPX"):
+        return "JPY"
+    if t_u.endswith(".L") or e_u in ("LSE", "LON"):
+        return "GBP"
+    return "USD"
+
+
+def _is_primary_listing(ticker: str, exchange: str) -> bool:
+    e_u = exchange.upper()
+    t_u = ticker.upper()
+    if e_u in ("PNK", "OTC", "OTHER OTC", "GREY", "OOTC"):
+        return False
+    if len(t_u) == 5 and (t_u.endswith("Y") or t_u.endswith("F")) and "." not in t_u:
+        return False
+    return True
+
+
 def search_tickers(query: str) -> list[StockSearchResult]:
     """Search tickers by query string."""
     cache_key = query.lower().strip()
@@ -346,21 +419,38 @@ def search_tickers(query: str) -> list[StockSearchResult]:
         return [StockSearchResult(**r) for r in _search_cache[cache_key]]
 
     try:
-        results = yf.Search(query, max_results=8)
+        results = yf.Search(query, max_results=12)
         quotes = results.quotes if hasattr(results, "quotes") else []
 
         items = []
         for q in quotes:
-            if not q.get("symbol"):
+            sym = q.get("symbol")
+            if not sym:
                 continue
+            raw_exch = q.get("exchange", "N/A")
+            clean_exch = _clean_exchange_name(raw_exch, sym)
+            curr = _resolve_ticker_currency(sym, raw_exch)
+            is_pri = _is_primary_listing(sym, raw_exch)
+
             items.append(
                 StockSearchResult(
-                    ticker=q.get("symbol", ""),
-                    name=q.get("longname") or q.get("shortname") or q.get("symbol", ""),
-                    exchange=q.get("exchange", "N/A"),
+                    ticker=sym,
+                    name=q.get("longname") or q.get("shortname") or sym,
+                    exchange=clean_exch,
                     type=q.get("quoteType", "EQUITY"),
+                    currency=curr,
+                    is_primary=is_pri,
                 )
             )
+
+        # Sort: Primary listings rank above OTC/ADR copies; exact prefix match prioritized
+        q_upper = query.upper().strip()
+        items.sort(
+            key=lambda x: (
+                not x.is_primary,
+                0 if x.ticker.upper() == q_upper else (1 if x.ticker.upper().startswith(q_upper) else 2),
+            )
+        )
 
         _search_cache[cache_key] = [i.model_dump() for i in items]
         return items
@@ -440,12 +530,14 @@ def get_market_summary() -> MarketSummaryResponse:
 
 
 def get_all_market_statuses() -> MarketStatusResponse:
-    """Get detailed market session status for IDX and US markets."""
+    """Get detailed market session status for IDX, US, and SGX markets."""
     idx_status = get_market_session_status("IDX")
     us_status = get_market_session_status("US")
+    sgx_status = get_market_session_status("SGX")
     return MarketStatusResponse(
         idx=MarketSessionInfo(**idx_status),
         us=MarketSessionInfo(**us_status),
+        sgx=MarketSessionInfo(**sgx_status),
     )
 
 
@@ -459,7 +551,18 @@ def get_technical_desk(ticker: str) -> AnalysisDeskResponse:
             raise StockNotFoundError(cache_key)
 
         is_idx = cache_key.endswith(".JK")
-        bench_symbol = "^JKSE" if is_idx else "^GSPC"
+        is_sgx = cache_key.endswith(".SI")
+
+        if is_idx:
+            bench_symbol = "^JKSE"
+            bench_name = "IHSG (IDX)"
+        elif is_sgx:
+            bench_symbol = "^STI"
+            bench_name = "Straits Times Index (SGX)"
+        else:
+            bench_symbol = "^GSPC"
+            bench_name = "S&P 500"
+
         try:
             bench_hist = yf.Ticker(bench_symbol).history(period="3mo", interval="1d")
         except Exception as bench_err:
@@ -472,10 +575,77 @@ def get_technical_desk(ticker: str) -> AnalysisDeskResponse:
             company_name=quote.company_name,
             df=hist,
             benchmark_df=bench_hist,
+            currency=quote.currency,
+            benchmark_name=bench_name,
+            benchmark_ticker=bench_symbol,
         )
     except StockNotFoundError:
         raise
     except Exception as exc:
         logger.error("Failed to generate technical desk report for %s: %s", ticker, exc)
         raise ExternalAPIError(f"Failed to generate technical desk analysis for {ticker}") from exc
+
+
+FX_PAIRS = [
+    ("USD/SGD", "USD", "SGD", "USDSGD=X"),
+    ("USD/IDR", "USD", "IDR", "USDIDR=X"),
+    ("USD/JPY", "USD", "JPY", "USDJPY=X"),
+    ("SGD/IDR", "SGD", "IDR", "SGDIDR=X"),
+    ("SGD/JPY", "SGD", "JPY", "SGDJPY=X"),
+    ("EUR/USD", "EUR", "USD", "EURUSD=X"),
+]
+
+
+def get_live_fx_rates() -> FXRatesResponse:
+    """Fetch real-time foreign exchange cross rates."""
+    cache_key = "live_fx"
+    if cache_key in _fx_cache:
+        rates = [FXRateItem(**r) for r in _fx_cache[cache_key]]
+        return FXRatesResponse(rates=rates, as_of=datetime.now(timezone.utc).isoformat())
+
+    items: list[FXRateItem] = []
+    for pair_name, from_curr, to_curr, symbol in FX_PAIRS:
+        try:
+            t = yf.Ticker(symbol)
+            fast = getattr(t, "fast_info", None)
+            rate = 0.0
+            prev_close = 0.0
+            if fast:
+                rate = _safe_float(getattr(fast, "last_price", None))
+                prev_close = _safe_float(getattr(fast, "previous_close", None))
+            if rate == 0.0:
+                h = t.history(period="5d", interval="1d")
+                if not h.empty and len(h) >= 1:
+                    rate = round(_safe_float(h["Close"].iloc[-1]), 4)
+                    prev_close = round(_safe_float(h["Close"].iloc[-2]) if len(h) >= 2 else rate, 4)
+
+            change = round(rate - prev_close, 4) if prev_close > 0 else 0.0
+            change_pct = round((change / prev_close) * 100, 2) if prev_close > 0 else 0.0
+            items.append(
+                FXRateItem(
+                    pair=pair_name,
+                    from_currency=from_curr,
+                    to_currency=to_curr,
+                    rate=round(rate, 4) if "IDR" not in to_curr else round(rate, 2),
+                    change=change,
+                    change_percent=change_pct,
+                )
+            )
+        except Exception as exc:
+            logger.debug("Failed to fetch FX pair %s: %s", symbol, exc)
+
+    if not items:
+        # Fallback rates in case network is down
+        fallback = [
+            FXRateItem(pair="USD/SGD", from_currency="USD", to_currency="SGD", rate=1.3450, change=0.001, change_percent=0.07),
+            FXRateItem(pair="USD/IDR", from_currency="USD", to_currency="IDR", rate=15850.0, change=-25.0, change_percent=-0.16),
+            FXRateItem(pair="USD/JPY", from_currency="USD", to_currency="JPY", rate=154.20, change=0.35, change_percent=0.23),
+            FXRateItem(pair="SGD/IDR", from_currency="SGD", to_currency="IDR", rate=11785.0, change=-10.0, change_percent=-0.08),
+            FXRateItem(pair="SGD/JPY", from_currency="SGD", to_currency="JPY", rate=114.65, change=0.15, change_percent=0.13),
+            FXRateItem(pair="EUR/USD", from_currency="EUR", to_currency="USD", rate=1.0520, change=0.0005, change_percent=0.05),
+        ]
+        items = fallback
+
+    _fx_cache[cache_key] = [i.model_dump() for i in items]
+    return FXRatesResponse(rates=items, as_of=datetime.now(timezone.utc).isoformat())
 

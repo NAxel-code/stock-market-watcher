@@ -12,7 +12,7 @@ export default function WatchlistPage() {
           </h1>
         </div>
         <p className="text-xs text-[#6F7887] font-mono mt-1">
-          Track selected US & IDX equities, simulate market impact, and inspect RMT denoised correlation risks
+          Track selected US, SGX & IDX equities, simulate market impact, and inspect RMT denoised correlation risks
         </p>
       </div>
       <WatchlistGrid showRemove />

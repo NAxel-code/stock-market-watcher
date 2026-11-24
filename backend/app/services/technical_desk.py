@@ -543,7 +543,7 @@ def generate_scenarios(df: pd.DataFrame) -> list[ScenarioProjection]:
 
     # Money Flow & VSA
     if cmf > 0.05:
-        bull_factors.append("Positive Chaikin Money Flow (net institutional accumulation)")
+        bull_factors.append("Positive Chaikin Money Flow (Buying pressure)")
     elif cmf < -0.05:
         bear_factors.append("Negative Chaikin Money Flow (net capital outflow)")
     else:
@@ -721,6 +721,9 @@ def generate_technical_desk_report(
     company_name: str,
     df: pd.DataFrame,
     benchmark_df: pd.DataFrame | None = None,
+    currency: str | None = None,
+    benchmark_name: str | None = None,
+    benchmark_ticker: str | None = None,
 ) -> AnalysisDeskResponse:
     """Generate complete institutional Stock Desk report."""
     cache_key = ticker.upper()
@@ -768,8 +771,20 @@ def generate_technical_desk_report(
 
     # Relative Strength vs Benchmark
     is_idx = ticker.upper().endswith(".JK")
-    bench_ticker = "^JKSE" if is_idx else "^GSPC"
-    bench_name = "IHSG" if is_idx else "S&P 500"
+    is_sgx = ticker.upper().endswith(".SI")
+
+    if benchmark_ticker:
+        bench_ticker = benchmark_ticker
+        bench_name = benchmark_name or ("IHSG" if is_idx else ("Straits Times Index" if is_sgx else "S&P 500"))
+    elif is_idx:
+        bench_ticker = "^JKSE"
+        bench_name = "IHSG"
+    elif is_sgx:
+        bench_ticker = "^STI"
+        bench_name = "Straits Times Index"
+    else:
+        bench_ticker = "^GSPC"
+        bench_name = "S&P 500"
 
     stock_1m = 0.0
     bench_1m = 0.0
@@ -824,7 +839,17 @@ def generate_technical_desk_report(
             "Mindset Rule #1: Exercise patience. Accumulation phases take time. Do not jump early before volume confirmation."
         )
 
-    currency = "IDR" if is_idx else "USD"
+    if currency is None:
+        if is_idx:
+            currency = "IDR"
+        elif is_sgx:
+            currency = "SGD"
+        elif ticker.upper().endswith(".T"):
+            currency = "JPY"
+        elif ticker.upper().endswith(".L"):
+            currency = "GBP"
+        else:
+            currency = "USD"
 
     report = AnalysisDeskResponse(
         ticker=ticker.upper(),
@@ -863,7 +888,13 @@ def calculate_watchlist_correlation(tickers: list[str]) -> WatchlistCorrelationR
 
     for t in clean_tickers:
         try:
-            hist = yf_service.get_history(t, "1m")
+            # 1-year historical window prevents noise distortion and synthetic flattening towards ~0.5
+            hist = yf_service.get_history(t, "1y")
+            if not hist or not hist.data or len(hist.data) < 20:
+                hist = yf_service.get_history(t, "3m")
+            if not hist or not hist.data or len(hist.data) < 8:
+                hist = yf_service.get_history(t, "1m")
+
             if hist and hist.data and len(hist.data) >= 8:
                 closes = np.array([p.close for p in hist.data], dtype=float)
                 ret = np.diff(closes) / np.where(closes[:-1] == 0, 1.0, closes[:-1])

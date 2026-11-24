@@ -101,10 +101,57 @@ def calculate_idx_auto_rejection(prev_close: float) -> IdxPriceLimits:
 
 
 def get_market_session_status(market: str = "IDX", now_dt: datetime | None = None) -> MarketSessionStatus:
-    """Check whether IDX or US markets are open and return detailed session status."""
+    """Check whether IDX, SGX, or US markets are open and return detailed session status."""
     market_upper = market.upper()
 
-    if market_upper == "IDX":
+    if market_upper == "SGX":
+        try:
+            tz = ZoneInfo("Asia/Singapore")
+        except Exception:
+            tz = UTC
+
+        now = now_dt or datetime.now(tz)
+        local_time = now.time()
+        weekday = now.weekday()
+        time_str = now.strftime("%Y-%m-%d %H:%M:%S SGT")
+
+        if weekday >= 5:
+            return {
+                "market": "SGX",
+                "is_open": False,
+                "session_name": "Weekend Closed",
+                "current_time_local": time_str,
+                "timezone": "SGT (UTC+8)",
+            }
+
+        if time(8, 30) <= local_time < time(9, 0):
+            status = "Pre-Opening"
+            is_open = False
+        elif time(9, 0) <= local_time < time(12, 0):
+            status = "Morning Session (Open)"
+            is_open = True
+        elif time(12, 0) <= local_time < time(13, 0):
+            status = "Mid-Day Break"
+            is_open = False
+        elif time(13, 0) <= local_time < time(17, 0):
+            status = "Afternoon Session (Open)"
+            is_open = True
+        elif time(17, 0) <= local_time < time(17, 16):
+            status = "Pre-Close / Closing Routine"
+            is_open = False
+        else:
+            status = "Market Closed"
+            is_open = False
+
+        return {
+            "market": "SGX",
+            "is_open": is_open,
+            "session_name": status,
+            "current_time_local": time_str,
+            "timezone": "SGT (UTC+8)",
+        }
+
+    elif market_upper == "IDX":
         try:
             tz = ZoneInfo("Asia/Jakarta")
         except Exception:

@@ -26,6 +26,22 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- Security Master (US, SGX, IDX Unified Universe)
+CREATE TABLE IF NOT EXISTS public.security_master (
+    ticker VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    exchange VARCHAR(20) NOT NULL,
+    currency VARCHAR(10) NOT NULL,
+    asset_type VARCHAR(20) DEFAULT 'EQUITY',
+    sector VARCHAR(100),
+    industry VARCHAR(100),
+    isin VARCHAR(50),
+    cik VARCHAR(20),
+    is_primary BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Stock metadata (optional cache)
 CREATE TABLE IF NOT EXISTS public.stocks (
     ticker VARCHAR(10) PRIMARY KEY,

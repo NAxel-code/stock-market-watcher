@@ -1,4 +1,5 @@
 import type {
+  FXRatesResponse,
   MarketStatusResponse,
   MarketSummary,
   Period,
@@ -91,3 +92,6 @@ export const fetchWatchlistCorrelation = (
     method: 'POST',
     body: JSON.stringify({ tickers }),
   })
+
+export const fetchFXRates = (): Promise<FXRatesResponse> =>
+  apiFetch<FXRatesResponse>('/api/v1/market/fx')

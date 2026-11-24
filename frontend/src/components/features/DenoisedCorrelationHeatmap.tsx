@@ -31,7 +31,7 @@ function getCellColor(val: number, isDiagonal: boolean): string {
 export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelationHeatmapProps) {
   const { watchlist } = useUIStore()
   const [preset, setPreset] = useState<PresetKey>('WATCHLIST')
-  const [viewMode, setViewMode] = useState<'denoised' | 'raw'>('denoised')
+  const [viewMode, setViewMode] = useState<'denoised' | 'raw'>('raw')
   const [isExpanded, setIsExpanded] = useState(true)
   const [hoveredCell, setHoveredCell] = useState<{
     rowTicker: string

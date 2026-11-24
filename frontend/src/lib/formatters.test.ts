@@ -36,9 +36,16 @@ describe('formatters utility', () => {
     expect(getStockCurrency('BBCA.JK')).toBe('IDR')
     expect(getStockCurrency({ ticker: 'PGAS.JK' })).toBe('IDR')
     expect(getStockCurrency({ ticker: 'BBRI.JK', currency: 'IDR' })).toBe('IDR')
+    expect(getStockCurrency('D05.SI')).toBe('SGD')
+    expect(getStockCurrency({ ticker: 'D05.SI', currency: 'SGD' })).toBe('SGD')
     expect(getStockCurrency('AAPL')).toBe('USD')
     expect(getStockCurrency({ ticker: 'TSLA' })).toBe('USD')
     expect(getStockCurrency(null)).toBe('USD')
+  })
+
+  it('formats SGD currency correctly for Singapore market', () => {
+    const formatted = formatCurrency(66.5, 'SGD')
+    expect(formatted).toContain('66.50')
   })
 
   it('formats percent changes with correct sign', () => {

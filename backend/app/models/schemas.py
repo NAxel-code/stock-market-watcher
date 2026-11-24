@@ -51,6 +51,22 @@ class StockSearchResult(BaseModel):
     name: str
     exchange: str
     type: str = "EQUITY"
+    currency: str = "USD"
+    is_primary: bool = True
+
+
+class FXRateItem(BaseModel):
+    pair: str  # e.g. "USD/SGD", "USD/IDR", "USD/JPY", "SGD/IDR"
+    from_currency: str
+    to_currency: str
+    rate: float
+    change: float = 0.0
+    change_percent: float = 0.0
+
+
+class FXRatesResponse(BaseModel):
+    rates: list[FXRateItem]
+    as_of: str
 
 
 class MarketIndex(BaseModel):
@@ -87,6 +103,7 @@ class MarketSessionInfo(BaseModel):
 class MarketStatusResponse(BaseModel):
     idx: MarketSessionInfo
     us: MarketSessionInfo
+    sgx: MarketSessionInfo | None = None
 
 
 class WatchlistAddRequest(BaseModel):
@@ -234,4 +251,25 @@ class AnalysisDeskResponse(BaseModel):
     momentum: MomentumMetrics
     relative_strength: RelativeStrengthMetrics
     mindset_guardrail: str
+
+
+class SecurityMasterItem(BaseModel):
+    ticker: str
+    name: str
+    exchange: str
+    currency: str
+    asset_type: str = "EQUITY"
+    sector: str | None = None
+    industry: str | None = None
+    isin: str | None = None
+    cik: str | None = None
+    is_primary: bool = True
+    is_active: bool = True
+
+
+class SecurityMasterResponse(BaseModel):
+    total: int
+    securities: list[SecurityMasterItem]
+    as_of: str
+
 

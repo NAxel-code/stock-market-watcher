@@ -40,7 +40,8 @@ export function SectorFilterBar({
 
     // Market segments
     const idxQuotes = quotes.filter((q) => isIdxTicker(q.ticker) || Boolean(q.is_idx))
-    const usQuotes = quotes.filter((q) => !isIdxTicker(q.ticker) && !q.is_idx)
+    const sgxQuotes = quotes.filter((q) => q.ticker.toUpperCase().endsWith('.SI') || q.currency === 'SGD')
+    const usQuotes = quotes.filter((q) => !isIdxTicker(q.ticker) && !q.is_idx && !q.ticker.toUpperCase().endsWith('.SI') && q.currency !== 'SGD')
 
     // Sector mapping
     const sectorMap = new Map<string, StockQuote[]>()
@@ -64,13 +65,23 @@ export function SectorFilterBar({
         count: idxQuotes.length,
         avgChange: calcAvg(idxQuotes),
       },
-      {
-        id: 'US',
-        label: 'US Market',
-        count: usQuotes.length,
-        avgChange: calcAvg(usQuotes),
-      },
     ]
+
+    if (sgxQuotes.length > 0) {
+      result.push({
+        id: 'SGX',
+        label: 'SGX',
+        count: sgxQuotes.length,
+        avgChange: calcAvg(sgxQuotes),
+      })
+    }
+
+    result.push({
+      id: 'US',
+      label: 'US Market',
+      count: usQuotes.length,
+      avgChange: calcAvg(usQuotes),
+    })
 
     // Sort individual sectors by stock count descending
     Array.from(sectorMap.entries())

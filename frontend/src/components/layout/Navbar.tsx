@@ -2,15 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { List, BarChart2, HelpCircle } from 'lucide-react'
+import { List, BarChart2, HelpCircle, Search, User } from 'lucide-react'
 import { StockPulseLogo } from '@/components/ui/StockPulseLogo'
 import { ThemeToggle } from '@/components/features/ThemeToggle'
 import { SearchCommand } from '@/components/features/SearchCommand'
+import { CurrencySwitcher } from '@/components/features/CurrencySwitcher'
+import { LanguageSwitcher } from '@/components/features/LanguageSwitcher'
 import { MarketStatusRibbon } from '@/components/features/MarketStatusRibbon'
 import { AuthModal } from '@/components/features/AuthModal'
 import { TutorialModal } from '@/components/features/TutorialModal'
 import { SpotlightTour } from '@/components/features/SpotlightTour'
 import { useUIStore } from '@/stores/useUIStore'
+import { getTranslation } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -27,7 +30,14 @@ export function Navbar() {
     closeTutorial,
     startSpotlightTour,
     closeTour,
+    language,
   } = useUIStore()
+
+  const tDashboard = getTranslation('dashboard', language)
+  const tWatchlist = getTranslation('watchlist', language)
+  const tSearch = getTranslation('search', language)
+  const tAccount = getTranslation('account', language)
+  const tGuide = getTranslation('guide', language)
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#1A202C]/80 bg-[#07080A]/90 backdrop-blur-xl">
@@ -54,33 +64,43 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
-                  pathname === href
-                    ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
-                )}
-              >
-                {label}
-              </Link>
-            ))}
+            <Link
+              href="/"
+              className={cn(
+                'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+                pathname === '/'
+                  ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
+                  : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
+              )}
+            >
+              {tDashboard}
+            </Link>
+            <Link
+              href="/watchlist"
+              className={cn(
+                'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+                pathname === '/watchlist'
+                  ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
+                  : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
+              )}
+            >
+              {tWatchlist}
+            </Link>
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <CurrencySwitcher />
+            <LanguageSwitcher />
             <button
               type="button"
               onClick={openTutorial}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
               title="Platform Guide & Tips"
               aria-label="Platform guide"
             >
               <HelpCircle className="h-4 w-4 text-blue-400" />
-              <span className="hidden lg:inline">Guide</span>
+              <span className="hidden lg:inline">{tGuide}</span>
             </button>
             <div id="tour-search-command">
               <SearchCommand />
@@ -91,30 +111,55 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800/90 bg-zinc-950/95 backdrop-blur-md">
-        <div className="flex items-center justify-around h-14">
-          {navLinks.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex flex-col items-center justify-center gap-0.5 px-4 py-2 min-h-[48px] min-w-[64px] text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-                pathname === href ? 'text-blue-400 font-semibold' : 'text-zinc-400 hover:text-zinc-200'
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              <span>{label}</span>
-            </Link>
-          ))}
+      {/* Mobile Bottom Navigation (Thumb-friendly full control) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800/90 bg-[#07080A]/95 backdrop-blur-md">
+        <div className="grid grid-cols-5 items-center h-14 px-1">
+          <Link
+            href="/"
+            className={cn(
+              'flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+              pathname === '/' ? 'text-[#00E599] font-bold' : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            )}
+          >
+            <BarChart2 className="h-4 w-4" />
+            <span>{tDashboard}</span>
+          </Link>
+          <Link
+            href="/watchlist"
+            className={cn(
+              'flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+              pathname === '/watchlist' ? 'text-[#00E599] font-bold' : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            )}
+          >
+            <List className="h-4 w-4" />
+            <span>{tWatchlist}</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-search'))}
+            className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium text-[#6F7887] hover:text-[#00B2FF] transition-colors"
+            aria-label="Open search"
+          >
+            <Search className="h-4 w-4 text-[#00B2FF]" />
+            <span>{tSearch}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-auth'))}
+            className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium text-[#6F7887] hover:text-[#F0F4F8] transition-colors"
+            aria-label="Account & Login"
+          >
+            <User className="h-4 w-4 text-purple-400" />
+            <span>{tAccount}</span>
+          </button>
           <button
             type="button"
             onClick={openTutorial}
-            className="flex flex-col items-center justify-center gap-0.5 px-4 py-2 min-h-[48px] min-w-[64px] text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium text-[#6F7887] hover:text-white transition-colors"
             aria-label="Open platform guide"
           >
-            <HelpCircle className="h-5 w-5 text-blue-400" />
-            <span>Guide</span>
+            <HelpCircle className="h-4 w-4 text-[#FFB800]" />
+            <span>{tGuide}</span>
           </button>
         </div>
       </nav>
