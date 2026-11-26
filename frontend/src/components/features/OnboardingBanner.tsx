@@ -47,15 +47,15 @@ export function OnboardingBanner() {
   }
 
   return (
-    <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 rounded-lg border border-[#161C26] bg-[#0D0F14] p-3 sm:px-4 sm:py-3 text-xs text-[#8C96A5]">
+    <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-3 rounded-md border border-[#222226] bg-[#0f0f12] p-3 sm:px-4 sm:py-3 text-xs text-[#a1a1aa]">
       <div className="flex items-center gap-2.5 min-w-0">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[#00E599]/10 text-[#00E599] border border-[#00E599]/25">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-[#18181b] text-[#f4f4f5] border border-[#27272a]">
           <Sparkles className="h-3.5 w-3.5" />
         </span>
         <div className="min-w-0">
-          <span className="font-mono font-bold text-[#F0F4F8] mr-1.5 uppercase text-[11px]">System Walkthrough //</span>
-          <span className="text-[#6F7887] hidden sm:inline">
-            Explore real-time trading telemetry, IDX tickers (<code className="rounded bg-[#07080A] px-1 py-0.5 text-[#00E599] font-mono border border-[#161C26]">.JK</code>), and quantitative desk calculators.
+          <span className="font-mono font-bold text-[#f4f4f5] mr-1.5 uppercase text-[11px]">System Walkthrough //</span>
+          <span className="text-[#71717a] hidden sm:inline">
+            Explore real-time trading telemetry, IDX tickers (<code className="rounded bg-[#09090b] px-1 py-0.5 text-[#f4f4f5] font-mono border border-[#222226]">.JK</code>), and quantitative desk calculators.
           </span>
         </div>
       </div>
@@ -64,7 +64,7 @@ export function OnboardingBanner() {
         <button
           type="button"
           onClick={handleStartTour}
-          className="flex items-center gap-1.5 rounded-md bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 hover:bg-[#00E599]/25 px-3 py-1.5 font-mono text-xs font-bold transition-all"
+          className="flex items-center gap-1.5 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white px-3 py-1.5 font-mono text-xs font-bold transition-all"
         >
           <Compass className="h-3.5 w-3.5" />
           <span>Launch Tour</span>
@@ -72,7 +72,7 @@ export function OnboardingBanner() {
         <button
           type="button"
           onClick={handleOpenTutorial}
-          className="flex items-center gap-1.5 rounded-md border border-[#161C26] bg-[#07080A] px-2.5 py-1.5 font-mono text-xs font-medium text-[#8C96A5] hover:text-[#F0F4F8] hover:border-[#232B3A] transition-all"
+          className="flex items-center gap-1.5 rounded border border-[#222226] bg-[#141418] px-2.5 py-1.5 font-mono text-xs font-medium text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#3f3f46] transition-all"
         >
           <BookOpen className="h-3.5 w-3.5" />
           <span>Guide</span>
@@ -80,7 +80,7 @@ export function OnboardingBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="grid h-7 w-7 place-items-center rounded-md text-[#6F7887] hover:bg-[#121620] hover:text-[#F0F4F8] transition"
+          className="grid h-7 w-7 place-items-center rounded text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5] transition"
           aria-label="Dismiss banner"
         >
           <X className="h-4 w-4" />

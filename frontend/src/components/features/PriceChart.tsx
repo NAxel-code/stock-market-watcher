@@ -229,24 +229,24 @@ export function PriceChart({
       width: container.clientWidth,
       height: chartHeight,
       layout: {
-        background: { type: ColorType.Solid, color: '#07080A' },
-        textColor: '#6F7887',
+        background: { type: ColorType.Solid, color: '#09090b' },
+        textColor: '#71717a',
         fontFamily: 'inherit',
       },
       grid: {
-        vertLines: { color: '#121620' },
-        horzLines: { color: '#121620' },
+        vertLines: { color: '#141418' },
+        horzLines: { color: '#141418' },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
       },
       timeScale: {
-        borderColor: '#161C26',
+        borderColor: '#222226',
         timeVisible: period === '1d',
         secondsVisible: false,
       },
       rightPriceScale: {
-        borderColor: '#161C26',
+        borderColor: '#222226',
         scaleMargins: {
           top: 0.08,
           bottom: showVolume ? 0.22 : 0.06,
@@ -603,7 +603,7 @@ export function PriceChart({
 
   if (error || !data || processedData.length === 0) {
     return (
-      <div className="h-72 flex items-center justify-center text-sm text-[#FF3B56] border border-[#FF3B56]/30 rounded-xl bg-[#0D0F14]">
+      <div className="h-72 flex items-center justify-center text-sm text-red-400 border border-red-500/30 rounded-md bg-[#0f0f12]">
         Failed to load chart data for {ticker}.
       </div>
     )
@@ -638,9 +638,9 @@ export function PriceChart({
   return (
     <div className="space-y-3">
       {/* Chart Top Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#161C26] pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#222226] pb-3">
         {/* Timeframe Selector */}
-        <div className="flex gap-1 bg-[#07080A] p-1 rounded-md border border-[#161C26]">
+        <div className="flex gap-1 bg-[#09090b] p-1 rounded border border-[#222226]">
           {PERIODS.map((p) => (
             <button
               key={p.value}
@@ -649,8 +649,8 @@ export function PriceChart({
               className={cn(
                 'px-2.5 py-1 text-xs font-mono font-medium rounded transition-colors cursor-pointer',
                 period === p.value
-                  ? 'bg-[#161C26] text-[#F0F4F8] shadow-xs font-semibold'
-                  : 'text-[#6F7887] hover:bg-[#0D0F14] hover:text-[#F0F4F8]'
+                  ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                  : 'text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5]'
               )}
               aria-pressed={period === p.value}
               aria-label={`Timeframe ${p.label}`}
@@ -661,19 +661,19 @@ export function PriceChart({
         </div>
 
         {/* Chart View Mode Selectors: Area, Candle, Bar, VaR */}
-        <div className="flex items-center gap-1 bg-[#07080A] p-1 rounded-md border border-[#161C26]">
+        <div className="flex items-center gap-1 bg-[#09090b] p-1 rounded border border-[#222226]">
           <button
             type="button"
             onClick={() => setChartType('area')}
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded transition-colors cursor-pointer',
               chartType === 'area'
-                ? 'bg-[#161C26] text-[#00B2FF] font-semibold'
-                : 'text-[#6F7887] hover:bg-[#0D0F14] hover:text-[#F0F4F8]'
+                ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                : 'text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5]'
             )}
             title="Area / Line Trend View"
           >
-            <LineChart className="h-3.5 w-3.5 text-[#00B2FF]" />
+            <LineChart className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Area</span>
           </button>
           <button
@@ -682,12 +682,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded transition-colors cursor-pointer',
               chartType === 'candle'
-                ? 'bg-[#161C26] text-[#00E599] font-semibold'
-                : 'text-[#6F7887] hover:bg-[#0D0F14] hover:text-[#F0F4F8]'
+                ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                : 'text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5]'
             )}
             title="TradingView Candlestick View (Wick + Body)"
           >
-            <CandlestickChart className="h-3.5 w-3.5 text-[#00E599]" />
+            <CandlestickChart className="h-3.5 w-3.5" />
             <span>Candle</span>
           </button>
           <button
@@ -696,12 +696,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded transition-colors cursor-pointer',
               chartType === 'bar'
-                ? 'bg-[#161C26] text-[#FFB800] font-semibold'
-                : 'text-[#6F7887] hover:bg-[#0D0F14] hover:text-[#F0F4F8]'
+                ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                : 'text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5]'
             )}
             title="Classic Wall Street OHLC Bar View"
           >
-            <BarChart3 className="h-3.5 w-3.5 text-[#FFB800]" />
+            <BarChart3 className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Bar</span>
           </button>
           <button
@@ -710,12 +710,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-medium rounded transition-colors cursor-pointer',
               chartType === 'var'
-                ? 'bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/30 font-semibold'
-                : 'text-[#6F7887] hover:bg-[#0D0F14] hover:text-[#F0F4F8]'
+                ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                : 'text-[#71717a] hover:bg-[#141418] hover:text-[#f4f4f5]'
             )}
             title="Value at Risk (VaR) & Return Volatility Distribution"
           >
-            <ShieldAlert className="h-3.5 w-3.5 text-[#A855F7]" />
+            <ShieldAlert className="h-3.5 w-3.5" />
             <span>VaR Risk</span>
           </button>
         </div>
@@ -729,8 +729,8 @@ export function PriceChart({
               className={cn(
                 'flex items-center gap-1 px-2.5 py-1 text-xs font-mono rounded border transition-colors cursor-pointer',
                 isExpanded
-                  ? 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/30 font-semibold'
-                  : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
+                  ? 'bg-[#f4f4f5] text-[#09090b] border-[#f4f4f5] font-bold'
+                  : 'bg-[#09090b] text-[#71717a] border-[#222226] hover:text-[#f4f4f5]'
               )}
               title={isExpanded ? 'Restore standard chart canvas' : 'Expand chart to theater canvas mode'}
             >
@@ -748,27 +748,20 @@ export function PriceChart({
             </button>
           )}
 
-          <div className="hidden sm:flex items-center text-[11px] font-mono text-[#6F7887] gap-1">
+          <div className="hidden sm:flex items-center text-[11px] font-mono text-[#71717a] gap-1">
             <span>Skala:</span>
-            <span
-              className={cn(
-                'font-semibold px-1.5 py-0.5 rounded border text-[10px]',
-                currency === 'IDR'
-                  ? 'bg-[#00E599]/10 text-[#00E599] border-[#00E599]/30'
-                  : 'bg-[#00B2FF]/10 text-[#00B2FF] border-[#00B2FF]/30'
-              )}
-            >
+            <span className="font-semibold px-1.5 py-0.5 rounded border border-[#27272a] bg-[#141418] text-[#a1a1aa] text-[10px]">
               {currency}
             </span>
           </div>
         </div>
       </div>
 
-      {/* INSTITUTIONAL INDICATOR TRAY (Purbaya Sadewa & Professional Terminal Style) */}
+      {/* INSTITUTIONAL INDICATOR TRAY */}
       {chartType !== 'var' && (
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#07080A] px-2.5 py-1.5 rounded-md border border-[#161C26] text-xs font-mono">
-          <div className="flex items-center gap-1 text-[11px] text-[#6F7887] uppercase tracking-wider mr-1">
-            <Layers className="h-3.5 w-3.5 text-[#00B2FF]" />
+        <div className="flex flex-wrap items-center gap-1.5 bg-[#09090b] px-2.5 py-1.5 rounded border border-[#222226] text-xs font-mono">
+          <div className="flex items-center gap-1 text-[11px] text-[#71717a] uppercase tracking-wider mr-1">
+            <Layers className="h-3.5 w-3.5 text-[#a1a1aa]" />
             <span className="hidden md:inline">Indicators:</span>
           </div>
 
@@ -779,12 +772,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showEMA9
-                ? 'bg-[#00B2FF]/15 text-[#00B2FF] border-[#00B2FF]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-[#f4f4f5] border-[#3f3f46] font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="9-period Exponential Moving Average (Momentum trigger)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#00B2FF]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#e4e4e7]" />
             <span>EMA 9</span>
           </button>
 
@@ -795,12 +788,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showEMA21
-                ? 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-emerald-400 border-emerald-500/40 font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="21-period Exponential Moving Average (Swing baseline)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#00E599]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             <span>EMA 21</span>
           </button>
 
@@ -811,12 +804,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showSMA20
-                ? 'bg-[#3B82F6]/15 text-[#3B82F6] border-[#3B82F6]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-[#f4f4f5] border-[#3f3f46] font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="20-period Simple Moving Average (Mean reversion)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#a1a1aa]" />
             <span>SMA 20</span>
           </button>
 
@@ -827,12 +820,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showEMA50
-                ? 'bg-[#FFB800]/15 text-[#FFB800] border-[#FFB800]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-amber-400 border-amber-500/40 font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="50-period Exponential Moving Average (Institutional trend)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#FFB800]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
             <span>EMA 50</span>
           </button>
 
@@ -843,12 +836,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showEMA200
-                ? 'bg-[#A855F7]/15 text-[#A855F7] border-[#A855F7]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-[#f4f4f5] border-[#3f3f46] font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="200-period Exponential Moving Average (Macro bull/bear line)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#A855F7]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#71717a]" />
             <span>EMA 200</span>
           </button>
 
@@ -859,12 +852,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showBB
-                ? 'bg-[#8C96A5]/20 text-[#F0F4F8] border-[#8C96A5]/50 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-[#f4f4f5] border-[#3f3f46] font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="Bollinger Bands (20 periods, 2 standard deviations)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#8C96A5]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#a1a1aa]" />
             <span>BB (20,2)</span>
           </button>
 
@@ -875,12 +868,12 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border',
               showVWAP
-                ? 'bg-[#FACC15]/15 text-[#FACC15] border-[#FACC15]/40 font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-amber-400 border-amber-500/40 font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="Volume-Weighted Average Price (Intraday institutional benchmark)"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#FACC15]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
             <span>VWAP</span>
           </button>
 
@@ -891,8 +884,8 @@ export function PriceChart({
             className={cn(
               'flex items-center gap-1 px-2 py-0.5 rounded text-[11px] transition-all cursor-pointer border ml-auto',
               showVolume
-                ? 'bg-[#161C26] text-[#F0F4F8] border-[#272E3B] font-semibold'
-                : 'border-transparent text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]'
+                ? 'bg-[#18181b] text-[#f4f4f5] border-[#27272a] font-semibold'
+                : 'border-transparent text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
             title="Toggle Volume Histogram Overlay"
           >
@@ -904,29 +897,29 @@ export function PriceChart({
 
       {/* Real-Time Live Hover Legend for Price Action */}
       {chartType !== 'var' && (
-        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs font-mono bg-[#07080A] px-3 py-1.5 rounded-md border border-[#161C26]">
-          <span className="text-[#6F7887]">{activeLegend.timeStr}</span>
+        <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs font-mono bg-[#09090b] px-3 py-1.5 rounded border border-[#222226]">
+          <span className="text-[#71717a]">{activeLegend.timeStr}</span>
           <span>
-            O: <strong className="text-[#F0F4F8]">{formatCurrency(activeLegend.open, currency)}</strong>
+            O: <strong className="text-[#f4f4f5]">{formatCurrency(activeLegend.open, currency)}</strong>
           </span>
           <span>
-            H: <strong className="text-[#F0F4F8]">{formatCurrency(activeLegend.high, currency)}</strong>
+            H: <strong className="text-[#f4f4f5]">{formatCurrency(activeLegend.high, currency)}</strong>
           </span>
           <span>
-            L: <strong className="text-[#F0F4F8]">{formatCurrency(activeLegend.low, currency)}</strong>
+            L: <strong className="text-[#f4f4f5]">{formatCurrency(activeLegend.low, currency)}</strong>
           </span>
           <span>
-            C: <strong className="text-[#F0F4F8]">{formatCurrency(activeLegend.close, currency)}</strong>
+            C: <strong className="text-[#f4f4f5]">{formatCurrency(activeLegend.close, currency)}</strong>
           </span>
           {showVolume && activeLegend.volume > 0 && (
             <span>
-              Vol: <strong className="text-[#8C96A5]">{formatVolume(activeLegend.volume)}</strong>
+              Vol: <strong className="text-[#a1a1aa]">{formatVolume(activeLegend.volume)}</strong>
             </span>
           )}
           <span
             className={cn(
               'font-semibold ml-auto tabular-nums',
-              activeLegend.change >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+              activeLegend.change >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
             {formatPercent(activeLegend.changePercent)}
@@ -936,22 +929,22 @@ export function PriceChart({
 
       {/* Active Paper Trading Bracket Notification Pill */}
       {positionToRender && chartType !== 'var' && (
-        <div className="flex flex-wrap items-center gap-2 px-3 py-1 bg-[#121620] rounded border border-[#161C26] text-[11px] font-mono text-[#8C96A5]">
-          <span className="flex items-center gap-1.5 text-[#00B2FF] font-semibold">
-            <span className="h-2 w-2 rounded-full bg-[#00B2FF] animate-pulse" />
+        <div className="flex flex-wrap items-center gap-2 px-3 py-1 bg-[#141418] rounded border border-[#222226] text-[11px] font-mono text-[#a1a1aa]">
+          <span className="flex items-center gap-1.5 text-[#f4f4f5] font-semibold">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             Simulated Position Active:
           </span>
           <span>
-            Entry: <strong className="text-[#F0F4F8]">{formatCurrency(positionToRender.entryPrice, currency)}</strong>
+            Entry: <strong className="text-[#f4f4f5]">{formatCurrency(positionToRender.entryPrice, currency)}</strong>
           </span>
           {positionToRender.takeProfit && (
             <span>
-              TP: <strong className="text-[#00E599]">{formatCurrency(positionToRender.takeProfit, currency)}</strong>
+              TP: <strong className="text-emerald-400">{formatCurrency(positionToRender.takeProfit, currency)}</strong>
             </span>
           )}
           {positionToRender.stopLoss && (
             <span>
-              SL: <strong className="text-[#FF3B56]">{formatCurrency(positionToRender.stopLoss, currency)}</strong>
+              SL: <strong className="text-red-400">{formatCurrency(positionToRender.stopLoss, currency)}</strong>
             </span>
           )}
         </div>
@@ -963,50 +956,50 @@ export function PriceChart({
           {/* VaR Risk Metrics Row */}
           {varAnalysis && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              <div className="rounded-md border border-[#FF3B56]/30 bg-[#FF3B56]/10 p-3">
-                <div className="text-[11px] font-semibold text-[#FF3B56] uppercase tracking-wider font-mono">
+              <div className="rounded border border-red-500/30 bg-[#0f0f12] p-3">
+                <div className="text-[11px] font-semibold text-red-400 uppercase tracking-wider font-mono">
                   1-Day 95% VaR
                 </div>
-                <div className="mt-1 font-mono text-lg font-bold text-[#FF3B56] tabular-nums">
+                <div className="mt-1 font-mono text-lg font-bold text-red-400 tabular-nums">
                   {varAnalysis.var95Historical.toFixed(2)}%
                 </div>
-                <div className="text-[10px] text-[#6F7887] mt-0.5">
+                <div className="text-[10px] text-[#71717a] mt-0.5">
                   Max loss on 19 of 20 sessions
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#FF3B56]/40 bg-[#FF3B56]/15 p-3">
-                <div className="text-[11px] font-semibold text-[#FF3B56] uppercase tracking-wider font-mono">
+              <div className="rounded border border-red-500/40 bg-[#0f0f12] p-3">
+                <div className="text-[11px] font-semibold text-red-400 uppercase tracking-wider font-mono">
                   1-Day 99% VaR
                 </div>
-                <div className="mt-1 font-mono text-lg font-bold text-[#FF3B56] tabular-nums">
+                <div className="mt-1 font-mono text-lg font-bold text-red-400 tabular-nums">
                   {varAnalysis.var99Historical.toFixed(2)}%
                 </div>
-                <div className="text-[10px] text-[#6F7887] mt-0.5">
+                <div className="text-[10px] text-[#71717a] mt-0.5">
                   Extreme tail risk threshold
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#FFB800]/30 bg-[#FFB800]/10 p-3">
-                <div className="text-[11px] font-semibold text-[#FFB800] uppercase tracking-wider font-mono">
+              <div className="rounded border border-amber-500/30 bg-[#0f0f12] p-3">
+                <div className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider font-mono">
                   CVaR (95% ES)
                 </div>
-                <div className="mt-1 font-mono text-lg font-bold text-[#FFB800] tabular-nums">
+                <div className="mt-1 font-mono text-lg font-bold text-amber-400 tabular-nums">
                   {varAnalysis.cvar95.toFixed(2)}%
                 </div>
-                <div className="text-[10px] text-[#6F7887] mt-0.5">
+                <div className="text-[10px] text-[#71717a] mt-0.5">
                   Expected Shortfall beyond VaR
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#161C26] bg-[#07080A] p-3">
-                <div className="text-[11px] font-semibold text-[#8C96A5] uppercase tracking-wider font-mono">
+              <div className="rounded border border-[#222226] bg-[#0f0f12] p-3">
+                <div className="text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-wider font-mono">
                   Annual Volatility
                 </div>
-                <div className="mt-1 font-mono text-lg font-bold text-[#00E599] tabular-nums">
+                <div className="mt-1 font-mono text-lg font-bold text-[#f4f4f5] tabular-nums">
                   {varAnalysis.annualizedVol.toFixed(2)}%
                 </div>
-                <div className="text-[10px] text-[#6F7887] mt-0.5">
+                <div className="text-[10px] text-[#71717a] mt-0.5">
                   Normalized ~252 sessions
                 </div>
               </div>
@@ -1015,35 +1008,35 @@ export function PriceChart({
 
           {/* Histogram Chart */}
           {varAnalysis && (
-            <div className="rounded-md border border-[#161C26] bg-[#07080A] p-4">
+            <div className="rounded border border-[#222226] bg-[#09090b] p-4">
               <div className="flex items-center justify-between mb-3 text-xs font-mono">
-                <span className="text-[#8C96A5] font-semibold">
+                <span className="text-[#a1a1aa] font-semibold">
                   Daily Return Distribution ({varAnalysis.sampleSize} periods)
                 </span>
-                <span className="text-[#6F7887]">
+                <span className="text-[#71717a]">
                   Red bars = 5% Left Tail Risk Zone
                 </span>
               </div>
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={varAnalysis.bins} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#121620" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#18181b" vertical={false} />
                     <XAxis
                       dataKey="range"
-                      stroke="#6F7887"
+                      stroke="#71717a"
                       fontSize={10}
                       tickLine={false}
                     />
                     <YAxis
-                      stroke="#6F7887"
+                      stroke="#71717a"
                       fontSize={10}
                       tickLine={false}
                       allowDecimals={false}
                     />
                     <RechartsTooltip
                       contentStyle={{
-                        backgroundColor: '#0D0F14',
-                        borderColor: '#161C26',
+                        backgroundColor: '#0f0f12',
+                        borderColor: '#222226',
                         borderRadius: '6px',
                         fontSize: '11px',
                         fontFamily: 'monospace',
@@ -1051,14 +1044,14 @@ export function PriceChart({
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       formatter={(val: any) => [`${val ?? 0} sessions`, 'Count']}
                     />
-                    <ReferenceLine x="0.0%" stroke="#3B82F6" strokeDasharray="2 2" />
+                    <ReferenceLine x="0.0%" stroke="#71717a" strokeDasharray="2 2" />
                     <Bar
                       dataKey="count"
                       shape={(props: unknown) => {
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const p = props as any
                         const isTail = p.payload?.isExtremeTail
-                        const fill = isTail ? '#FF3B56' : '#272E3B'
+                        const fill = isTail ? '#f87171' : '#3f3f46'
                         return <rect {...p} fill={fill} rx={2} />
                       }}
                     />
@@ -1071,7 +1064,7 @@ export function PriceChart({
       ) : (
         <div
           ref={chartContainerRef}
-          className="w-full rounded-md border border-[#161C26] overflow-hidden transition-all duration-200"
+          className="w-full rounded border border-[#222226] overflow-hidden transition-all duration-200"
           style={{ height: isExpanded ? 520 : 340 }}
         />
       )}

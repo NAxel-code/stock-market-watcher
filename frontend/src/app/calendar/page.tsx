@@ -38,72 +38,72 @@ export default function CalendarPage() {
   const [filter, setFilter] = useState('ALL')
 
   return (
-    <div className="space-y-4 font-mono text-[#F0F4F8] pb-16">
+    <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
-      <div className="border-b border-[#161C26] pb-3">
-        <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
+      <div className="border-b border-[#222226] pb-3">
+        <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
           CALENDAR / ALL TIMES SGT · TODAY TUE 24 NOV 2026
         </div>
-        <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8] mt-1">
+        <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5] mt-1">
           Calendar
         </h1>
       </div>
 
       {/* Quarter Tracker */}
-      <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#161C26]">
+      <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
+        <div className="flex items-center justify-between pb-2 border-b border-[#222226]">
           <div>
-            <div className="text-[10px] uppercase text-[#6F7887]">CALENDAR QUARTERS</div>
-            <h2 className="text-sm font-bold text-[#F0F4F8]">Quarter tracker</h2>
+            <div className="text-[10px] uppercase text-[#71717a]">CALENDAR QUARTERS</div>
+            <h2 className="text-sm font-bold text-[#f4f4f5]">Quarter tracker</h2>
           </div>
-          <span className="text-[11px] font-bold text-[#00E599]">
+          <span className="text-[11px] font-bold text-[#a1a1aa]">
             Q4 2026 · DAY 55 OF 92 · 37 DAYS LEFT
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-          <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-            <div className="font-bold text-[#F0F4F8]">Q1 2026</div>
-            <div className="text-[10px] text-[#6F7887]">JAN – MAR</div>
-            <div className="mt-1 text-[10px] text-[#8C96A5]">DONE</div>
+          <div className="bg-[#141418] border border-[#222226] p-2 rounded">
+            <div className="font-bold text-[#a1a1aa]">Q1 2026</div>
+            <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
+            <div className="mt-1 text-[10px] text-[#71717a]">DONE</div>
           </div>
-          <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-            <div className="font-bold text-[#F0F4F8]">Q2 2026</div>
-            <div className="text-[10px] text-[#6F7887]">APR – JUN</div>
-            <div className="mt-1 text-[10px] text-[#8C96A5]">DONE</div>
+          <div className="bg-[#141418] border border-[#222226] p-2 rounded">
+            <div className="font-bold text-[#a1a1aa]">Q2 2026</div>
+            <div className="text-[10px] text-[#71717a]">APR – JUN</div>
+            <div className="mt-1 text-[10px] text-[#71717a]">DONE</div>
           </div>
-          <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-            <div className="font-bold text-[#F0F4F8]">Q3 2026</div>
-            <div className="text-[10px] text-[#6F7887]">JUL – SEP</div>
-            <div className="mt-1 text-[10px] text-[#8C96A5]">DONE</div>
+          <div className="bg-[#141418] border border-[#222226] p-2 rounded">
+            <div className="font-bold text-[#a1a1aa]">Q3 2026</div>
+            <div className="text-[10px] text-[#71717a]">JUL – SEP</div>
+            <div className="mt-1 text-[10px] text-[#71717a]">DONE</div>
           </div>
-          <div className="bg-[#161D2B] border border-[#00E599]/40 p-2 rounded shadow-xs">
-            <div className="font-bold text-[#00E599]">Q4 2026</div>
-            <div className="text-[10px] text-[#8C96A5]">OCT – DEC</div>
-            <div className="mt-1 text-[10px] text-[#00E599] font-bold">NOW · 60%</div>
+          <div className="bg-[#f4f4f5] border border-[#f4f4f5] p-2 rounded">
+            <div className="font-bold text-[#09090b]">Q4 2026</div>
+            <div className="text-[10px] text-[#52525b]">OCT – DEC</div>
+            <div className="mt-1 text-[10px] text-[#09090b] font-bold">NOW · 60%</div>
           </div>
-          <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-            <div className="font-bold text-[#F0F4F8]">Q1 2027</div>
-            <div className="text-[10px] text-[#6F7887]">JAN – MAR</div>
-            <div className="mt-1 text-[10px] text-[#6F7887]">TRACK RECORD STARTS 1 JAN</div>
+          <div className="bg-[#141418] border border-[#222226] p-2 rounded">
+            <div className="font-bold text-[#f4f4f5]">Q1 2027</div>
+            <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
+            <div className="mt-1 text-[10px] text-[#71717a]">TRACK RECORD STARTS 1 JAN</div>
           </div>
         </div>
 
-        <div className="text-[10px] text-[#6F7887] font-sans flex flex-wrap items-center gap-3 pt-1">
+        <div className="text-[10px] text-[#71717a] font-sans flex flex-wrap items-center gap-3 pt-1">
           <span>| TODAY</span>
           <span>▮ FED / CENTRAL BANK</span>
           <span>▮ DATA · EARNINGS · DIVIDEND</span>
           <span>▮ HOLIDAY</span>
-          <span className="text-[#8C96A5]">EARNINGS SEASON: Q3 SEASON DONE · Q4 SEASON STARTS MID-JAN</span>
+          <span className="text-[#a1a1aa]">EARNINGS SEASON: Q3 SEASON DONE · Q4 SEASON STARTS MID-JAN</span>
         </div>
       </div>
 
       {/* Next 90 Days Events */}
-      <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#161C26]">
+      <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#222226]">
           <div>
-            <div className="text-[10px] uppercase text-[#6F7887]">NEXT 90 DAYS</div>
-            <h2 className="text-sm font-bold text-[#F0F4F8]">Events</h2>
+            <div className="text-[10px] uppercase text-[#71717a]">NEXT 90 DAYS</div>
+            <h2 className="text-sm font-bold text-[#f4f4f5]">Events</h2>
           </div>
 
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-xs">
@@ -115,8 +115,8 @@ export default function CalendarPage() {
                 className={cn(
                   'px-2 py-0.5 rounded transition-colors whitespace-nowrap text-xs font-semibold',
                   filter === cat
-                    ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30 font-bold'
-                    : 'bg-[#0E121B] text-[#8C96A5] border border-[#161C26] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                    : 'bg-[#0f0f12] text-[#a1a1aa] border border-[#222226] hover:text-[#f4f4f5]'
                 )}
               >
                 {cat}
@@ -128,7 +128,7 @@ export default function CalendarPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#161C26] text-[10px] uppercase text-[#6F7887]">
+              <tr className="border-b border-[#222226] text-[10px] uppercase text-[#71717a]">
                 <th className="py-2 font-normal">DATE</th>
                 <th className="py-2 font-normal">IN</th>
                 <th className="py-2 font-normal">MKT</th>
@@ -137,27 +137,27 @@ export default function CalendarPage() {
                 <th className="py-2 text-right font-normal">STATUS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#161C26]/60">
+            <tbody className="divide-y divide-[#222226]/70">
               {EVENTS_90_DAYS.map((ev, i) => (
-                <tr key={i} className="hover:bg-[#121620] transition-colors">
-                  <td className="py-2.5 font-bold text-[#F0F4F8] whitespace-nowrap">{ev.date}</td>
-                  <td className="py-2.5 text-[#00E599] font-semibold whitespace-nowrap">{ev.inDays}</td>
+                <tr key={i} className="hover:bg-[#141418] transition-colors">
+                  <td className="py-2.5 font-bold text-[#f4f4f5] whitespace-nowrap">{ev.date}</td>
+                  <td className="py-2.5 text-[#a1a1aa] font-semibold whitespace-nowrap">{ev.inDays}</td>
                   <td className="py-2.5 whitespace-nowrap">
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#161C26] text-[#8C96A5] font-semibold">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#18181b] border border-[#27272a] text-[#a1a1aa] font-semibold">
                       {ev.market}
                     </span>
                   </td>
-                  <td className="py-2.5 text-[#8C96A5] whitespace-nowrap">{ev.type}</td>
-                  <td className="py-2.5 font-medium text-[#F0F4F8]">{ev.event}</td>
+                  <td className="py-2.5 text-[#a1a1aa] whitespace-nowrap">{ev.type}</td>
+                  <td className="py-2.5 font-medium text-[#f4f4f5]">{ev.event}</td>
                   <td className="py-2.5 text-right whitespace-nowrap">
                     <span
                       className={cn(
                         'text-[10px] font-bold px-1.5 py-0.2 rounded border',
                         ev.status === 'CONFIRMED'
-                          ? 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/30'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                           : ev.status === 'EST.'
-                          ? 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30'
-                          : 'bg-[#00B2FF]/15 text-[#00B2FF] border-[#00B2FF]/30'
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                          : 'bg-[#18181b] text-[#a1a1aa] border-[#27272a]'
                       )}
                     >
                       {ev.status}
@@ -171,11 +171,11 @@ export default function CalendarPage() {
       </div>
 
       {/* Company Fiscal Calendars */}
-      <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
-        <div className="pb-2 border-b border-[#161C26]">
-          <div className="text-[10px] uppercase text-[#6F7887]">COMPANY FISCAL CALENDARS</div>
-          <h2 className="text-sm font-bold text-[#F0F4F8]">Where each company is</h2>
-          <p className="text-[11px] text-[#8C96A5] font-sans mt-0.5">
+      <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
+        <div className="pb-2 border-b border-[#222226]">
+          <div className="text-[10px] uppercase text-[#71717a]">COMPANY FISCAL CALENDARS</div>
+          <h2 className="text-sm font-bold text-[#f4f4f5]">Where each company is</h2>
+          <p className="text-[11px] text-[#a1a1aa] font-sans mt-0.5">
             Fiscal quarters don&apos;t match calendar quarters. NVDA is already in its fiscal Q4; MSFT is in fiscal Q2.
           </p>
         </div>
@@ -183,14 +183,14 @@ export default function CalendarPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#161C26] text-[10px] uppercase text-[#6F7887]">
+              <tr className="border-b border-[#222226] text-[10px] uppercase text-[#71717a]">
                 <th className="py-2 font-normal">TICKER</th>
                 <th className="py-2 font-normal">FY ENDS</th>
                 <th className="py-2 font-normal">NOW IN</th>
                 <th className="py-2 text-right font-normal">NEXT REPORT</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#161C26]/60">
+            <tbody className="divide-y divide-[#222226]/70">
               {[
                 { ticker: 'NVDA', fyEnds: 'LATE JAN', nowIn: 'FQ4 FY27', nextReport: 'LATE FEB · EST.' },
                 { ticker: 'MSFT', fyEnds: '30 JUN', nowIn: 'FQ2 FY27', nextReport: 'LATE JAN · EST.' },
@@ -201,11 +201,11 @@ export default function CalendarPage() {
                 { ticker: 'D05.SI', fyEnds: '31 DEC', nowIn: 'Q4 2026', nextReport: 'FEB · EST.' },
                 { ticker: 'BBCA.JK', fyEnds: '31 DEC', nowIn: 'Q4 2026', nextReport: 'LATE JAN · EST.' },
               ].map((co) => (
-                <tr key={co.ticker} className="hover:bg-[#121620] transition-colors">
-                  <td className="py-2 font-bold text-[#F0F4F8]">{co.ticker}</td>
-                  <td className="py-2 text-[#8C96A5]">{co.fyEnds}</td>
-                  <td className="py-2 text-[#F0F4F8]">{co.nowIn}</td>
-                  <td className="py-2 text-right font-bold text-[#00E599]">{co.nextReport}</td>
+                <tr key={co.ticker} className="hover:bg-[#141418] transition-colors">
+                  <td className="py-2 font-bold text-[#f4f4f5]">{co.ticker}</td>
+                  <td className="py-2 text-[#a1a1aa]">{co.fyEnds}</td>
+                  <td className="py-2 text-[#f4f4f5]">{co.nowIn}</td>
+                  <td className="py-2 text-right font-bold text-[#a1a1aa]">{co.nextReport}</td>
                 </tr>
               ))}
             </tbody>

@@ -15,32 +15,15 @@ export function StockPulseLogo({ size = 24, className, ...props }: LogoProps) {
       className={className}
       {...props}
     >
-      {/* Obsidian Vault Base with Hairline Frame */}
-      <rect width="32" height="32" rx="7" fill="#07080A" />
-      <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" stroke="#1D232C" strokeWidth="1" />
-      
-      {/* Subtle Grid Reference */}
-      <line x1="6" y1="16" x2="26" y2="16" stroke="#141A24" strokeWidth="1" strokeDasharray="2 2" />
-      <line x1="16" y1="6" x2="16" y2="26" stroke="#141A24" strokeWidth="1" strokeDasharray="2 2" />
+      {/* Minimalist Obsidian Frame */}
+      <rect width="32" height="32" rx="6" fill="#09090b" />
+      <rect x="0.5" y="0.5" width="31" height="31" rx="5.5" stroke="#27272a" strokeWidth="1" />
 
-      {/* Dynamic Aperture Vector Wave */}
+      {/* Crisp Monochrome Pulse Wave */}
       <path
-        d="M5 22L11 11L16 18L21 9L27 22"
-        stroke="#00E599"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      
-      {/* Cyan Precision Aperture Node */}
-      <circle cx="21" cy="9" r="2.2" fill="#00B2FF" />
-      <circle cx="21" cy="9" r="3.6" stroke="#00B2FF" strokeWidth="0.8" strokeOpacity="0.4" />
-
-      {/* Amber Delta Catalyst Vertex */}
-      <path
-        d="M10 9L11 6.5L12 9"
-        stroke="#FFB800"
-        strokeWidth="1.8"
+        d="M5 20L10.5 11.5L15.5 17.5L21 9.5L27 20"
+        stroke="#f4f4f5"
+        strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

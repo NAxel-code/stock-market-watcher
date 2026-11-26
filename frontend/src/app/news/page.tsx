@@ -85,14 +85,14 @@ export default function NewsPage() {
   const [filter, setFilter] = useState('All')
 
   return (
-    <div className="space-y-4 font-mono text-[#F0F4F8] pb-16">
+    <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
-      <div className="border-b border-[#161C26] pb-3">
-        <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
+      <div className="border-b border-[#222226] pb-3">
+        <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
           NEWS / HEADLINES AND LINKS ONLY · FULL ARTICLES STAY ON THE SOURCE SITE
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-          <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8]">
+          <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
             News
           </h1>
           {/* Lens Filter Pills */}
@@ -105,8 +105,8 @@ export default function NewsPage() {
                 className={cn(
                   'px-2.5 py-1 rounded transition-colors whitespace-nowrap text-xs font-semibold',
                   filter === tab
-                    ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30 font-bold'
-                    : 'bg-[#0E121B] text-[#8C96A5] border border-[#161C26] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                    : 'bg-[#0f0f12] text-[#a1a1aa] border border-[#222226] hover:text-[#f4f4f5]'
                 )}
               >
                 {tab}
@@ -120,11 +120,11 @@ export default function NewsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Main Feed */}
         <div className="lg:col-span-2 space-y-3">
-          <div className="flex items-center justify-between text-xs pb-1 border-b border-[#161C26]">
-            <span className="text-[#6F7887] text-[10px] uppercase tracking-wider">
+          <div className="flex items-center justify-between text-xs pb-1 border-b border-[#222226]">
+            <span className="text-[#71717a] text-[10px] uppercase tracking-wider">
               LENS: {filter.toUpperCase()} · NEWEST FIRST
             </span>
-            <span className="text-[#8C96A5] text-[10px]">
+            <span className="text-[#a1a1aa] text-[10px]">
               FEED 8 ITEMS
             </span>
           </div>
@@ -133,32 +133,32 @@ export default function NewsPage() {
             {NEWS_ARTICLES.map((article, idx) => (
               <div
                 key={idx}
-                className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-2 hover:border-[#232B3A] transition-colors"
+                className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-2 hover:border-[#3f3f46] transition-colors"
               >
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-[#F0F4F8]">{article.date}</span>
-                    <span className="text-[#6F7887]">·</span>
-                    <span className="text-[#8C96A5]">{article.source} · {article.tags}</span>
+                    <span className="font-bold text-[#f4f4f5]">{article.date}</span>
+                    <span className="text-[#71717a]">·</span>
+                    <span className="text-[#a1a1aa]">{article.source} · {article.tags}</span>
                   </div>
                   <span
                     className={cn(
                       'text-[9px] px-1.5 py-0.2 rounded font-bold border',
                       article.importance === 'HIGH'
-                        ? 'bg-[#FF3B56]/15 text-[#FF3B56] border-[#FF3B56]/30'
-                        : 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30'
+                        ? 'bg-red-500/10 text-red-400 border-red-500/30'
+                        : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
                     )}
                   >
                     {article.importance}
                   </span>
                 </div>
 
-                <h3 className="text-sm font-bold text-[#F0F4F8] hover:text-[#00E599] transition-colors cursor-pointer">
+                <h3 className="text-sm font-bold text-[#f4f4f5] hover:text-white transition-colors cursor-pointer">
                   {article.title}
                 </h3>
 
-                <div className="p-2 rounded bg-[#121620] border border-[#161C26] text-xs font-sans text-[#8C96A5]">
-                  <strong className="text-[#00E599] font-mono font-semibold text-[10px]">WHY IT MATTERS · </strong>
+                <div className="p-2 rounded bg-[#141418] border border-[#222226] text-xs font-sans text-[#a1a1aa]">
+                  <strong className="text-[#f4f4f5] font-mono font-semibold text-[10px]">WHY IT MATTERS · </strong>
                   {article.whyItMatters}
                 </div>
               </div>
@@ -169,47 +169,47 @@ export default function NewsPage() {
         {/* Sidebar: Morning Brief & Sources Pipeline */}
         <div className="space-y-4">
           {/* Morning Brief Card */}
-          <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
-            <div className="pb-2 border-b border-[#161C26]">
-              <div className="text-[10px] uppercase text-[#6F7887]">DAILY BRIEF / TUE 24 NOV · 08:00 SGT</div>
-              <h2 className="text-sm font-bold text-[#F0F4F8]">Morning brief</h2>
+          <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
+            <div className="pb-2 border-b border-[#222226]">
+              <div className="text-[10px] uppercase text-[#71717a]">DAILY BRIEF / TUE 24 NOV · 08:00 SGT</div>
+              <h2 className="text-sm font-bold text-[#f4f4f5]">Morning brief</h2>
             </div>
 
             <div>
-              <span className="text-[10px] font-bold text-[#00E599] tracking-wider uppercase block mb-1">
+              <span className="text-[10px] font-bold text-[#f4f4f5] tracking-wider uppercase block mb-1">
                 BOTTOM LINE
               </span>
-              <p className="text-xs text-[#8C96A5] font-sans leading-relaxed">
+              <p className="text-xs text-[#a1a1aa] font-sans leading-relaxed">
                 US tech rallied hard on the Nvidia leadership news. Your NVDA weight is now above the 12% trim line. Next big macro date is the FOMC decision on 10 Dec.
               </p>
             </div>
 
-            <div className="pt-2 border-t border-[#161C26]">
-              <span className="text-[10px] font-bold text-[#8C96A5] tracking-wider uppercase block mb-1">
+            <div className="pt-2 border-t border-[#222226]">
+              <span className="text-[10px] font-bold text-[#a1a1aa] tracking-wider uppercase block mb-1">
                 OVERNIGHT
               </span>
-              <ul className="text-xs text-[#8C96A5] font-sans space-y-1">
+              <ul className="text-xs text-[#a1a1aa] font-sans space-y-1">
                 <li>· NVDA +32.8% after Huang reinstated; Nasdaq +6.95%.</li>
                 <li>· USD/IDR steady at 18,245 after BI’s hike last week.</li>
                 <li>· US markets shut Thu 26 Nov for Thanksgiving; early close Fri 27 Nov.</li>
               </ul>
             </div>
 
-            <div className="pt-2 border-t border-[#161C26]">
-              <span className="text-[10px] font-bold text-[#FFB020] tracking-wider uppercase block mb-1">
+            <div className="pt-2 border-t border-[#222226]">
+              <span className="text-[10px] font-bold text-amber-400 tracking-wider uppercase block mb-1">
                 ACTION
               </span>
-              <p className="text-xs text-[#F0F4F8] font-mono">
+              <p className="text-xs text-[#f4f4f5] font-mono">
                 Review NVDA trim (12.6% vs 12% rule).
               </p>
             </div>
           </div>
 
           {/* Pipeline Card */}
-          <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-2">
-            <div className="pb-1.5 border-b border-[#161C26]">
-              <div className="text-[10px] uppercase text-[#6F7887]">PIPELINE</div>
-              <h2 className="text-sm font-bold text-[#F0F4F8]">Sources</h2>
+          <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-2">
+            <div className="pb-1.5 border-b border-[#222226]">
+              <div className="text-[10px] uppercase text-[#71717a]">PIPELINE</div>
+              <h2 className="text-sm font-bold text-[#f4f4f5]">Sources</h2>
             </div>
 
             <div className="space-y-1 text-xs">
@@ -222,9 +222,9 @@ export default function NewsPage() {
                 { name: 'AI search agent (Module 2.5b)', status: 'PHASE 2.5' },
                 { name: 'Finnhub company news', status: 'PLANNED' },
               ].map((src, i) => (
-                <div key={i} className="flex items-center justify-between py-1 border-b border-[#161C26]/40 last:border-0">
-                  <span className="text-[#8C96A5] truncate pr-2">{src.name}</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#161C26] text-[#6F7887] font-bold shrink-0">
+                <div key={i} className="flex items-center justify-between py-1 border-b border-[#222226]/50 last:border-0">
+                  <span className="text-[#a1a1aa] truncate pr-2">{src.name}</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#18181b] border border-[#27272a] text-[#71717a] font-bold shrink-0">
                     {src.status}
                   </span>
                 </div>

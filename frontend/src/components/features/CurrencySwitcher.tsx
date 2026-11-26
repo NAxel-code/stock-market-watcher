@@ -3,13 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useUIStore } from '@/stores/useUIStore'
 import type { DisplayCurrency } from '@/lib/currency'
-import { Globe, ChevronDown, Check } from 'lucide-react'
+import { ChevronDown, Check } from 'lucide-react'
 
-const CURRENCIES: { id: DisplayCurrency; label: string; symbol: string; flag: string; desc: string }[] = [
-  { id: 'NATIVE', label: 'Native', symbol: '🌐', flag: '🌐', desc: 'Listing Exchange Currency' },
-  { id: 'SGD', label: 'SGD', symbol: 'S$', flag: '🇸🇬', desc: 'Singapore Dollar' },
-  { id: 'USD', label: 'USD', symbol: '$', flag: '🇺🇸', desc: 'US Dollar' },
-  { id: 'IDR', label: 'IDR', symbol: 'Rp', flag: '🇮🇩', desc: 'Indonesian Rupiah' },
+const CURRENCIES: { id: DisplayCurrency; label: string; symbol: string; desc: string }[] = [
+  { id: 'NATIVE', label: 'Native', symbol: 'NAT', desc: 'Listing Exchange Currency' },
+  { id: 'SGD', label: 'SGD', symbol: 'S$', desc: 'Singapore Dollar' },
+  { id: 'USD', label: 'USD', symbol: '$', desc: 'US Dollar' },
+  { id: 'IDR', label: 'IDR', symbol: 'Rp', desc: 'Indonesian Rupiah' },
 ]
 
 export function CurrencySwitcher() {
@@ -41,20 +41,19 @@ export function CurrencySwitcher() {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Currency Selector: currently ${current.label}`}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-mono font-medium text-[#F0F4F8] bg-[#10141D] hover:bg-[#161D2B] border border-[#232B3A] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]"
+        className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-mono font-medium text-[#e4e4e7] bg-[#141418] hover:bg-[#18181b] border border-[#222226] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400"
       >
-        <span className="text-xs">{current.flag}</span>
-        <span className="font-semibold text-xs tracking-wider">{current.label}</span>
-        <ChevronDown className={`h-3 w-3 text-[#6F7887] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="font-semibold tracking-wider">{current.label}</span>
+        <ChevronDown className={`h-3 w-3 text-[#71717a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
         <div
           role="listbox"
           aria-label="Select display currency"
-          className="absolute right-0 mt-1.5 w-48 rounded-lg bg-[#0D1117] border border-[#232B3A] shadow-xl z-50 p-1 font-mono text-xs animate-in fade-in zoom-in-95 duration-100"
+          className="absolute right-0 mt-1.5 w-48 rounded-md bg-[#0f0f12] border border-[#27272a] shadow-xl z-50 p-1 font-mono text-xs"
         >
-          <div className="px-2 py-1 text-[10px] uppercase text-[#6F7887] font-bold border-b border-[#1A2230] mb-1">
+          <div className="px-2 py-1 text-[10px] uppercase text-[#71717a] font-semibold border-b border-[#222226] mb-1">
             Display Currency
           </div>
           {CURRENCIES.map((item) => {
@@ -70,18 +69,18 @@ export function CurrencySwitcher() {
                 }}
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded text-left transition-colors ${
                   isSelected
-                    ? 'bg-[#00E599]/15 text-[#00E599] font-bold'
-                    : 'text-[#D0D6E0] hover:bg-[#161D2B] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                    : 'text-[#d4d4d8] hover:bg-[#18181b] hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span>{item.flag}</span>
+                  <span className="text-[10px] w-6 opacity-70">{item.symbol}</span>
                   <div>
                     <div className="font-semibold text-xs">{item.label}</div>
-                    <div className="text-[10px] text-[#6F7887] font-sans">{item.desc}</div>
+                    <div className={`text-[10px] font-sans ${isSelected ? 'text-zinc-600' : 'text-[#71717a]'}`}>{item.desc}</div>
                   </div>
                 </div>
-                {isSelected && <Check className="h-3.5 w-3.5 text-[#00E599]" />}
+                {isSelected && <Check className="h-3.5 w-3.5 text-[#09090b]" />}
               </button>
             )
           })}

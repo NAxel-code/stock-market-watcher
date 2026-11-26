@@ -120,10 +120,10 @@ export function SectorFilterBar({
             onClick={() => onSelectFilter(tab.id)}
             className={cn(
               'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all duration-150 border active:scale-[0.98]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4f4f5]',
               isActive
-                ? 'bg-[#121620] text-[#00E599] border-[#00E599]/40 font-bold shadow-[0_0_12px_rgba(0,229,153,0.12)]'
-                : 'bg-[#0D0F14] text-[#8C96A5] border-[#161C26] hover:text-[#F0F4F8] hover:border-[#1F2937] hover:bg-[#121620]/60'
+                ? 'bg-[#f4f4f5] text-[#09090b] border-[#f4f4f5] font-bold'
+                : 'bg-[#0f0f12] text-[#a1a1aa] border-[#222226] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
           >
             <span>{tab.label}</span>
@@ -131,8 +131,8 @@ export function SectorFilterBar({
               className={cn(
                 'text-[9px] px-1 py-0.2 rounded font-mono tabular-nums transition-colors',
                 isActive
-                  ? 'bg-[#00E599]/20 text-[#00E599] font-bold border border-[#00E599]/30'
-                  : 'bg-[#07080A] text-[#6F7887] group-hover:text-[#A2ACB9] border border-[#161C26]'
+                  ? 'bg-[#09090b]/10 text-[#09090b] font-bold'
+                  : 'bg-[#141418] text-[#71717a] group-hover:text-[#a1a1aa] border border-[#222226]'
               )}
             >
               {tab.count}
@@ -141,7 +141,9 @@ export function SectorFilterBar({
               <span
                 className={cn(
                   'text-[10px] font-mono tabular-nums font-semibold ml-0.5',
-                  isPos ? 'text-[#00E599]' : 'text-[#FF3B56]'
+                  isActive
+                    ? (isPos ? 'text-emerald-700' : 'text-red-700')
+                    : (isPos ? 'text-emerald-400' : 'text-red-400')
                 )}
               >
                 {`${isPos ? '+' : ''}${tab.avgChange}%`}
