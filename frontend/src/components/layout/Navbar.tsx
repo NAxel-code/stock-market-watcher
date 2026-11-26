@@ -43,20 +43,20 @@ export function Navbar() {
       <div className="container mx-auto px-3 xl:px-4 max-w-7xl">
         <div className="flex h-12 items-center justify-between gap-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-sm tracking-tight text-white group shrink-0">
-            <StockPulseLogo size={24} className="transition-transform group-hover:scale-105" />
-            <div className="flex items-center gap-1.5">
-              <span className="font-mono font-black text-xs xl:text-sm tracking-widest text-[#F0F4F8] uppercase">
+          <Link href="/" className="flex items-center gap-1.5 font-bold text-sm tracking-tight text-white group shrink-0">
+            <StockPulseLogo size={22} className="transition-transform group-hover:scale-105" />
+            <div className="flex items-center gap-1">
+              <span className="font-mono font-black text-xs xl:text-sm tracking-wider text-[#F0F4F8] uppercase">
                 StockPulse
               </span>
-              <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 tracking-normal font-semibold">
+              <span className="hidden 2xl:inline text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 tracking-normal font-semibold">
                 PRO
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav - Institutional Quant Terminal Suite (Fits cleanly at >=1024px) */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 py-1 text-[11px] xl:text-xs font-mono font-medium tracking-tight shrink-0">
+          <nav className="hidden lg:flex items-center gap-0.5 py-1 text-[11px] xl:text-xs font-mono font-medium tracking-tight shrink-0">
             {[
               { href: '/', label: 'Home' },
               { href: '/portfolio', label: 'Portfolio' },
@@ -75,7 +75,7 @@ export function Navbar() {
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    'px-1.5 xl:px-2 py-1 rounded transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]',
+                    'px-1.5 2xl:px-2 py-1 rounded transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]',
                     isActive
                       ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30'
                       : 'text-[#8C96A5] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
@@ -88,7 +88,7 @@ export function Navbar() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <CurrencySwitcher />
             <LanguageSwitcher />
             <button
