@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { List, BarChart2, Globe, Briefcase, HelpCircle, Search, User } from 'lucide-react'
+import { List, BarChart2, Globe, Briefcase, HelpCircle, Search } from 'lucide-react'
 import { StockPulseLogo } from '@/components/ui/StockPulseLogo'
 import { ThemeToggle } from '@/components/features/ThemeToggle'
 import { SearchCommand } from '@/components/features/SearchCommand'
@@ -15,11 +15,6 @@ import { SpotlightTour } from '@/components/features/SpotlightTour'
 import { useUIStore } from '@/stores/useUIStore'
 import { getTranslation } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
-
-const navLinks = [
-  { href: '/', label: 'Dashboard', icon: BarChart2 },
-  { href: '/watchlist', label: 'Watchlist', icon: List },
-]
 
 export function Navbar() {
   const pathname = usePathname()
@@ -38,7 +33,6 @@ export function Navbar() {
   const tPortfolio = getTranslation('portfolio', language)
   const tWatchlist = getTranslation('watchlist', language)
   const tSearch = getTranslation('search', language)
-  const tAccount = getTranslation('account', language)
   const tGuide = getTranslation('guide', language)
 
   return (
@@ -46,26 +40,23 @@ export function Navbar() {
       {/* Real-Time Market Status Ticker */}
       <MarketStatusRibbon />
 
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex h-14 items-center justify-between gap-4">
+      <div className="container mx-auto px-3 xl:px-4 max-w-7xl">
+        <div className="flex h-12 items-center justify-between gap-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-base tracking-tight text-white group">
-            <StockPulseLogo size={28} className="transition-transform group-hover:scale-105" />
-            <div className="flex flex-col">
-              <span className="font-mono font-black text-sm tracking-widest text-[#F0F4F8] uppercase flex items-center gap-1.5">
+          <Link href="/" className="flex items-center gap-2 font-bold text-sm tracking-tight text-white group shrink-0">
+            <StockPulseLogo size={24} className="transition-transform group-hover:scale-105" />
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono font-black text-xs xl:text-sm tracking-widest text-[#F0F4F8] uppercase">
                 StockPulse
-                <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 tracking-normal font-semibold">
-                  PRO
-                </span>
               </span>
-              <span className="text-[10px] text-[#6F7887] font-mono tracking-tight hidden sm:inline -mt-0.5">
-                Market Telemetry & Quant Terminal
+              <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 tracking-normal font-semibold">
+                PRO
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav - Institutional Quant Terminal Suite */}
-          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto scrollbar-none py-1 text-xs font-mono font-medium tracking-tight">
+          {/* Desktop Nav - Institutional Quant Terminal Suite (Fits cleanly at >=1024px) */}
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 py-1 text-[11px] xl:text-xs font-mono font-medium tracking-tight shrink-0">
             {[
               { href: '/', label: 'Home' },
               { href: '/portfolio', label: 'Portfolio' },
@@ -84,7 +75,7 @@ export function Navbar() {
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    'px-2.5 py-1 rounded transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]',
+                    'px-1.5 xl:px-2 py-1 rounded transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]',
                     isActive
                       ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30'
                       : 'text-[#8C96A5] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
@@ -97,18 +88,18 @@ export function Navbar() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <CurrencySwitcher />
             <LanguageSwitcher />
             <button
               type="button"
               onClick={openTutorial}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
+              className="hidden sm:flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 hover:text-white hover:bg-zinc-800/80 border border-zinc-800 transition"
               title="Platform Guide & Tips"
               aria-label="Platform guide"
             >
-              <HelpCircle className="h-4 w-4 text-blue-400" />
-              <span className="hidden lg:inline">{tGuide}</span>
+              <HelpCircle className="h-3.5 w-3.5 text-blue-400" />
+              <span className="hidden 2xl:inline">{tGuide}</span>
             </button>
             <div id="tour-search-command">
               <SearchCommand />
