@@ -106,19 +106,19 @@ export function AuthModal() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         <div
-          className="hidden sm:flex items-center gap-1.5 text-xs text-[#F0F4F8] bg-[#0E121B] border border-[#00E599]/30 py-1 px-2.5 rounded-md font-mono"
+          className="hidden sm:flex items-center gap-1.5 text-[11px] text-[#f4f4f5] bg-[#141418] border border-[#222226] py-1 px-2 rounded font-mono"
           title="Cloud Sync Active across devices"
         >
-          <Cloud className="h-3 w-3 text-[#00E599]" />
-          <span className="truncate max-w-[120px]">{user.display_name || user.email || 'Account'}</span>
+          <Cloud className="h-3 w-3 text-emerald-400" />
+          <span className="truncate max-w-[90px]">{user.display_name || user.email || 'Account'}</span>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleSignOut}
-          className="text-xs text-[#6F7887] hover:text-[#FF3B56] px-2"
+          className="text-xs text-[#71717a] hover:text-red-400 px-1.5"
           title="Sign Out"
         >
           <LogOut className="h-3.5 w-3.5" />
@@ -133,31 +133,31 @@ export function AuthModal() {
         variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="gap-1.5 border-[#161C26] bg-[#0E121B] text-xs hover:bg-[#121620] text-[#F0F4F8] font-mono"
+        className="gap-1.5 border-[#222226] bg-[#141418] text-[11px] hover:bg-[#18181b] text-[#e4e4e7] font-mono px-2 h-7"
       >
-        <LogIn className="h-3.5 w-3.5 text-[#00E599]" />
+        <LogIn className="h-3 w-3 text-[#a1a1aa]" />
         <span className="hidden sm:inline">{language === 'id' ? 'Masuk' : 'Sign In'}</span>
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[400px] bg-[#0D0F14] border-[#161C26] text-[#F0F4F8]">
+        <DialogContent className="sm:max-w-[400px] bg-[#0f0f12] border-[#27272a] text-[#f4f4f5]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-mono text-sm">
-              <Cloud className="h-4 w-4 text-[#00E599]" />
+              <Cloud className="h-4 w-4 text-[#f4f4f5]" />
               StockPulse Cloud Sync
             </DialogTitle>
-            <DialogDescription className="text-[#8C96A5] text-xs">
+            <DialogDescription className="text-[#a1a1aa] text-xs">
               Sync your portfolio holdings, watchlists, paper trades, and 24/7 server-side alerts across devices.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-1">
-            <div className="grid grid-cols-2 gap-1 bg-[#07080A] p-1 rounded border border-[#161C26] font-mono text-xs">
+            <div className="grid grid-cols-2 gap-1 bg-[#09090b] p-1 rounded border border-[#222226] font-mono text-xs">
               <button
                 type="button"
                 onClick={() => setMode('login')}
                 className={`py-1.5 rounded font-semibold transition-colors ${
-                  mode === 'login' ? 'bg-[#121620] text-[#00E599] border border-[#00E599]/30' : 'text-[#6F7887]'
+                  mode === 'login' ? 'bg-[#f4f4f5] text-[#09090b]' : 'text-[#71717a] hover:text-[#f4f4f5]'
                 }`}
               >
                 Sign In
@@ -166,7 +166,7 @@ export function AuthModal() {
                 type="button"
                 onClick={() => setMode('register')}
                 className={`py-1.5 rounded font-semibold transition-colors ${
-                  mode === 'register' ? 'bg-[#121620] text-[#00E599] border border-[#00E599]/30' : 'text-[#6F7887]'
+                  mode === 'register' ? 'bg-[#f4f4f5] text-[#09090b]' : 'text-[#71717a] hover:text-[#f4f4f5]'
                 }`}
               >
                 Create Account
@@ -176,7 +176,7 @@ export function AuthModal() {
             <form onSubmit={handleSubmit} className="space-y-3">
               {mode === 'register' && (
                 <div>
-                  <label className="text-[10px] font-mono uppercase text-[#6F7887] block mb-1">
+                  <label className="text-[10px] font-mono uppercase text-[#71717a] block mb-1">
                     Display Name (optional)
                   </label>
                   <input
@@ -184,34 +184,34 @@ export function AuthModal() {
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Trader / Desk Name"
-                    className="w-full bg-[#07080A] border border-[#161C26] rounded px-3 py-2 text-xs focus:outline-none focus:border-[#00E599] text-[#F0F4F8] placeholder:text-[#4F5968]"
+                    className="w-full bg-[#09090b] border border-[#222226] rounded px-3 py-2 text-xs focus:outline-none focus:border-zinc-400 text-[#f4f4f5] placeholder:text-[#52525b]"
                   />
                 </div>
               )}
 
               <div>
-                <label className="text-[10px] font-mono uppercase text-[#6F7887] block mb-1">
+                <label className="text-[10px] font-mono uppercase text-[#71717a] block mb-1">
                   Email Address
                 </label>
                 <div className="relative">
-                  <User className="h-3.5 w-3.5 text-[#4F5968] absolute left-3 top-2.5" />
+                  <User className="h-3.5 w-3.5 text-[#52525b] absolute left-3 top-2.5" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="trader@domain.com"
-                    className="w-full bg-[#07080A] border border-[#161C26] rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-[#00E599] text-[#F0F4F8] placeholder:text-[#4F5968]"
+                    className="w-full bg-[#09090b] border border-[#222226] rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-zinc-400 text-[#f4f4f5] placeholder:text-[#52525b]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[10px] font-mono uppercase text-[#6F7887] block mb-1">
+                <label className="text-[10px] font-mono uppercase text-[#71717a] block mb-1">
                   Password {mode === 'register' && '(min 6 chars)'}
                 </label>
                 <div className="relative">
-                  <Lock className="h-3.5 w-3.5 text-[#4F5968] absolute left-3 top-2.5" />
+                  <Lock className="h-3.5 w-3.5 text-[#52525b] absolute left-3 top-2.5" />
                   <input
                     type="password"
                     required
@@ -219,7 +219,7 @@ export function AuthModal() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-[#07080A] border border-[#161C26] rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-[#00E599] text-[#F0F4F8] placeholder:text-[#4F5968]"
+                    className="w-full bg-[#09090b] border border-[#222226] rounded pl-8 pr-3 py-2 text-xs focus:outline-none focus:border-zinc-400 text-[#f4f4f5] placeholder:text-[#52525b]"
                   />
                 </div>
               </div>
@@ -227,7 +227,7 @@ export function AuthModal() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full gap-1.5 bg-[#00E599] hover:bg-[#00E599]/90 text-[#07080A] font-mono font-bold text-xs"
+                className="w-full gap-1.5 bg-[#f4f4f5] hover:bg-white text-[#09090b] font-mono font-bold text-xs"
               >
                 <Check className="h-3.5 w-3.5" />
                 {loading
@@ -244,7 +244,7 @@ export function AuthModal() {
                 variant="outline"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full gap-2 border-[#161C26] bg-[#07080A] hover:bg-[#121620] text-xs py-2"
+                className="w-full gap-2 border-[#222226] bg-[#09090b] hover:bg-[#141418] text-xs py-2"
               >
                 Continue with Google OAuth
               </Button>

@@ -15,16 +15,16 @@ export function LanguageSwitcher() {
     <div
       role="group"
       aria-label="Language selector"
-      className="flex items-center bg-[#10141D] p-0.5 rounded-lg border border-[#232B3A] text-xs font-mono"
+      className="flex items-center bg-[#141418] p-0.5 rounded border border-[#222226] text-xs font-mono"
     >
       <button
         type="button"
         onClick={() => toggleLanguage('en')}
         aria-pressed={language === 'en'}
-        className={`px-2 py-1 rounded text-[11px] font-bold transition-all ${
+        className={`px-1.5 py-0.5 rounded text-[11px] font-semibold transition-colors ${
           language === 'en'
-            ? 'bg-[#1E2638] text-[#F0F4F8] shadow-xs'
-            : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            ? 'bg-[#f4f4f5] text-[#09090b]'
+            : 'text-[#71717a] hover:text-[#f4f4f5]'
         }`}
         title="English"
       >
@@ -34,10 +34,10 @@ export function LanguageSwitcher() {
         type="button"
         onClick={() => toggleLanguage('id')}
         aria-pressed={language === 'id'}
-        className={`px-2 py-1 rounded text-[11px] font-bold transition-all ${
+        className={`px-1.5 py-0.5 rounded text-[11px] font-semibold transition-colors ${
           language === 'id'
-            ? 'bg-[#1E2638] text-[#00E599] shadow-xs'
-            : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            ? 'bg-[#f4f4f5] text-[#09090b]'
+            : 'text-[#71717a] hover:text-[#f4f4f5]'
         }`}
         title="Bahasa Indonesia"
       >

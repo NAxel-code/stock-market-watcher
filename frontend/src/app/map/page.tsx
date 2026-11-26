@@ -41,27 +41,27 @@ export default function MarketMapPage() {
   const selected = HEATMAP_DATA.find((t) => t.ticker === selectedTicker) || HEATMAP_DATA[0]
 
   return (
-    <div className="space-y-4 font-mono text-[#F0F4F8] pb-16">
+    <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
-      <div className="border-b border-[#161C26] pb-3">
-        <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
+      <div className="border-b border-[#222226] pb-3">
+        <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
           MARKET MAP / US LARGE CAPS · 16 NAMES · SIZE = MARKET CAP
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
-          <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8]">
+          <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
             Market map
           </h1>
 
           <div className="flex items-center gap-3 text-xs">
             {/* Market Tabs */}
-            <div className="flex items-center gap-1 bg-[#0E121B] p-1 rounded border border-[#161C26]">
+            <div className="flex items-center gap-1 bg-[#0f0f12] p-1 rounded border border-[#222226]">
               {(['US', 'ID', 'SG'] as const).map((m) => (
                 <button
                   key={m}
                   onClick={() => setMarket(m)}
                   className={cn(
                     'px-2 py-0.5 rounded font-bold transition-colors',
-                    market === m ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30' : 'text-[#6F7887]'
+                    market === m ? 'bg-[#f4f4f5] text-[#09090b]' : 'text-[#71717a] hover:text-[#f4f4f5]'
                   )}
                 >
                   {m}
@@ -70,14 +70,14 @@ export default function MarketMapPage() {
             </div>
 
             {/* Mode Tabs */}
-            <div className="flex items-center gap-1 bg-[#0E121B] p-1 rounded border border-[#161C26]">
+            <div className="flex items-center gap-1 bg-[#0f0f12] p-1 rounded border border-[#222226]">
               {(['1D', 'FROM HIGH'] as const).map((md) => (
                 <button
                   key={md}
                   onClick={() => setMode(md)}
                   className={cn(
                     'px-2 py-0.5 rounded font-bold transition-colors',
-                    mode === md ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30' : 'text-[#6F7887]'
+                    mode === md ? 'bg-[#f4f4f5] text-[#09090b]' : 'text-[#71717a] hover:text-[#f4f4f5]'
                   )}
                 >
                   {md}
@@ -91,8 +91,8 @@ export default function MarketMapPage() {
       {/* Main Grid: Treemap (2/3) + Drilldown & Sectors (1/3) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Treemap Visualization */}
-        <div className="lg:col-span-2 bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
-          <div className="text-[10px] uppercase text-[#6F7887] flex flex-wrap gap-4">
+        <div className="lg:col-span-2 bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
+          <div className="text-[10px] uppercase text-[#71717a] flex flex-wrap gap-4">
             <span>TECHNOLOGY</span>
             <span>COMMUNICATION</span>
             <span>CONSUMER CYCLICAL</span>
@@ -114,24 +114,24 @@ export default function MarketMapPage() {
                   className={cn(
                     'p-2.5 rounded border transition-all cursor-pointer flex flex-col justify-between',
                     isSelected
-                      ? 'ring-2 ring-[#00E599] shadow-lg'
-                      : 'hover:border-[#232B3A]',
+                      ? 'ring-2 ring-[#f4f4f5]'
+                      : 'hover:border-[#3f3f46]',
                     tile.change1D >= 10
-                      ? 'bg-emerald-950/40 border-emerald-800/60'
+                      ? 'bg-emerald-950/35 border-emerald-800/50'
                       : tile.change1D >= 3
-                      ? 'bg-emerald-950/25 border-emerald-900/40'
+                      ? 'bg-emerald-950/20 border-emerald-900/40'
                       : tile.change1D >= 0
-                      ? 'bg-[#121620] border-[#161C26]'
+                      ? 'bg-[#141418] border-[#222226]'
                       : 'bg-red-950/30 border-red-900/40'
                   )}
                 >
                   <div>
-                    <div className="font-bold text-[#F0F4F8] text-sm">{tile.ticker}</div>
-                    <div className="text-[9px] text-[#6F7887] truncate">{tile.sector}</div>
+                    <div className="font-bold text-[#f4f4f5] text-sm">{tile.ticker}</div>
+                    <div className="text-[9px] text-[#71717a] truncate">{tile.sector}</div>
                   </div>
                   <div>
-                    <div className="text-xs font-medium text-[#F0F4F8]">{tile.price}</div>
-                    <div className={cn('text-xs font-bold', isPos ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+                    <div className="text-xs font-medium text-[#f4f4f5]">{tile.price}</div>
+                    <div className={cn('text-xs font-bold', isPos ? 'text-emerald-400' : 'text-red-400')}>
                       {isPos ? '+' : ''}{tile.change1D.toFixed(2)}%
                     </div>
                   </div>
@@ -141,7 +141,7 @@ export default function MarketMapPage() {
           </div>
 
           {/* Color Scale Legend */}
-          <div className="flex items-center justify-between text-[10px] text-[#6F7887] pt-2 border-t border-[#161C26]">
+          <div className="flex items-center justify-between text-[10px] text-[#71717a] pt-2 border-t border-[#222226]">
             <span>≤−3% · −1.5 · −0.5 · 0 · +0.5 · +1.5 · ≥+3%</span>
             <span>TILE SIZE = MARKET CAP</span>
           </div>
@@ -150,47 +150,47 @@ export default function MarketMapPage() {
         {/* Selected Tile Card & Sector Breakdown */}
         <div className="space-y-4">
           {/* Selected Ticker Detail */}
-          <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-3">
+          <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
             <div>
-              <div className="text-[10px] uppercase text-[#6F7887]">{selected.sector.toUpperCase()}</div>
+              <div className="text-[10px] uppercase text-[#71717a]">{selected.sector.toUpperCase()}</div>
               <div className="flex items-center justify-between mt-0.5">
-                <h2 className="text-lg font-bold text-[#F0F4F8]">{selected.ticker}</h2>
-                <span className="text-xs text-[#8C96A5] font-sans">{selected.name}</span>
+                <h2 className="text-lg font-bold text-[#f4f4f5]">{selected.ticker}</h2>
+                <span className="text-xs text-[#a1a1aa] font-sans">{selected.name}</span>
               </div>
             </div>
 
             <div className="space-y-1.5 text-xs">
-              <div className="flex justify-between py-1 border-b border-[#161C26]">
-                <span className="text-[#8C96A5]">Last Price</span>
-                <span className="font-bold text-[#F0F4F8]">{selected.price} <strong className="text-[#00E599]">+{selected.change1D}%</strong></span>
+              <div className="flex justify-between py-1 border-b border-[#222226]">
+                <span className="text-[#a1a1aa]">Last Price</span>
+                <span className="font-bold text-[#f4f4f5]">{selected.price} <strong className="text-emerald-400">+{selected.change1D}%</strong></span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#161C26]">
-                <span className="text-[#8C96A5]">From 52W high</span>
-                <span className="font-bold text-[#FF3B56]">{selected.fromHigh}</span>
+              <div className="flex justify-between py-1 border-b border-[#222226]">
+                <span className="text-[#a1a1aa]">From 52W high</span>
+                <span className="font-bold text-red-400">{selected.fromHigh}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#161C26]">
-                <span className="text-[#8C96A5]">Market cap</span>
-                <span className="font-bold text-[#F0F4F8]">{selected.marketCap}</span>
+              <div className="flex justify-between py-1 border-b border-[#222226]">
+                <span className="text-[#a1a1aa]">Market cap</span>
+                <span className="font-bold text-[#f4f4f5]">{selected.marketCap}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-[#8C96A5]">Share of map</span>
-                <span className="font-bold text-[#00E599]">{selected.shareOfMap}</span>
+                <span className="text-[#a1a1aa]">Share of map</span>
+                <span className="font-bold text-[#f4f4f5]">{selected.shareOfMap}</span>
               </div>
             </div>
 
             <Link
               href={`/stocks/${selected.ticker}`}
-              className="mt-2 block w-full text-center py-2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 hover:bg-[#00E599]/25 font-bold text-xs transition-colors"
+              className="mt-2 block w-full text-center py-2 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white font-bold text-xs transition-colors"
             >
               OPEN STOCK PAGE →
             </Link>
           </div>
 
           {/* Cap-Weighted Sectors */}
-          <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-2 text-xs">
-            <div className="pb-1.5 border-b border-[#161C26]">
-              <div className="text-[10px] uppercase text-[#6F7887]">CAP-WEIGHTED 1D</div>
-              <h3 className="font-bold text-[#F0F4F8]">Sectors</h3>
+          <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-2 text-xs">
+            <div className="pb-1.5 border-b border-[#222226]">
+              <div className="text-[10px] uppercase text-[#71717a]">CAP-WEIGHTED 1D</div>
+              <h3 className="font-bold text-[#f4f4f5]">Sectors</h3>
             </div>
 
             <div className="space-y-1.5">
@@ -204,15 +204,15 @@ export default function MarketMapPage() {
                 { sector: 'Energy', move: '−1.03%', pos: false },
               ].map((s) => (
                 <div key={s.sector} className="flex justify-between py-0.5">
-                  <span className="text-[#8C96A5]">{s.sector}</span>
-                  <span className={cn('font-bold', s.pos ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+                  <span className="text-[#a1a1aa]">{s.sector}</span>
+                  <span className={cn('font-bold', s.pos ? 'text-emerald-400' : 'text-red-400')}>
                     {s.move}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-2 border-t border-[#161C26] text-[10px] text-[#6F7887]">
+            <div className="pt-2 border-t border-[#222226] text-[10px] text-[#71717a]">
               15 of 16 names up. Without NVDA, the cap-weighted move would be +4.09%.
             </div>
           </div>

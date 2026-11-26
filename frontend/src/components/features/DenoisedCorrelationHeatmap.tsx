@@ -18,14 +18,14 @@ const PRESET_POOLS = {
 type PresetKey = keyof typeof PRESET_POOLS
 
 function getCellColor(val: number, isDiagonal: boolean): string {
-  if (isDiagonal) return 'bg-[#121620] text-[#6F7887]'
-  if (val >= 0.7) return 'bg-[#00B2FF]/80 text-white font-bold'
-  if (val >= 0.4) return 'bg-[#00B2FF]/40 text-[#D8E6F5] font-semibold'
-  if (val >= 0.15) return 'bg-[#00B2FF]/20 text-[#A2ACB9]'
-  if (val > -0.15) return 'bg-[#0A0D12] text-[#4F5968]'
-  if (val > -0.4) return 'bg-[#FF3B56]/20 text-[#D8E6F5]'
-  if (val > -0.7) return 'bg-[#FF3B56]/45 text-[#FFB4C0] font-semibold'
-  return 'bg-[#FF3B56]/80 text-white font-bold'
+  if (isDiagonal) return 'bg-[#141418] text-[#71717a]'
+  if (val >= 0.7) return 'bg-[#3f3f46] text-[#f4f4f5] font-bold'
+  if (val >= 0.4) return 'bg-[#27272a] text-[#e4e4e7] font-semibold'
+  if (val >= 0.15) return 'bg-[#18181b] text-[#a1a1aa]'
+  if (val > -0.15) return 'bg-[#09090b] text-[#52525b]'
+  if (val > -0.4) return 'bg-red-500/15 text-red-200'
+  if (val > -0.7) return 'bg-red-500/30 text-red-200 font-semibold'
+  return 'bg-red-500/50 text-white font-bold'
 }
 
 export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelationHeatmapProps) {
@@ -58,20 +58,20 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
   const matrix = viewMode === 'denoised' ? data?.denoised_correlation : data?.raw_correlation
 
   return (
-    <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4 md:p-5 space-y-4">
+    <div className="rounded-md border border-[#222226] bg-[#0f0f12] p-4 md:p-5 space-y-4">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#161C26] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#222226] pb-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Layers className="h-4 w-4 text-[#00B2FF]" />
-            <h3 className="text-sm font-bold tracking-tight text-[#F0F4F8] font-mono uppercase">
+            <Layers className="h-4 w-4 text-[#a1a1aa]" />
+            <h3 className="text-sm font-bold tracking-tight text-[#f4f4f5] font-mono uppercase">
               RMT Portfolio Correlation Matrix
             </h3>
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#00B2FF]/15 text-[#00B2FF] border border-[#00B2FF]/30">
+            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#141418] text-[#a1a1aa] border border-[#222226]">
               Marchenko-Pastur Denoised
             </span>
           </div>
-          <p className="text-xs text-[#6F7887]">
+          <p className="text-xs text-[#71717a]">
             Random Matrix Theory (RMT) removes empirical sample noise to reveal true diversification and cluster risks.
           </p>
         </div>
@@ -81,13 +81,13 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
             onClick={() => refetch()}
             disabled={isFetching}
             title="Recalculate Correlation Matrix"
-            className="p-1.5 rounded-md border border-[#161C26] bg-[#07080A] text-[#6F7887] hover:text-[#F0F4F8] hover:border-[#232B3A] transition-colors disabled:opacity-50"
+            className="p-1.5 rounded border border-[#222226] bg-[#09090b] text-[#71717a] hover:text-[#f4f4f5] hover:border-[#3f3f46] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
           </button>
           <button
             onClick={() => setIsExpanded((prev) => !prev)}
-            className="flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-semibold rounded-md border border-[#161C26] bg-[#07080A] text-[#8C96A5] hover:text-[#F0F4F8] hover:border-[#232B3A] transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 text-xs font-mono font-semibold rounded border border-[#222226] bg-[#09090b] text-[#a1a1aa] hover:text-[#f4f4f5] hover:border-[#3f3f46] transition-colors"
           >
             {isExpanded ? (
               <>
@@ -109,16 +109,16 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
           {/* Subheader: Presets & Denoised vs Raw Toggle */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Presets */}
-            <div className="flex items-center gap-1.5 bg-[#07080A] p-1 rounded-md border border-[#161C26] text-xs">
-              <span className="text-[10px] font-mono text-[#6F7887] px-2 font-medium">UNIVERSE:</span>
+            <div className="flex items-center gap-1.5 bg-[#09090b] p-1 rounded border border-[#222226] text-xs">
+              <span className="text-[10px] font-mono text-[#71717a] px-2 font-medium">UNIVERSE:</span>
               {(Object.keys(PRESET_POOLS) as PresetKey[]).map((key) => (
                 <button
                   key={key}
                   onClick={() => setPreset(key)}
                   className={`px-2.5 py-1 rounded text-[11px] font-mono font-medium transition-colors ${
                     preset === key
-                      ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-xs'
-                      : 'text-[#8C96A5] hover:text-[#F0F4F8]'
+                      ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                      : 'text-[#a1a1aa] hover:text-[#f4f4f5]'
                   }`}
                 >
                   {key === 'WATCHLIST' ? 'Active Watchlist' : key === 'US_TECH' ? 'US Megacaps' : 'IDX Bluechips'}
@@ -127,13 +127,13 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
             </div>
 
             {/* Matrix Mode Toggle */}
-            <div className="flex items-center gap-1 bg-[#07080A] p-1 rounded-md border border-[#161C26] text-xs">
+            <div className="flex items-center gap-1 bg-[#09090b] p-1 rounded border border-[#222226] text-xs">
               <button
                 onClick={() => setViewMode('denoised')}
                 className={`px-3 py-1 rounded text-xs font-mono font-bold transition-all ${
                   viewMode === 'denoised'
-                    ? 'bg-[#00B2FF]/20 text-[#00B2FF] border border-[#00B2FF]/40 shadow-xs'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b]'
+                    : 'text-[#71717a] hover:text-[#f4f4f5]'
                 }`}
               >
                 Denoised (RMT)
@@ -142,8 +142,8 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
                 onClick={() => setViewMode('raw')}
                 className={`px-3 py-1 rounded text-xs font-mono font-bold transition-all ${
                   viewMode === 'raw'
-                    ? 'bg-[#121620] text-[#F0F4F8] border border-[#232B3A] shadow-xs'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b]'
+                    : 'text-[#71717a] hover:text-[#f4f4f5]'
                 }`}
               >
                 Raw Empirical
@@ -154,36 +154,36 @@ export function DenoisedCorrelationHeatmap({ initialTickers }: DenoisedCorrelati
           {/* RMT Statistical Diagnostics Bar */}
           {data && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-              <div className="rounded-md bg-[#07080A] p-2.5 border border-[#161C26]">
-                <span className="text-[#6F7887] text-[10px] font-mono block uppercase">Noise Neutralized</span>
-                <span className="font-mono font-bold text-sm text-[#FFB800]">
+              <div className="rounded bg-[#09090b] p-2.5 border border-[#222226]">
+                <span className="text-[#71717a] text-[10px] font-mono block uppercase">Noise Neutralized</span>
+                <span className="font-mono font-bold text-sm text-amber-400">
                   {data.noise_count} / {data.tickers.length} Factors
                 </span>
-                <span className="text-[9px] text-[#4F5968] font-mono block truncate">Shrunk to constant trace</span>
+                <span className="text-[9px] text-[#52525b] font-mono block truncate">Shrunk to constant trace</span>
               </div>
 
-              <div className="rounded-md bg-[#07080A] p-2.5 border border-[#161C26]">
-                <span className="text-[#6F7887] text-[10px] font-mono block uppercase">Signal Drivers</span>
-                <span className="font-mono font-bold text-sm text-[#00E599]">
+              <div className="rounded bg-[#09090b] p-2.5 border border-[#222226]">
+                <span className="text-[#71717a] text-[10px] font-mono block uppercase">Signal Drivers</span>
+                <span className="font-mono font-bold text-sm text-emerald-400">
                   {data.signal_count} Drivers
                 </span>
-                <span className="text-[9px] text-[#4F5968] font-mono block truncate">Above Marchenko-Pastur bound</span>
+                <span className="text-[9px] text-[#52525b] font-mono block truncate">Above Marchenko-Pastur bound</span>
               </div>
 
-              <div className="rounded-md bg-[#07080A] p-2.5 border border-[#161C26]">
-                <span className="text-[#6F7887] text-[10px] font-mono block uppercase">Noise Cutoff (&lambda;<sub>+</sub>)</span>
-                <span className="font-mono font-bold text-sm text-[#00B2FF]">
+              <div className="rounded bg-[#09090b] p-2.5 border border-[#222226]">
+                <span className="text-[#71717a] text-[10px] font-mono block uppercase">Noise Cutoff (&lambda;<sub>+</sub>)</span>
+                <span className="font-mono font-bold text-sm text-[#f4f4f5]">
                   {data.lambda_plus.toFixed(2)}
                 </span>
-                <span className="text-[9px] text-[#4F5968] font-mono block truncate">&sigma;&sup2;(1 + &radic;(N/T))&sup2;</span>
+                <span className="text-[9px] text-[#52525b] font-mono block truncate">&sigma;&sup2;(1 + &radic;(N/T))&sup2;</span>
               </div>
 
-              <div className="rounded-md bg-[#07080A] p-2.5 border border-[#161C26]">
-                <span className="text-[#6F7887] text-[10px] font-mono block uppercase">Portfolio Diagnosis</span>
-                <span className="font-mono font-bold text-sm text-[#F0F4F8]">
+              <div className="rounded bg-[#09090b] p-2.5 border border-[#222226]">
+                <span className="text-[#71717a] text-[10px] font-mono block uppercase">Portfolio Diagnosis</span>
+                <span className="font-mono font-bold text-sm text-[#f4f4f5]">
                   {data.signal_count <= 1 ? 'Single Cluster' : `${data.signal_count} Sub-clusters`}
                 </span>
-                <span className="text-[9px] text-[#4F5968] font-mono block truncate">Diversification health</span>
+                <span className="text-[9px] text-[#52525b] font-mono block truncate">Diversification health</span>
               </div>
             </div>
           )}

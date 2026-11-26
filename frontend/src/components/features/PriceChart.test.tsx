@@ -86,11 +86,11 @@ describe('PriceChart component', () => {
 
     const barBtn = screen.getByRole('button', { name: /Bar/i })
     fireEvent.click(barBtn)
-    expect(barBtn).toHaveClass('bg-[#161C26]')
+    expect(barBtn).toHaveClass('bg-[#f4f4f5]')
 
     const areaBtn = screen.getByRole('button', { name: /Area/i })
     fireEvent.click(areaBtn)
-    expect(areaBtn).toHaveClass('bg-[#161C26]')
+    expect(areaBtn).toHaveClass('bg-[#f4f4f5]')
   })
 
   it('switches to VaR Risk view and displays Value at Risk metrics', () => {
@@ -111,27 +111,27 @@ describe('PriceChart component', () => {
 
     const ema9Btn = screen.getByRole('button', { name: /EMA 9/i })
     fireEvent.click(ema9Btn)
-    expect(ema9Btn).toHaveClass('text-[#00B2FF]')
+    expect(ema9Btn).toHaveClass('bg-[#18181b]')
 
     const ema21Btn = screen.getByRole('button', { name: /EMA 21/i })
     fireEvent.click(ema21Btn)
-    expect(ema21Btn).toHaveClass('text-[#00E599]')
+    expect(ema21Btn).toHaveClass('text-emerald-400')
 
     const sma20Btn = screen.getByRole('button', { name: /SMA 20/i })
     fireEvent.click(sma20Btn)
-    expect(sma20Btn).toHaveClass('text-[#3B82F6]')
+    expect(sma20Btn).toHaveClass('bg-[#18181b]')
 
     const bbBtn = screen.getByRole('button', { name: /BB \(20,2\)/i })
     fireEvent.click(bbBtn)
-    expect(bbBtn).toHaveClass('border-[#8C96A5]/50')
+    expect(bbBtn).toHaveClass('border-[#3f3f46]')
 
     const vwapBtn = screen.getByRole('button', { name: /VWAP/i })
     fireEvent.click(vwapBtn)
-    expect(vwapBtn).toHaveClass('text-[#FACC15]')
+    expect(vwapBtn).toHaveClass('text-amber-400')
 
     const volBtn = screen.getByRole('button', { name: /Vol/i })
     fireEvent.click(volBtn) // Toggle off
-    expect(volBtn).not.toHaveClass('bg-[#161C26]')
+    expect(volBtn).not.toHaveClass('bg-[#18181b]')
   })
 
   it('toggles expand / theater canvas mode', () => {

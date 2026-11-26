@@ -291,24 +291,24 @@ export function TerminalWatchlist() {
   }
 
   return (
-    <div className="space-y-4 font-mono text-[#F0F4F8]">
+    <div className="space-y-4 font-mono text-[#f4f4f5]">
       {/* Header & List Selectors */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#161C26] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#222226] pb-3">
         <div>
-          <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887] flex items-center gap-2">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a] flex items-center gap-2">
             <span>WATCHLISTS / {Object.keys(LISTS_DATA).length} LISTS · {alerts.filter((a) => a.is_active).length} ACTIVE RULES</span>
-            <span className="inline-flex items-center gap-1 text-[#00E599]">
+            <span className="inline-flex items-center gap-1 text-emerald-400">
               <Cloud className="h-3 w-3" /> Cloud Synced
             </span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8]">
+          <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
             Watchlists
           </h1>
         </div>
 
         {/* List Tabs + Actions */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-[#6F7887] mr-1">LIST:</span>
+          <span className="text-[#71717a] mr-1">LIST:</span>
           {Object.keys(LISTS_DATA).map((name) => (
             <button
               key={name}
@@ -317,8 +317,8 @@ export function TerminalWatchlist() {
               className={cn(
                 'px-2.5 py-1 rounded transition-colors text-xs font-semibold',
                 activeList === name
-                  ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30 font-bold'
-                  : 'bg-[#0E121B] text-[#8C96A5] border border-[#161C26] hover:text-[#F0F4F8]'
+                  ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                  : 'bg-[#0f0f12] text-[#a1a1aa] border border-[#222226] hover:text-[#f4f4f5]'
               )}
             >
               {name}
@@ -327,7 +327,7 @@ export function TerminalWatchlist() {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-search'))}
-            className="px-2 py-1 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 hover:bg-[#00E599]/25 flex items-center gap-1 font-bold"
+            className="px-2.5 py-1 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white transition-colors flex items-center gap-1 font-bold"
           >
             <Plus className="h-3 w-3" /> Add ticker
           </button>
@@ -335,15 +335,15 @@ export function TerminalWatchlist() {
       </div>
 
       {/* Watchlist Table */}
-      <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#161C26]">
+      <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#222226]">
           <div>
-            <div className="text-[10px] uppercase font-mono text-[#6F7887]">
+            <div className="text-[10px] uppercase font-mono text-[#71717a]">
               {activeList.toUpperCase()}
             </div>
-            <h2 className="text-sm font-bold text-[#F0F4F8]">{activeList}</h2>
+            <h2 className="text-sm font-bold text-[#f4f4f5]">{activeList}</h2>
           </div>
-          <span className="text-[10px] text-[#6F7887]">
+          <span className="text-[10px] text-[#71717a]">
             {currentStocks.length} INSTRUMENTS · {streamStatus === 'live' ? 'LIVE SSE STREAM' : 'SYNCED'}
           </span>
         </div>
@@ -351,7 +351,7 @@ export function TerminalWatchlist() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#161C26] text-[10px] uppercase text-[#6F7887]">
+              <tr className="border-b border-[#222226] text-[10px] uppercase text-[#71717a]">
                 <th className="py-2 font-normal">TICKER</th>
                 <th className="py-2 text-right font-normal">LAST</th>
                 <th className="py-2 text-right font-normal">1D</th>
@@ -360,40 +360,40 @@ export function TerminalWatchlist() {
                 <th className="py-2 text-right font-normal">ALERTS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#161C26]/60">
+            <tbody className="divide-y divide-[#222226]/70">
               {currentStocks.map((stock) => (
-                <tr key={stock.ticker} className="hover:bg-[#121620] transition-colors group">
+                <tr key={stock.ticker} className="hover:bg-[#141418] transition-colors group">
                   <td className="py-2.5">
                     <Link href={`/stocks/${stock.ticker}`} className="block">
-                      <div className="font-bold text-[#F0F4F8] group-hover:text-[#00E599] transition-colors">
+                      <div className="font-bold text-[#f4f4f5] group-hover:text-white transition-colors">
                         {stock.ticker}
                       </div>
-                      <div className="text-[10px] text-[#6F7887] font-sans truncate max-w-[150px]">
+                      <div className="text-[10px] text-[#71717a] font-sans truncate max-w-[150px]">
                         {stock.name}
                       </div>
                     </Link>
                   </td>
-                  <td className="py-2.5 text-right font-medium text-[#F0F4F8]">
+                  <td className="py-2.5 text-right font-medium text-[#f4f4f5]">
                     {stock.last}
                   </td>
                   <td className="py-2.5 text-right">
-                    <span className={cn('font-bold', stock.isPositive ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+                    <span className={cn('font-bold', stock.isPositive ? 'text-emerald-400' : 'text-red-400')}>
                       {stock.change1D}
                     </span>
                   </td>
-                  <td className="py-2.5 text-right text-[#8C96A5]">
+                  <td className="py-2.5 text-right text-[#a1a1aa]">
                     {stock.from52WHigh}
                   </td>
-                  <td className="py-2.5 pl-4 text-[#8C96A5]">
+                  <td className="py-2.5 pl-4 text-[#a1a1aa]">
                     {stock.nextEvent}
                   </td>
                   <td className="py-2.5 text-right">
                     {stock.alerts !== '—' ? (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00B2FF]/15 text-[#00B2FF] border border-[#00B2FF]/30">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#18181b] text-[#f4f4f5] border border-[#27272a]">
                         {stock.alerts}
                       </span>
                     ) : (
-                      <span className="text-[#6F7887]">—</span>
+                      <span className="text-[#71717a]">—</span>
                     )}
                   </td>
                 </tr>
@@ -406,20 +406,20 @@ export function TerminalWatchlist() {
       {/* 2-Column Bottom: Persistent 24/7 Alert Rules & Triggered Log */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Left: Alert Rules */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#161C26]">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#222226]">
               <div>
-                <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
+                <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
                   24/7 SERVER-SIDE MONITOR · RUNS WITH BROWSER CLOSED
                 </div>
-                <h3 className="text-sm font-bold text-[#F0F4F8]">Alert rules</h3>
+                <h3 className="text-sm font-bold text-[#f4f4f5]">Alert rules</h3>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleEvaluateNow}
-                  className="text-[10px] font-mono text-[#00B2FF] hover:underline flex items-center gap-1 font-bold"
+                  className="text-[10px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] flex items-center gap-1 font-bold transition-colors"
                   title="Evaluate all rules immediately against live prices"
                 >
                   <Zap className="h-3 w-3" /> CHECK NOW
@@ -427,7 +427,7 @@ export function TerminalWatchlist() {
                 <button
                   type="button"
                   onClick={() => setShowNewRule((prev) => !prev)}
-                  className="text-[10px] font-mono text-[#00E599] hover:underline flex items-center gap-1 font-bold"
+                  className="text-[10px] font-mono text-[#f4f4f5] hover:underline flex items-center gap-1 font-bold"
                 >
                   + NEW RULE
                 </button>
@@ -435,7 +435,7 @@ export function TerminalWatchlist() {
             </div>
 
             {showNewRule && (
-              <form onSubmit={handleCreateRule} className="p-2.5 mb-3 rounded bg-[#07080A] border border-[#00E599]/30 space-y-2">
+              <form onSubmit={handleCreateRule} className="p-2.5 mb-3 rounded bg-[#09090b] border border-[#27272a] space-y-2">
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <input
                     type="text"
@@ -443,12 +443,12 @@ export function TerminalWatchlist() {
                     value={ruleTicker}
                     onChange={(e) => setRuleTicker(e.target.value)}
                     placeholder="NVDA"
-                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white uppercase"
+                    className="bg-[#141418] border border-[#222226] rounded px-2 py-1 text-white uppercase"
                   />
                   <select
                     value={ruleCondition}
                     onChange={(e) => setRuleCondition(e.target.value as 'ABOVE' | 'BELOW')}
-                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white"
+                    className="bg-[#141418] border border-[#222226] rounded px-2 py-1 text-white"
                   >
                     <option value="ABOVE">ABOVE</option>
                     <option value="BELOW">BELOW</option>
@@ -460,21 +460,21 @@ export function TerminalWatchlist() {
                     value={ruleTarget}
                     onChange={(e) => setRuleTarget(e.target.value)}
                     placeholder="150.00"
-                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white"
+                    className="bg-[#141418] border border-[#222226] rounded px-2 py-1 text-white"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setShowNewRule(false)}
-                    className="px-2 py-1 text-[10px] text-[#6F7887] hover:text-white"
+                    className="px-2 py-1 text-[10px] text-[#71717a] hover:text-white"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submittingRule}
-                    className="px-3 py-1 rounded bg-[#00E599] text-[#07080A] font-bold text-[10px]"
+                    className="px-3 py-1 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white font-bold text-[10px]"
                   >
                     {submittingRule ? 'Saving...' : 'Save Cloud Alert'}
                   </button>
@@ -484,20 +484,20 @@ export function TerminalWatchlist() {
 
             <div className="space-y-2 mt-2">
               {alerts.length === 0 ? (
-                <div className="p-3 rounded bg-[#121620] border border-[#161C26] text-xs text-[#6F7887]">
-                  No cloud price alerts configured yet. Click <strong className="text-[#00E599]">+ NEW RULE</strong> to monitor any ticker 24/7.
+                <div className="p-3 rounded bg-[#141418] border border-[#222226] text-xs text-[#71717a]">
+                  No cloud price alerts configured yet. Click <strong className="text-[#f4f4f5]">+ NEW RULE</strong> to monitor any ticker 24/7.
                 </div>
               ) : (
                 alerts.map((rule) => (
                   <div
                     key={rule.id}
-                    className="p-2 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-2 text-xs"
+                    className="p-2 rounded bg-[#141418] border border-[#222226] flex items-center justify-between gap-2 text-xs"
                   >
                     <div>
-                      <div className="font-semibold text-[#F0F4F8]">
+                      <div className="font-semibold text-[#f4f4f5]">
                         {rule.ticker} crosses {rule.condition} {rule.target_price}
                       </div>
-                      <div className="text-[10px] text-[#6F7887] font-mono">
+                      <div className="text-[10px] text-[#71717a] font-mono">
                         PRICE {rule.condition === 'ABOVE' ? '≥' : '≤'} {rule.target_price}
                       </div>
                     </div>
@@ -506,8 +506,8 @@ export function TerminalWatchlist() {
                         className={cn(
                           'text-[9px] px-1.5 py-0.2 rounded font-bold border',
                           !rule.is_active
-                            ? 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30'
-                            : 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/30'
+                            ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                            : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                         )}
                       >
                         {rule.is_active ? 'ACTIVE' : 'TRIGGERED'}
@@ -515,7 +515,7 @@ export function TerminalWatchlist() {
                       <button
                         type="button"
                         onClick={() => handleDeleteRule(rule.id)}
-                        className="p-1 text-[#6F7887] hover:text-[#FF3B56] transition-colors"
+                        className="p-1 text-[#71717a] hover:text-red-400 transition-colors"
                         title="Delete rule"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -529,40 +529,40 @@ export function TerminalWatchlist() {
         </div>
 
         {/* Right: Triggered Log */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#161C26]">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#222226]">
               <div>
-                <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
+                <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
                   CLOUD ALERT LOG / LIVE SSE PUSH
                 </div>
-                <h3 className="text-sm font-bold text-[#F0F4F8]">Triggered</h3>
+                <h3 className="text-sm font-bold text-[#f4f4f5]">Triggered</h3>
               </div>
-              <span className="text-[10px] text-[#6F7887]">
+              <span className="text-[10px] text-[#71717a]">
                 {triggeredAlerts.length} EVENT{triggeredAlerts.length === 1 ? '' : 'S'}
               </span>
             </div>
 
             <div className="space-y-2 mt-2">
               {triggeredAlerts.length === 0 ? (
-                <div className="p-3 rounded bg-[#121620] border border-[#161C26] text-xs text-[#6F7887]">
+                <div className="p-3 rounded bg-[#141418] border border-[#222226] text-xs text-[#71717a]">
                   No triggered alerts recorded yet. Background worker checks active thresholds every 15s and pushes hits live over SSE.
                 </div>
               ) : (
                 triggeredAlerts.map((log) => (
                   <div
                     key={log.id}
-                    className="p-2.5 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-3 text-xs"
+                    className="p-2.5 rounded bg-[#141418] border border-[#222226] flex items-center justify-between gap-3 text-xs"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-bold text-[#6F7887] shrink-0">
+                      <span className="text-[10px] font-bold text-[#71717a] shrink-0">
                         {(log.triggered_at || log.created_at).slice(0, 10)}
                       </span>
-                      <span className="text-[#F0F4F8] font-medium truncate">
+                      <span className="text-[#f4f4f5] font-medium truncate">
                         {log.message || `${log.ticker} crossed ${log.condition} ${log.target_price}`}
                       </span>
                     </div>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 font-bold shrink-0">
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold shrink-0">
                       TRIGGERED
                     </span>
                   </div>
@@ -571,7 +571,7 @@ export function TerminalWatchlist() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-[#161C26] mt-3 text-[10px] text-[#6F7887]">
+          <div className="pt-3 border-t border-[#222226] mt-3 text-[10px] text-[#71717a]">
             Watchlist, rules &amp; triggered alerts are persisted server-side and synchronized across devices.
           </div>
         </div>

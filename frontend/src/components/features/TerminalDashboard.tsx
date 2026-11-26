@@ -220,7 +220,7 @@ const SAMPLE_SCHEDULE: ScheduleItem[] = [
   },
 ]
 
-function MiniSparkline({ data, isPositive }: { data: number[]; isPositive: boolean }) {
+function MiniSparkline({ data }: { data: number[] }) {
   if (!data || data.length < 2) return null
   const min = Math.min(...data)
   const max = Math.max(...data)
@@ -236,13 +236,11 @@ function MiniSparkline({ data, isPositive }: { data: number[]; isPositive: boole
     })
     .join(' ')
 
-  const strokeColor = isPositive ? '#00E599' : '#FF3B56'
-
   return (
     <svg width={width} height={height} className="overflow-visible">
       <polyline
         fill="none"
-        stroke={strokeColor}
+        stroke="#a1a1aa"
         strokeWidth="1.25"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -317,30 +315,30 @@ export function TerminalDashboard() {
   })
 
   return (
-    <div className="space-y-4 pb-12 font-mono text-[#F0F4F8]">
+    <div className="space-y-4 pb-12 font-mono text-[#f4f4f5]">
       {/* Top Header & Breadcrumbs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#161C26] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
         <div>
-          <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
+          <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
             PORTFOLIO / SGD BASE / SAMPLE HOLDINGS
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8]">
+          <h1 className="text-2xl font-sans font-bold tracking-tight text-[#f4f4f5] mt-0.5">
             Dashboard
           </h1>
         </div>
 
-        {/* Timeframe Selector */}
-        <div className="flex items-center gap-1 bg-[#0E121B] p-1 rounded border border-[#161C26] text-xs">
+        {/* Timeframe Selector (Minimalist White Active Pill) */}
+        <div className="flex items-center gap-0.5 bg-[#0f0f12] p-0.5 rounded border border-[#222226] text-[11px]">
           {(['1D', '1W', '1M', 'YTD', '1Y'] as const).map((tf) => (
             <button
               key={tf}
               type="button"
               onClick={() => setTimeframe(tf)}
               className={cn(
-                'px-2.5 py-1 rounded transition-colors text-xs font-semibold',
+                'px-2.5 py-1 rounded transition-colors font-semibold',
                 timeframe === tf
-                  ? 'bg-[#161D2B] text-[#00E599] border border-[#00E599]/30'
-                  : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                  ? 'bg-[#f4f4f5] text-[#09090b]'
+                  : 'text-[#71717a] hover:text-[#f4f4f5]'
               )}
             >
               {tf}
@@ -352,29 +350,27 @@ export function TerminalDashboard() {
       {/* 4 Hero KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Card 1: Value */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-[#8C96A5] font-semibold tracking-wider">VALUE</span>
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[11px] mb-1.5">
+            <span className="text-[#71717a] font-medium tracking-wider">VALUE</span>
             <span
               className={cn(
-                'text-[11px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-0.5',
-                (portfolioSnap?.unrealized_pnl_percent ?? 2.6) >= 0
-                  ? 'text-[#00E599] bg-[#00E599]/10 border-[#00E599]/20'
-                  : 'text-[#FF3B56] bg-[#FF3B56]/10 border-[#FF3B56]/20'
+                'text-[11px] font-medium',
+                (portfolioSnap?.unrealized_pnl_percent ?? 2.6) >= 0 ? 'text-emerald-400' : 'text-red-400'
               )}
             >
               {portfolioSnap ? formatPercent(portfolioSnap.unrealized_pnl_percent) : '↗ +2.6%'}
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-[#F0F4F8]">
+          <div className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
             {portfolioSnap
               ? formatCurrency(portfolioSnap.total_value_base, portfolioSnap.base_currency)
               : 'S$124,800'}
           </div>
-          <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
+          <div className="text-[11px] text-[#71717a] mt-1 font-sans">
             Total portfolio value
           </div>
-          <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
+          <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             {portfolioSnap
               ? `${portfolioSnap.holdings.length} holdings · ${Object.keys(portfolioSnap.allocation.by_currency).length} currencies`
               : '9 holdings · 3 currencies'}
@@ -382,27 +378,27 @@ export function TerminalDashboard() {
         </div>
 
         {/* Card 2: Today / P&L */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-[#8C96A5] font-semibold tracking-wider">UNREALIZED P&amp;L</span>
-            <span className="text-[#00E599] text-[11px] font-bold bg-[#00E599]/10 px-1.5 py-0.5 rounded border border-[#00E599]/20 flex items-center gap-0.5">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[11px] mb-1.5">
+            <span className="text-[#71717a] font-medium tracking-wider">UNREALIZED P&amp;L</span>
+            <span className="text-emerald-400 text-[10px] font-medium">
               {streamStatus === 'live' ? '● LIVE' : '↗ +2.6%'}
             </span>
           </div>
           <div
             className={cn(
               'text-2xl font-bold tracking-tight',
-              (portfolioSnap?.unrealized_pnl_base ?? 3150) >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+              (portfolioSnap?.unrealized_pnl_base ?? 3150) >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
             {portfolioSnap
               ? `${portfolioSnap.unrealized_pnl_base >= 0 ? '+' : ''}${formatCurrency(portfolioSnap.unrealized_pnl_base, portfolioSnap.base_currency)}`
               : '+S$3,150'}
           </div>
-          <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
+          <div className="text-[11px] text-[#71717a] mt-1 font-sans">
             Stock alpha + FX net P&amp;L
           </div>
-          <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
+          <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             {portfolioSnap
               ? `Stock: ${formatCurrency(portfolioSnap.total_stock_move_pnl_base, portfolioSnap.base_currency)}`
               : 'NVDA +S$1,420 largest'}
@@ -410,46 +406,46 @@ export function TerminalDashboard() {
         </div>
 
         {/* Card 3: Total Return */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-[#8C96A5] font-semibold tracking-wider">TOTAL RETURN</span>
-            <span className="text-[#8C96A5] text-[11px] font-medium">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[11px] mb-1.5">
+            <span className="text-[#71717a] font-medium tracking-wider">TOTAL RETURN</span>
+            <span className="text-emerald-400 text-[11px] font-medium">
               Sharpe {portfolioSnap?.risk.sharpe_ratio.toFixed(2) ?? '1.42'}
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-[#00E599]">
+          <div className="text-2xl font-bold tracking-tight text-emerald-400">
             {portfolioSnap ? formatPercent(portfolioSnap.unrealized_pnl_percent) : '+8.4%'}
           </div>
-          <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
+          <div className="text-[11px] text-[#71717a] mt-1 font-sans">
             Since cost basis inception
           </div>
-          <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
+          <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             Beta {portfolioSnap?.risk.portfolio_beta.toFixed(2) ?? '1.05'} · Vol {portfolioSnap?.risk.annualized_volatility.toFixed(1) ?? '14.2'}%
           </div>
         </div>
 
         {/* Card 4: FX Effect */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
-          <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-[#8C96A5] font-semibold tracking-wider">FX EFFECT</span>
-            <span className="text-[#FF3B56] text-[11px] font-bold bg-[#FF3B56]/10 px-1.5 py-0.5 rounded border border-[#FF3B56]/20 flex items-center gap-0.5">
-              FX IMPACT
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
+          <div className="flex items-center justify-between text-[11px] mb-1.5">
+            <span className="text-[#71717a] font-medium tracking-wider">FX EFFECT</span>
+            <span className="text-red-400 text-[11px] font-medium">
+              ↘ FX
             </span>
           </div>
           <div
             className={cn(
               'text-2xl font-bold tracking-tight',
-              (portfolioSnap?.total_fx_move_pnl_base ?? -1) >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+              (portfolioSnap?.total_fx_move_pnl_base ?? -1) >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
             {portfolioSnap
               ? formatCurrency(portfolioSnap.total_fx_move_pnl_base, portfolioSnap.base_currency)
               : '−2.8%'}
           </div>
-          <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
+          <div className="text-[11px] text-[#71717a] mt-1 font-sans">
             Cross-currency translation drag
           </div>
-          <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
+          <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             Net Dividend: {portfolioSnap ? formatCurrency(portfolioSnap.total_annual_dividend_net_base, portfolioSnap.base_currency) : 'S$1,840/yr'}
           </div>
         </div>
@@ -458,15 +454,15 @@ export function TerminalDashboard() {
       {/* 3-Column Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Column 1: Watchlist / Core */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#161C26]">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
             <div>
-              <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">WATCHLIST / CORE</div>
-              <h2 className="text-sm font-bold text-[#F0F4F8]">Watchlist</h2>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">WATCHLIST / CORE</div>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Watchlist</h2>
             </div>
             <Link
               href="/watchlist"
-              className="text-[11px] font-mono text-[#00E599] hover:underline flex items-center gap-0.5"
+              className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
             >
               ALL LISTS →
             </Link>
@@ -475,34 +471,34 @@ export function TerminalDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
               <thead>
-                <tr className="border-b border-[#161C26] text-[10px] uppercase text-[#6F7887]">
+                <tr className="border-b border-[#1c1c21] text-[10px] uppercase text-[#71717a]">
                   <th className="py-1.5 font-normal">TICKER</th>
                   <th className="py-1.5 font-normal">7D</th>
                   <th className="py-1.5 text-right font-normal">LAST</th>
                   <th className="py-1.5 text-right font-normal">1D</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#161C26]/60">
+              <tbody className="divide-y divide-[#1c1c21]">
                 {watchlistRows.map((row) => (
-                  <tr key={row.ticker} className="hover:bg-[#121620] transition-colors group">
+                  <tr key={row.ticker} className="hover:bg-[#141418] transition-colors group">
                     <td className="py-2">
                       <Link href={`/stocks/${row.ticker}`} className="block">
-                        <div className="font-bold text-[#F0F4F8] group-hover:text-[#00E599] transition-colors">
+                        <div className="font-semibold text-[#f4f4f5] group-hover:text-white transition-colors">
                           {row.ticker}
                         </div>
-                        <div className="text-[10px] text-[#6F7887] font-sans truncate max-w-[100px]">
+                        <div className="text-[10px] text-[#71717a] font-sans truncate max-w-[100px]">
                           {row.name}
                         </div>
                       </Link>
                     </td>
                     <td className="py-2">
-                      <MiniSparkline data={row.sparkline} isPositive={row.isPositive} />
+                      <MiniSparkline data={row.sparkline} />
                     </td>
-                    <td className="py-2 text-right font-medium text-[#F0F4F8]">
+                    <td className="py-2 text-right font-medium text-[#f4f4f5]">
                       {row.price}
                     </td>
                     <td className="py-2 text-right">
-                      <span className={cn('font-bold', row.isPositive ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+                      <span className={cn('font-medium', row.isPositive ? 'text-emerald-400' : 'text-red-400')}>
                         {row.change}
                       </span>
                     </td>
@@ -514,35 +510,35 @@ export function TerminalDashboard() {
         </div>
 
         {/* Column 2: Allocation / By Asset Class */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#161C26]">
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
               <div>
-                <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">ALLOCATION / BY ASSET CLASS</div>
-                <h2 className="text-sm font-bold text-[#F0F4F8]">Overview</h2>
+                <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">ALLOCATION / BY ASSET CLASS</div>
+                <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Overview</h2>
               </div>
               <Link
                 href="/portfolio"
-                className="text-[11px] font-mono text-[#00E599] hover:underline flex items-center gap-0.5"
+                className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
               >
                 PORTFOLIO →
               </Link>
             </div>
 
-            {/* Circular Donut & Legend */}
+            {/* Circular Donut & Legend (Monochrome Obsidian Spectrum matching PDF) */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 my-4">
               {/* SVG Donut */}
               <div className="relative w-36 h-36 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 36 36">
                   {/* Background track */}
-                  <circle cx="18" cy="18" r="14" fill="none" stroke="#161C26" strokeWidth="4" />
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#18181b" strokeWidth="4" />
                   {/* US stocks 46% */}
                   <circle
                     cx="18"
                     cy="18"
                     r="14"
                     fill="none"
-                    stroke="#00E599"
+                    stroke="#f4f4f5"
                     strokeWidth="4"
                     strokeDasharray="40.5 47.5"
                     strokeDashoffset="0"
@@ -553,7 +549,7 @@ export function TerminalDashboard() {
                     cy="18"
                     r="14"
                     fill="none"
-                    stroke="#00B2FF"
+                    stroke="#a1a1aa"
                     strokeWidth="4"
                     strokeDasharray="21.1 66.9"
                     strokeDashoffset="-40.5"
@@ -564,7 +560,7 @@ export function TerminalDashboard() {
                     cy="18"
                     r="14"
                     fill="none"
-                    stroke="#FFB020"
+                    stroke="#71717a"
                     strokeWidth="4"
                     strokeDasharray="13.2 74.8"
                     strokeDashoffset="-61.6"
@@ -575,7 +571,7 @@ export function TerminalDashboard() {
                     cy="18"
                     r="14"
                     fill="none"
-                    stroke="#E6C200"
+                    stroke="#52525b"
                     strokeWidth="4"
                     strokeDasharray="8.8 79.2"
                     strokeDashoffset="-74.8"
@@ -586,15 +582,17 @@ export function TerminalDashboard() {
                     cy="18"
                     r="14"
                     fill="none"
-                    stroke="#6F7887"
+                    stroke="#27272a"
                     strokeWidth="4"
                     strokeDasharray="4.4 83.6"
                     strokeDashoffset="-83.6"
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="text-[10px] uppercase text-[#6F7887]">TOTAL</div>
-                  <div className="text-sm font-bold text-[#F0F4F8]">S$124.8k</div>
+                  <div className="text-[10px] uppercase text-[#71717a]">TOTAL</div>
+                  <div className="text-sm font-bold text-[#f4f4f5]">
+                    {portfolioSnap ? `${portfolioSnap.base_currency} ${(portfolioSnap.total_value_base / 1000).toFixed(1)}k` : 'S$124.8k'}
+                  </div>
                 </div>
               </div>
 
@@ -602,77 +600,73 @@ export function TerminalDashboard() {
               <div className="space-y-1.5 text-xs font-mono w-full sm:w-auto">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#00E599]" />
-                    <span className="text-[#8C96A5]">US stocks</span>
+                    <span className="h-2 w-2 rounded-full bg-[#f4f4f5]" />
+                    <span className="text-[#a1a1aa]">US stocks</span>
                   </div>
-                  <span className="font-bold text-[#F0F4F8]">46%</span>
+                  <span className="font-semibold text-[#f4f4f5]">46%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#00B2FF]" />
-                    <span className="text-[#8C96A5]">Global ETF (VWRA)</span>
+                    <span className="h-2 w-2 rounded-full bg-[#a1a1aa]" />
+                    <span className="text-[#a1a1aa]">Global ETF (VWRA)</span>
                   </div>
-                  <span className="font-bold text-[#F0F4F8]">24%</span>
+                  <span className="font-semibold text-[#f4f4f5]">24%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#FFB020]" />
-                    <span className="text-[#8C96A5]">Singapore stocks</span>
+                    <span className="h-2 w-2 rounded-full bg-[#71717a]" />
+                    <span className="text-[#a1a1aa]">Singapore stocks</span>
                   </div>
-                  <span className="font-bold text-[#F0F4F8]">15%</span>
+                  <span className="font-semibold text-[#f4f4f5]">15%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#E6C200]" />
-                    <span className="text-[#8C96A5]">Gold</span>
+                    <span className="h-2 w-2 rounded-full bg-[#52525b]" />
+                    <span className="text-[#a1a1aa]">Gold</span>
                   </div>
-                  <span className="font-bold text-[#F0F4F8]">10%</span>
+                  <span className="font-semibold text-[#f4f4f5]">10%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#6F7887]" />
-                    <span className="text-[#8C96A5]">Cash</span>
+                    <span className="h-2 w-2 rounded-full bg-[#27272a]" />
+                    <span className="text-[#a1a1aa]">Cash</span>
                   </div>
-                  <span className="font-bold text-[#F0F4F8]">5%</span>
+                  <span className="font-semibold text-[#f4f4f5]">5%</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Rule Checks / Alerts Section */}
-          <div className="pt-3 border-t border-[#161C26] mt-2 space-y-2">
-            <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
-              RULE CHECKS &amp; 24/7 ALERTS
+          <div className="pt-3 border-t border-[#1c1c21] mt-2 space-y-2">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
+              RULE CHECKS
             </div>
             {triggeredAlerts.slice(0, 2).map((alert) => (
-              <div key={alert.id} className="p-2 rounded bg-[#00E599]/10 border border-[#00E599]/25 text-xs flex items-start justify-between gap-2">
-                <div className="font-medium text-[#F0F4F8]">
+              <div key={alert.id} className="py-1.5 border-b border-[#1c1c21] text-xs flex items-start justify-between gap-2">
+                <div className="font-sans text-[#e4e4e7]">
                   {alert.message ?? `${alert.ticker} ${alert.condition} ${alert.target_price}`}
                 </div>
-                <span className="text-[10px] font-bold text-[#00E599] bg-[#00E599]/20 px-1.5 py-0.5 rounded shrink-0">
+                <span className="text-[10px] font-medium text-emerald-400 shrink-0">
                   TRIGGERED
                 </span>
               </div>
             ))}
-            <div className="p-2 rounded bg-[#FFB020]/10 border border-[#FFB020]/25 text-xs flex items-start justify-between gap-2">
-              <div>
-                <div className="font-medium text-[#F0F4F8]">
-                  {portfolioSnap?.risk.position_cap_warnings?.[0] ?? 'NVDA is 12.6% of the portfolio'}
-                </div>
+            <div className="py-1.5 border-b border-[#1c1c21] text-xs flex items-start justify-between gap-2">
+              <div className="font-sans text-[#e4e4e7]">
+                {portfolioSnap?.risk.position_cap_warnings?.[0] ?? 'NVDA is 12.6% of the portfolio'}
               </div>
-              <span className="text-[10px] font-bold text-[#FFB020] bg-[#FFB020]/20 px-1.5 py-0.5 rounded shrink-0">
+              <span className="text-[10px] font-medium text-amber-400 shrink-0">
                 WARNING · &gt;12% TRIM
               </span>
             </div>
-            <div className="p-2 rounded bg-[#00B2FF]/10 border border-[#00B2FF]/25 text-xs flex items-start justify-between gap-2">
-              <div>
-                <div className="font-medium text-[#F0F4F8]">
-                  {portfolioSnap
-                    ? `US-situs exposure US$${Math.round(portfolioSnap.risk.us_estate_tax_exposure_usd / 1000)}k / US$60k`
-                    : 'US-situs holdings US$44k of US$60k'}
-                </div>
+            <div className="py-1 text-xs flex items-start justify-between gap-2">
+              <div className="font-sans text-[#e4e4e7]">
+                {portfolioSnap
+                  ? `US-situs exposure US$${Math.round(portfolioSnap.risk.us_estate_tax_exposure_usd / 1000)}k of US$60k`
+                  : 'US-situs holdings US$44k of US$60k'}
               </div>
-              <span className="text-[10px] font-bold text-[#00B2FF] bg-[#00B2FF]/20 px-1.5 py-0.5 rounded shrink-0">
+              <span className="text-[10px] font-medium text-[#71717a] shrink-0">
                 INFO · ESTATE LIMIT
               </span>
             </div>
@@ -680,22 +674,22 @@ export function TerminalDashboard() {
         </div>
 
         {/* Column 3: News / Sorted by Relevance */}
-        <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col">
-          <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#161C26]">
+        <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col">
+          <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
             <div>
-              <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">NEWS / SORTED BY RELEVANCE</div>
-              <h2 className="text-sm font-bold text-[#F0F4F8]">News feed</h2>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">NEWS / SORTED BY RELEVANCE</div>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">News feed</h2>
             </div>
             <Link
               href="/news"
-              className="text-[11px] font-mono text-[#00E599] hover:underline flex items-center gap-0.5"
+              className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
             >
               ALL NEWS →
             </Link>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-2 text-[10px] font-mono border-b border-[#161C26]">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-2 text-[10px] font-mono border-b border-[#1c1c21]">
             {['ALL', 'HOLDINGS', 'FED', 'SG', 'ID', 'TECH'].map((tab) => (
               <button
                 key={tab}
@@ -704,8 +698,8 @@ export function TerminalDashboard() {
                 className={cn(
                   'px-2 py-0.5 rounded transition-colors whitespace-nowrap',
                   newsFilter === tab
-                    ? 'bg-[#161D2B] text-[#00E599] font-bold border border-[#00E599]/30'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-semibold'
+                    : 'text-[#71717a] hover:text-[#f4f4f5]'
                 )}
               >
                 {tab}
@@ -716,30 +710,27 @@ export function TerminalDashboard() {
           {/* News List */}
           <div className="space-y-3 overflow-y-auto max-h-[380px] scrollbar-thin">
             {filteredNews.map((news) => (
-              <div key={news.id} className="border-b border-[#161C26]/60 pb-2.5 last:border-0 last:pb-0">
-                <div className="flex items-center justify-between text-[10px] text-[#6F7887] mb-1">
+              <div key={news.id} className="border-b border-[#1c1c21] pb-2.5 last:border-0 last:pb-0">
+                <div className="flex items-center justify-between text-[10px] text-[#71717a] mb-1">
                   <span>{news.date} · {news.source}</span>
                   <span
                     className={cn(
-                      'px-1 py-0.2 rounded font-bold text-[9px]',
-                      news.importance === 'HIGH'
-                        ? 'bg-[#FF3B56]/15 text-[#FF3B56] border border-[#FF3B56]/30'
-                        : 'bg-[#FFB020]/15 text-[#FFB020] border border-[#FFB020]/30'
+                      'font-semibold text-[9px]',
+                      news.importance === 'HIGH' ? 'text-amber-400' : 'text-[#71717a]'
                     )}
                   >
                     {news.importance}
                   </span>
                 </div>
-                <div className="text-xs font-semibold text-[#F0F4F8] hover:text-[#00E599] transition-colors leading-snug cursor-pointer">
+                <div className="text-xs font-sans font-semibold text-[#f4f4f5] hover:text-white transition-colors leading-snug cursor-pointer">
                   {news.title}
                 </div>
                 {news.whyItMatters && (
-                  <div className="mt-1 text-[11px] text-[#8C96A5] font-sans bg-[#121620]/70 p-1.5 rounded border border-[#161C26]">
-                    <span className="text-[#00E599] font-mono font-semibold text-[10px]">WHY IT MATTERS · </span>
+                  <div className="mt-1.5 text-[11px] text-[#a1a1aa] font-sans pl-2 border-l border-[#3f3f46]">
                     {news.whyItMatters}
                   </div>
                 )}
-                <div className="mt-1 text-[9px] text-[#6F7887] font-mono">
+                <div className="mt-1 text-[9px] text-[#71717a] font-mono">
                   {news.tags}
                 </div>
               </div>
@@ -749,12 +740,12 @@ export function TerminalDashboard() {
       </div>
 
       {/* Bottom Full-Width Section: SCHEDULE / TIMES IN SGT */}
-      <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#161C26]">
+      <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#1c1c21]">
           <div>
-            <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">SCHEDULE / TIMES IN SGT</div>
+            <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">SCHEDULE / TIMES IN SGT</div>
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-bold text-[#F0F4F8]">Events</h2>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Events</h2>
               {/* Category Filters */}
               <div className="flex items-center gap-1 text-[10px] font-mono overflow-x-auto scrollbar-none">
                 {['ALL', 'CENTRAL BANKS', 'DATA', 'EARNINGS', 'HOLIDAYS'].map((cat) => (
@@ -765,8 +756,8 @@ export function TerminalDashboard() {
                     className={cn(
                       'px-2 py-0.5 rounded transition-colors whitespace-nowrap',
                       scheduleFilter === cat
-                        ? 'bg-[#161D2B] text-[#00E599] font-bold border border-[#00E599]/30'
-                        : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                        ? 'bg-[#f4f4f5] text-[#09090b] font-semibold'
+                        : 'text-[#71717a] hover:text-[#f4f4f5]'
                     )}
                   >
                     {cat}
@@ -778,42 +769,57 @@ export function TerminalDashboard() {
 
           <Link
             href="/calendar"
-            className="text-[11px] font-mono text-[#00E599] hover:underline flex items-center gap-0.5 shrink-0"
+            className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5 shrink-0"
           >
             FULL CALENDAR →
           </Link>
         </div>
 
-        {/* Quarter Progress Tracker */}
+        {/* Quarter Progress Tracker (PDF Page 1 Monochrome Active Block) */}
         <div className="space-y-2">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
-            <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-              <div className="font-bold text-[#F0F4F8]">Q1 2026</div>
-              <div className="text-[10px] text-[#6F7887]">JAN – MAR</div>
-              <div className="mt-1 text-[10px] text-[#8C96A5] font-semibold">DONE</div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-left text-xs">
+            <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#f4f4f5]">Q1</span>
+                <span className="text-[10px] text-[#71717a]">2026</span>
+              </div>
+              <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE</div>
             </div>
-            <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-              <div className="font-bold text-[#F0F4F8]">Q2 2026</div>
-              <div className="text-[10px] text-[#6F7887]">APR – JUN</div>
-              <div className="mt-1 text-[10px] text-[#8C96A5] font-semibold">DONE</div>
+            <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#f4f4f5]">Q2</span>
+                <span className="text-[10px] text-[#71717a]">2026</span>
+              </div>
+              <div className="text-[10px] text-[#71717a]">APR – JUN</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE</div>
             </div>
-            <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-              <div className="font-bold text-[#F0F4F8]">Q3 2026</div>
-              <div className="text-[10px] text-[#6F7887]">JUL – SEP</div>
-              <div className="mt-1 text-[10px] text-[#8C96A5] font-semibold">DONE · REPORTING ENDED</div>
+            <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#f4f4f5]">Q3</span>
+                <span className="text-[10px] text-[#71717a]">2026</span>
+              </div>
+              <div className="text-[10px] text-[#71717a]">JUL – SEP</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE · REPORTING ENDED</div>
             </div>
-            <div className="bg-[#161D2B] border border-[#00E599]/40 p-2 rounded shadow-[0_0_12px_rgba(0,229,153,0.08)]">
-              <div className="font-bold text-[#00E599]">Q4 2026</div>
-              <div className="text-[10px] text-[#8C96A5]">OCT – DEC</div>
-              <div className="mt-1 text-[10px] text-[#00E599] font-bold">NOW · DAY 55 OF 92</div>
+            <div className="bg-[#f4f4f5] border border-[#f4f4f5] p-2.5 rounded text-[#09090b]">
+              <div className="flex items-center justify-between">
+                <span className="font-bold">Q4</span>
+                <span className="text-[10px] text-zinc-600">2026</span>
+              </div>
+              <div className="text-[10px] text-zinc-600">OCT – DEC</div>
+              <div className="mt-2 text-[10px] font-bold text-[#09090b]">NOW · DAY 55 OF 92</div>
             </div>
-            <div className="bg-[#121620] border border-[#161C26] p-2 rounded">
-              <div className="font-bold text-[#F0F4F8]">Q1 2027</div>
-              <div className="text-[10px] text-[#6F7887]">JAN – MAR</div>
-              <div className="mt-1 text-[10px] text-[#6F7887] font-semibold">STARTS 1 JAN · IN 38D</div>
+            <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#f4f4f5]">Q1</span>
+                <span className="text-[10px] text-[#71717a]">2027</span>
+              </div>
+              <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">STARTS 1 JAN · IN 38D</div>
             </div>
           </div>
-          <div className="text-[11px] text-[#6F7887] font-sans">
+          <div className="text-[11px] text-[#71717a] font-sans">
             EARNINGS SEASON · Q3 reports done (NVDA reported 17 Nov) · Q4 reports start mid-Jan (est.)
           </div>
         </div>
@@ -822,7 +828,7 @@ export function TerminalDashboard() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-[#161C26] text-[10px] uppercase text-[#6F7887]">
+              <tr className="border-b border-[#1c1c21] text-[10px] uppercase text-[#71717a]">
                 <th className="py-2 font-normal">DATE</th>
                 <th className="py-2 font-normal">IN</th>
                 <th className="py-2 font-normal">TYPE</th>
@@ -831,35 +837,35 @@ export function TerminalDashboard() {
                 <th className="py-2 text-right font-normal">STATUS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#161C26]/60">
+            <tbody className="divide-y divide-[#1c1c21]">
               {filteredSchedule.map((item, idx) => (
-                <tr key={idx} className="hover:bg-[#121620] transition-colors">
-                  <td className="py-2.5 font-bold text-[#F0F4F8] whitespace-nowrap">
+                <tr key={idx} className="hover:bg-[#141418] transition-colors">
+                  <td className="py-2.5 font-semibold text-[#f4f4f5] whitespace-nowrap">
                     {item.date}
                   </td>
-                  <td className="py-2.5 text-[#00E599] font-semibold whitespace-nowrap">
+                  <td className="py-2.5 text-[#a1a1aa] whitespace-nowrap">
                     {item.inDays}
                   </td>
                   <td className="py-2.5 whitespace-nowrap">
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#161C26] text-[#8C96A5] font-semibold">
+                    <span className="text-[10px] text-[#71717a] font-medium">
                       {item.type}
                     </span>
                   </td>
-                  <td className="py-2.5 font-medium text-[#F0F4F8]">
+                  <td className="py-2.5 font-sans font-medium text-[#f4f4f5]">
                     {item.event}
                   </td>
-                  <td className="py-2.5 text-[#6F7887] font-sans">
+                  <td className="py-2.5 text-[#71717a] font-sans">
                     {item.detail}
                   </td>
                   <td className="py-2.5 text-right whitespace-nowrap">
                     <span
                       className={cn(
-                        'text-[10px] font-bold px-1.5 py-0.5 rounded',
+                        'text-[10px] font-medium',
                         item.status === 'CONFIRMED'
-                          ? 'bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30'
+                          ? 'text-[#a1a1aa]'
                           : item.status === 'EST.'
-                          ? 'bg-[#FFB020]/15 text-[#FFB020] border border-[#FFB020]/30'
-                          : 'bg-[#00B2FF]/15 text-[#00B2FF] border border-[#00B2FF]/30'
+                          ? 'text-amber-400'
+                          : 'text-[#71717a]'
                       )}
                     >
                       {item.status}
@@ -872,8 +878,8 @@ export function TerminalDashboard() {
         </div>
 
         {/* Footer Attribution Note */}
-        <div className="pt-2 border-t border-[#161C26] text-[10px] text-[#6F7887]">
-          Prices: StockPulse API snapshot, 23 Nov 2026. Dates: Federal Reserve, BLS, Bank Indonesia, MAS and NVIDIA releases. Portfolio values are sample data.
+        <div className="pt-2 border-t border-[#1c1c21] text-[10px] text-[#71717a]">
+          Prices: StockPulse API snapshot. Dates: Federal Reserve, BLS, Bank Indonesia, MAS and NVIDIA releases. Portfolio values are live &amp; sample reference data.
         </div>
       </div>
     </div>

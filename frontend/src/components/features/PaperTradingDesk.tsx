@@ -267,70 +267,70 @@ export function PaperTradingDesk({
   return (
     <div className="space-y-4">
       {/* 1. VIRTUAL ACCOUNT TELEMETRY HEADER */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 rounded-lg border border-[#161C26] bg-[#0D0F14] p-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 rounded-md border border-[#222226] bg-[#0f0f12] p-3.5">
         <div>
-          <div className="text-[11px] font-mono text-[#6F7887] uppercase flex items-center gap-1">
-            <Wallet className="h-3 w-3 text-[#00B2FF]" />
+          <div className="text-[11px] font-mono text-[#71717a] uppercase flex items-center gap-1">
+            <Wallet className="h-3 w-3 text-[#a1a1aa]" />
             <span>Virtual Cash</span>
           </div>
-          <div className="mt-1 font-mono text-base font-bold text-[#F0F4F8] tabular-nums">
+          <div className="mt-1 font-mono text-base font-bold text-[#f4f4f5] tabular-nums">
             {formatCurrency(cashBalance, actualCurrency)}
           </div>
-          <div className="text-[10px] text-[#6F7887] font-mono">Available Liquidity</div>
+          <div className="text-[10px] text-[#71717a] font-mono">Available Liquidity</div>
         </div>
 
         <div>
-          <div className="text-[11px] font-mono text-[#6F7887] uppercase flex items-center gap-1">
-            <DollarSign className="h-3 w-3 text-[#00E599]" />
+          <div className="text-[11px] font-mono text-[#71717a] uppercase flex items-center gap-1">
+            <DollarSign className="h-3 w-3 text-[#a1a1aa]" />
             <span>Portfolio Equity</span>
           </div>
-          <div className="mt-1 font-mono text-base font-bold text-[#F0F4F8] tabular-nums">
+          <div className="mt-1 font-mono text-base font-bold text-[#f4f4f5] tabular-nums">
             {formatCurrency(totalPortfolioEquity, actualCurrency)}
           </div>
-          <div className="text-[10px] text-[#6F7887] font-mono">Cash + Open Positions</div>
+          <div className="text-[10px] text-[#71717a] font-mono">Cash + Open Positions</div>
         </div>
 
         <div>
-          <div className="text-[11px] font-mono text-[#6F7887] uppercase flex items-center gap-1">
-            <TrendingUp className="h-3 w-3 text-[#FFB800]" />
+          <div className="text-[11px] font-mono text-[#71717a] uppercase flex items-center gap-1">
+            <TrendingUp className="h-3 w-3 text-[#a1a1aa]" />
             <span>Unrealized P&L</span>
           </div>
           <div
             className={cn(
               'mt-1 font-mono text-base font-bold tabular-nums',
-              totalUnrealizedPnl >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+              totalUnrealizedPnl >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
             {totalUnrealizedPnl >= 0 ? '+' : ''}
             {formatCurrency(totalUnrealizedPnl, actualCurrency)}
           </div>
-          <div className="text-[10px] text-[#6F7887] font-mono">Across Open Positions</div>
+          <div className="text-[10px] text-[#71717a] font-mono">Across Open Positions</div>
         </div>
 
         <div className="flex flex-col justify-between items-end">
           <button
             onClick={handleReset}
-            className="flex items-center gap-1 text-[11px] font-mono text-[#6F7887] hover:text-[#FF3B56] p-1 rounded transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-mono text-[#71717a] hover:text-red-400 p-1 rounded transition-colors cursor-pointer"
             title="Reset simulated cash and clear history"
           >
             <RotateCcw className="h-3 w-3" />
             <span>Reset Account</span>
           </button>
-          <div className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#161C26] text-[#8C96A5] border border-[#272E3B]">
+          <div className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141418] text-[#a1a1aa] border border-[#222226]">
             Zero Financial Risk
           </div>
         </div>
       </div>
 
       {/* 2. TAB TOGGLES: ORDER TICKET, ACTIVE POSITIONS, TRADE LOG */}
-      <div className="flex items-center gap-2 border-b border-[#161C26] pb-2 text-xs font-mono">
+      <div className="flex items-center gap-2 border-b border-[#222226] pb-2 text-xs font-mono">
         <button
           onClick={() => setActiveTab('ticket')}
           className={cn(
             'px-3 py-1.5 rounded transition-all cursor-pointer font-semibold',
             activeTab === 'ticket'
-              ? 'bg-[#161C26] text-[#00E599] border border-[#00E599]/30'
-              : 'text-[#6F7887] hover:text-[#F0F4F8]'
+              ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+              : 'text-[#71717a] hover:text-[#f4f4f5]'
           )}
         >
           Execution Ticket: {ticker}
@@ -340,12 +340,15 @@ export function PaperTradingDesk({
           className={cn(
             'px-3 py-1.5 rounded transition-all cursor-pointer font-semibold flex items-center gap-1.5',
             activeTab === 'portfolio'
-              ? 'bg-[#161C26] text-[#00B2FF] border border-[#00B2FF]/30'
-              : 'text-[#6F7887] hover:text-[#F0F4F8]'
+              ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+              : 'text-[#71717a] hover:text-[#f4f4f5]'
           )}
         >
           <span>Open Positions</span>
-          <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-[#121620] text-[#8C96A5]">
+          <span className={cn(
+            'px-1.5 py-0.2 text-[10px] rounded-full',
+            activeTab === 'portfolio' ? 'bg-[#09090b]/15 text-[#09090b]' : 'bg-[#18181b] text-[#a1a1aa]'
+          )}>
             {positions.length}
           </span>
         </button>
@@ -354,12 +357,15 @@ export function PaperTradingDesk({
           className={cn(
             'px-3 py-1.5 rounded transition-all cursor-pointer font-semibold flex items-center gap-1.5',
             activeTab === 'history'
-              ? 'bg-[#161C26] text-[#FFB800] border border-[#FFB800]/30'
-              : 'text-[#6F7887] hover:text-[#F0F4F8]'
+              ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+              : 'text-[#71717a] hover:text-[#f4f4f5]'
           )}
         >
           <span>Trade History</span>
-          <span className="px-1.5 py-0.2 text-[10px] rounded-full bg-[#121620] text-[#8C96A5]">
+          <span className={cn(
+            'px-1.5 py-0.2 text-[10px] rounded-full',
+            activeTab === 'history' ? 'bg-[#09090b]/15 text-[#09090b]' : 'bg-[#18181b] text-[#a1a1aa]'
+          )}>
             {history.length}
           </span>
         </button>
@@ -369,7 +375,7 @@ export function PaperTradingDesk({
       {activeTab === 'ticket' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Order Form */}
-          <div className="lg:col-span-7 rounded-lg border border-[#161C26] bg-[#0D0F14] p-4 space-y-4">
+          <div className="lg:col-span-7 rounded-md border border-[#222226] bg-[#0f0f12] p-4 space-y-4">
             {/* BUY / SELL Toggles */}
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -378,8 +384,8 @@ export function PaperTradingDesk({
                 className={cn(
                   'py-2 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer border',
                   side === 'BUY'
-                    ? 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/40 shadow-xs'
-                    : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40'
+                    : 'bg-[#09090b] text-[#71717a] border-[#222226] hover:text-[#f4f4f5]'
                 )}
               >
                 BUY
@@ -390,8 +396,8 @@ export function PaperTradingDesk({
                 className={cn(
                   'py-2 rounded text-xs font-mono font-bold tracking-wider uppercase transition-all cursor-pointer border',
                   side === 'SELL'
-                    ? 'bg-[#FF3B56]/15 text-[#FF3B56] border-[#FF3B56]/40 shadow-xs'
-                    : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
+                    ? 'bg-red-500/15 text-red-400 border-red-500/40'
+                    : 'bg-[#09090b] text-[#71717a] border-[#222226] hover:text-[#f4f4f5]'
                 )}
               >
                 SELL
@@ -400,15 +406,15 @@ export function PaperTradingDesk({
 
             {/* Order Type: Market vs Limit */}
             <div className="flex items-center gap-2 text-xs font-mono">
-              <span className="text-[#6F7887] text-[11px]">Type:</span>
+              <span className="text-[#71717a] text-[11px]">Type:</span>
               <button
                 type="button"
                 onClick={() => setOrderType('MARKET')}
                 className={cn(
                   'px-2.5 py-1 rounded transition-colors cursor-pointer',
                   orderType === 'MARKET'
-                    ? 'bg-[#161C26] text-[#F0F4F8] font-semibold'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                    : 'text-[#71717a] hover:text-[#f4f4f5]'
                 )}
               >
                 Market Order
@@ -419,8 +425,8 @@ export function PaperTradingDesk({
                 className={cn(
                   'px-2.5 py-1 rounded transition-colors cursor-pointer',
                   orderType === 'LIMIT'
-                    ? 'bg-[#161C26] text-[#F0F4F8] font-semibold'
-                    : 'text-[#6F7887] hover:text-[#F0F4F8]'
+                    ? 'bg-[#f4f4f5] text-[#09090b] font-bold'
+                    : 'text-[#71717a] hover:text-[#f4f4f5]'
                 )}
               >
                 Limit Order
@@ -430,27 +436,27 @@ export function PaperTradingDesk({
             {/* Price Selection (with Fraksi BEI stepping if IDX) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-[#6F7887]">
+                <span className="text-[#71717a]">
                   {orderType === 'MARKET' ? 'Market Execution Price' : 'Limit Entry Price'}
                 </span>
                 {isIdx && (
-                  <span className="text-[10px] text-[#00E599]">
+                  <span className="text-[10px] text-[#a1a1aa]">
                     Fraksi BEI: Rp {getIdxTickSize(effectivePrice)}/tick
                   </span>
                 )}
               </div>
 
               {orderType === 'MARKET' ? (
-                <div className="flex items-center justify-between px-3 py-2 rounded bg-[#07080A] border border-[#161C26] font-mono text-sm text-[#F0F4F8] tabular-nums">
+                <div className="flex items-center justify-between px-3 py-2 rounded bg-[#09090b] border border-[#222226] font-mono text-sm text-[#f4f4f5] tabular-nums">
                   <span>{formatCurrency(currentPrice, actualCurrency)}</span>
-                  <span className="text-[10px] text-[#6F7887]">Live Quote</span>
+                  <span className="text-[10px] text-[#71717a]">Live Quote</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => handleTickStep(-1)}
-                    className="px-2.5 py-2 rounded bg-[#07080A] border border-[#161C26] text-xs font-mono text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620] cursor-pointer"
+                    className="px-2.5 py-2 rounded bg-[#09090b] border border-[#222226] text-xs font-mono text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418] cursor-pointer"
                     title="-1 Tick"
                   >
                     -1T
@@ -460,12 +466,12 @@ export function PaperTradingDesk({
                     value={limitPrice}
                     onChange={(e) => setLimitPrice(Number(e.target.value))}
                     step={isIdx ? getIdxTickSize(limitPrice) : 0.01}
-                    className="w-full px-3 py-2 rounded bg-[#07080A] border border-[#161C26] font-mono text-sm text-[#F0F4F8] focus:outline-hidden focus:border-[#00B2FF]"
+                    className="w-full px-3 py-2 rounded bg-[#09090b] border border-[#222226] font-mono text-sm text-[#f4f4f5] focus:outline-hidden focus:border-[#f4f4f5]"
                   />
                   <button
                     type="button"
                     onClick={() => handleTickStep(1)}
-                    className="px-2.5 py-2 rounded bg-[#07080A] border border-[#161C26] text-xs font-mono text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620] cursor-pointer"
+                    className="px-2.5 py-2 rounded bg-[#09090b] border border-[#222226] text-xs font-mono text-[#71717a] hover:text-[#f4f4f5] hover:bg-[#141418] cursor-pointer"
                     title="+1 Tick"
                   >
                     +1T
@@ -477,10 +483,10 @@ export function PaperTradingDesk({
             {/* Quantity: Lots for IDX, Shares for US */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-[#6F7887]">
+                <span className="text-[#71717a]">
                   {isIdx ? 'Quantity (Lots @ 100 shares)' : 'Quantity (Shares)'}
                 </span>
-                <span className="text-[11px] text-[#8C96A5] font-mono">
+                <span className="text-[11px] text-[#a1a1aa] font-mono">
                   = {totalShares.toLocaleString()} shares
                 </span>
               </div>
@@ -492,7 +498,7 @@ export function PaperTradingDesk({
                     min={1}
                     value={lots}
                     onChange={(e) => setLots(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-3 py-2 rounded bg-[#07080A] border border-[#161C26] font-mono text-sm text-[#F0F4F8] focus:outline-hidden focus:border-[#00B2FF]"
+                    className="w-full px-3 py-2 rounded bg-[#09090b] border border-[#222226] font-mono text-sm text-[#f4f4f5] focus:outline-hidden focus:border-[#f4f4f5]"
                   />
                   <div className="flex flex-wrap gap-1.5">
                     {[1, 5, 10, 25, 50, 100].map((l) => (
@@ -503,8 +509,8 @@ export function PaperTradingDesk({
                         className={cn(
                           'px-2 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer border',
                           lots === l
-                            ? 'bg-[#161C26] text-[#00B2FF] border-[#00B2FF]/40'
-                            : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
+                            ? 'bg-[#f4f4f5] text-[#09090b] border-[#f4f4f5] font-bold'
+                            : 'bg-[#09090b] text-[#71717a] border-[#222226] hover:text-[#f4f4f5]'
                         )}
                       >
                         {l} Lot
@@ -513,14 +519,14 @@ export function PaperTradingDesk({
                     <button
                       type="button"
                       onClick={() => handleQuickAllocation(25)}
-                      className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#07080A] text-[#FFB800] border border-[#161C26] hover:bg-[#121620] cursor-pointer"
+                      className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#09090b] text-amber-400 border border-[#222226] hover:bg-[#141418] cursor-pointer"
                     >
                       25% Cash
                     </button>
                     <button
                       type="button"
                       onClick={() => handleQuickAllocation(50)}
-                      className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#07080A] text-[#FFB800] border border-[#161C26] hover:bg-[#121620] cursor-pointer"
+                      className="px-2 py-0.5 rounded text-[11px] font-mono bg-[#09090b] text-amber-400 border border-[#222226] hover:bg-[#141418] cursor-pointer"
                     >
                       50% Cash
                     </button>
@@ -533,7 +539,7 @@ export function PaperTradingDesk({
                     min={1}
                     value={sharesInput}
                     onChange={(e) => setSharesInput(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full px-3 py-2 rounded bg-[#07080A] border border-[#161C26] font-mono text-sm text-[#F0F4F8] focus:outline-hidden focus:border-[#00B2FF]"
+                    className="w-full px-3 py-2 rounded bg-[#09090b] border border-[#222226] font-mono text-sm text-[#f4f4f5] focus:outline-hidden focus:border-[#f4f4f5]"
                   />
                   <div className="flex flex-wrap gap-1.5">
                     {[1, 5, 10, 50, 100].map((s) => (
@@ -544,8 +550,8 @@ export function PaperTradingDesk({
                         className={cn(
                           'px-2 py-0.5 rounded text-[11px] font-mono transition-colors cursor-pointer border',
                           sharesInput === s
-                            ? 'bg-[#161C26] text-[#00B2FF] border-[#00B2FF]/40'
-                            : 'bg-[#07080A] text-[#6F7887] border-[#161C26] hover:text-[#F0F4F8]'
+                            ? 'bg-[#f4f4f5] text-[#09090b] border-[#f4f4f5] font-bold'
+                            : 'bg-[#09090b] text-[#71717a] border-[#222226] hover:text-[#f4f4f5]'
                         )}
                       >
                         {s} sh
@@ -558,36 +564,36 @@ export function PaperTradingDesk({
 
             {/* Integrated Almgren-Chriss Market Impact & Lot Execution */}
             {isIdx && (
-              <div className="space-y-2 rounded bg-[#07080A] p-2.5 border border-[#161C26]">
+              <div className="space-y-2 rounded bg-[#09090b] p-2.5 border border-[#222226]">
                 <div className="flex items-center justify-between text-[11px] font-mono">
-                  <span className="text-[#8C96A5] flex items-center gap-1.5 font-semibold">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#00E599]" />
+                  <span className="text-[#a1a1aa] flex items-center gap-1.5 font-semibold">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     {executionModel.isRetail ? 'Retail Execution (< 500 lots)' : 'Institutional Execution'}
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowAlmgrenChriss(!showAlmgrenChriss)}
-                    className="text-[#00B2FF] hover:underline text-[10px] cursor-pointer"
+                    className="text-[#f4f4f5] hover:underline text-[10px] cursor-pointer"
                   >
                     {showAlmgrenChriss ? 'Hide Impact Model' : 'Impact Model (Almgren-Chriss)'}
                   </button>
                 </div>
 
                 {executionModel.isRetail && !showAlmgrenChriss ? (
-                  <div className="text-[10px] text-[#6F7887] font-mono">
+                  <div className="text-[10px] text-[#71717a] font-mono">
                     Standard Retail Order ({lots} lot): Zero adverse price impact (Participation: {executionModel.participationRate}% of ADV).
                   </div>
                 ) : (
-                  <div className="space-y-2 pt-1 border-t border-[#161C26] font-mono text-[11px]">
+                  <div className="space-y-2 pt-1 border-t border-[#222226] font-mono text-[11px]">
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="bg-[#0D0F14] p-1.5 rounded border border-[#161C26]">
-                        <span className="text-[9px] text-[#6F7887] block uppercase">Participation Rate</span>
-                        <span className="font-bold text-[#F0F4F8]">{executionModel.participationRate}%</span>
+                      <div className="bg-[#141418] p-1.5 rounded border border-[#222226]">
+                        <span className="text-[9px] text-[#71717a] block uppercase">Participation Rate</span>
+                        <span className="font-bold text-[#f4f4f5]">{executionModel.participationRate}%</span>
                       </div>
-                      <div className="bg-[#0D0F14] p-1.5 rounded border border-[#161C26]">
-                        <span className="text-[9px] text-[#6F7887] block uppercase">Est. Slippage Impact</span>
-                        <span className="font-bold text-[#FFB800]">~{executionModel.slippagePct}%</span>
-                        <span className="text-[9px] text-[#6F7887] block">({formatCurrency(executionModel.slippageCost, 'IDR')})</span>
+                      <div className="bg-[#141418] p-1.5 rounded border border-[#222226]">
+                        <span className="text-[9px] text-[#71717a] block uppercase">Est. Slippage Impact</span>
+                        <span className="font-bold text-amber-400">~{executionModel.slippagePct}%</span>
+                        <span className="text-[9px] text-[#71717a] block">({formatCurrency(executionModel.slippageCost, 'IDR')})</span>
                       </div>
                     </div>
                   </div>
@@ -596,15 +602,15 @@ export function PaperTradingDesk({
             )}
 
             {/* Risk & Reward Bracket (TP & SL) */}
-            <div className="space-y-2 pt-2 border-t border-[#161C26]">
+            <div className="space-y-2 pt-2 border-t border-[#222226]">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-semibold text-[#F0F4F8]">
+                <span className="text-xs font-mono font-semibold text-[#f4f4f5]">
                   Risk Management Bracket
                 </span>
                 <button
                   type="button"
                   onClick={handleImportDeskTargets}
-                  className="flex items-center gap-1 text-[11px] font-mono text-[#00E599] hover:underline cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] font-mono text-[#f4f4f5] hover:underline cursor-pointer"
                 >
                   <Sparkles className="h-3 w-3" />
                   <span>Import Desk Targets</span>
@@ -614,7 +620,7 @@ export function PaperTradingDesk({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Take Profit */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-mono text-[#00E599] flex items-center justify-between">
+                  <label className="text-[11px] font-mono text-emerald-400 flex items-center justify-between">
                     <span>Take Profit (TP)</span>
                     {tpNum > effectivePrice && (
                       <span className="text-[10px]">
@@ -628,7 +634,7 @@ export function PaperTradingDesk({
                     placeholder={`e.g. ${isIdx ? (effectivePrice * 1.05).toFixed(0) : (effectivePrice * 1.05).toFixed(2)}`}
                     value={takeProfit}
                     onChange={(e) => setTakeProfit(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded bg-[#07080A] border border-[#161C26] font-mono text-xs text-[#00E599] focus:outline-hidden focus:border-[#00E599]"
+                    className="w-full px-2.5 py-1.5 rounded bg-[#09090b] border border-[#222226] font-mono text-xs text-emerald-400 focus:outline-hidden focus:border-emerald-400"
                   />
                   <div className="flex gap-1">
                     {[5, 10, 15].map((p) => (
@@ -636,7 +642,7 @@ export function PaperTradingDesk({
                         key={p}
                         type="button"
                         onClick={() => handlePresetBracket('tp', p)}
-                        className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#07080A] text-[#6F7887] hover:text-[#00E599] border border-[#161C26] cursor-pointer"
+                        className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#09090b] text-[#71717a] hover:text-emerald-400 border border-[#222226] cursor-pointer"
                       >
                         +{p}%
                       </button>
@@ -646,7 +652,7 @@ export function PaperTradingDesk({
 
                 {/* Stop Loss */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-mono text-[#FF3B56] flex items-center justify-between">
+                  <label className="text-[11px] font-mono text-red-400 flex items-center justify-between">
                     <span>Stop Loss (SL)</span>
                     {slNum > 0 && slNum < effectivePrice && (
                       <span className="text-[10px]">
@@ -660,7 +666,7 @@ export function PaperTradingDesk({
                     placeholder={`e.g. ${isIdx ? (effectivePrice * 0.95).toFixed(0) : (effectivePrice * 0.95).toFixed(2)}`}
                     value={stopLoss}
                     onChange={(e) => setStopLoss(e.target.value)}
-                    className="w-full px-2.5 py-1.5 rounded bg-[#07080A] border border-[#161C26] font-mono text-xs text-[#FF3B56] focus:outline-hidden focus:border-[#FF3B56]"
+                    className="w-full px-2.5 py-1.5 rounded bg-[#09090b] border border-[#222226] font-mono text-xs text-red-400 focus:outline-hidden focus:border-red-400"
                   />
                   <div className="flex gap-1">
                     {[3, 5, 7].map((p) => (
@@ -668,7 +674,7 @@ export function PaperTradingDesk({
                         key={p}
                         type="button"
                         onClick={() => handlePresetBracket('sl', p)}
-                        className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#07080A] text-[#6F7887] hover:text-[#FF3B56] border border-[#161C26] cursor-pointer"
+                        className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-[#09090b] text-[#71717a] hover:text-red-400 border border-[#222226] cursor-pointer"
                       >
                         -{p}%
                       </button>
@@ -684,10 +690,10 @@ export function PaperTradingDesk({
               onClick={handleExecuteOrder}
               disabled={totalCapitalRequired > cashBalance && side === 'BUY'}
               className={cn(
-                'w-full py-2.5 rounded font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm',
+                'w-full py-2.5 rounded font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer',
                 side === 'BUY'
-                  ? 'bg-[#00E599] text-[#07080A] hover:bg-[#00E599]/90 disabled:opacity-50'
-                  : 'bg-[#FF3B56] text-white hover:bg-[#FF3B56]/90 disabled:opacity-50'
+                  ? 'bg-[#f4f4f5] text-[#09090b] hover:bg-white disabled:opacity-50'
+                  : 'bg-red-500 text-white hover:bg-red-600 disabled:opacity-50'
               )}
             >
               Execute Simulated {side} ({formatCurrency(totalCapitalRequired, actualCurrency)})
@@ -697,43 +703,43 @@ export function PaperTradingDesk({
           {/* Telemetry Summary & Active Position Panel */}
           <div className="lg:col-span-5 space-y-4">
             {/* Order Telemetry Breakdown */}
-            <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4 space-y-3 font-mono text-xs">
-              <div className="text-[11px] font-semibold text-[#8C96A5] uppercase tracking-wider pb-1 border-b border-[#161C26]">
+            <div className="rounded-md border border-[#222226] bg-[#0f0f12] p-4 space-y-3 font-mono text-xs">
+              <div className="text-[11px] font-semibold text-[#a1a1aa] uppercase tracking-wider pb-1 border-b border-[#222226]">
                 Execution Telemetry
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between">
-                  <span className="text-[#6F7887]">Gross Order Value:</span>
-                  <span className="text-[#F0F4F8] tabular-nums">{formatCurrency(grossCapital, actualCurrency)}</span>
+                  <span className="text-[#71717a]">Gross Order Value:</span>
+                  <span className="text-[#f4f4f5] tabular-nums">{formatCurrency(grossCapital, actualCurrency)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#6F7887]">Est. Broker Fee ({side === 'BUY' ? '0.15%' : '0.25%'}):</span>
-                  <span className="text-[#8C96A5] tabular-nums">{formatCurrency(estimatedFee, actualCurrency)}</span>
+                  <span className="text-[#71717a]">Est. Broker Fee ({side === 'BUY' ? '0.15%' : '0.25%'}):</span>
+                  <span className="text-[#a1a1aa] tabular-nums">{formatCurrency(estimatedFee, actualCurrency)}</span>
                 </div>
-                <div className="flex justify-between pt-1 border-t border-[#161C26] font-bold">
-                  <span className="text-[#F0F4F8]">Net Capital Required:</span>
-                  <span className="text-[#00E599] tabular-nums">{formatCurrency(totalCapitalRequired, actualCurrency)}</span>
+                <div className="flex justify-between pt-1 border-t border-[#222226] font-bold">
+                  <span className="text-[#f4f4f5]">Net Capital Required:</span>
+                  <span className="text-[#f4f4f5] tabular-nums">{formatCurrency(totalCapitalRequired, actualCurrency)}</span>
                 </div>
               </div>
 
               {riskRewardMetrics && (
-                <div className="pt-2 border-t border-[#161C26] space-y-1.5">
+                <div className="pt-2 border-t border-[#222226] space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-[#6F7887]">Risk/Reward Ratio:</span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 font-bold">
+                    <span className="text-[#71717a]">Risk/Reward Ratio:</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#18181b] text-[#f4f4f5] border border-[#27272a] font-bold">
                       1 : {riskRewardMetrics.ratio}
                     </span>
                   </div>
                   <div className="flex justify-between text-[11px]">
-                    <span className="text-[#6F7887]">Potential Profit (TP):</span>
-                    <span className="text-[#00E599] tabular-nums">
+                    <span className="text-[#71717a]">Potential Profit (TP):</span>
+                    <span className="text-emerald-400 tabular-nums">
                       +{formatCurrency(riskRewardMetrics.maxGain, actualCurrency)} ({riskRewardMetrics.potentialGainPct.toFixed(1)}%)
                     </span>
                   </div>
                   <div className="flex justify-between text-[11px]">
-                    <span className="text-[#6F7887]">Max Loss (SL):</span>
-                    <span className="text-[#FF3B56] tabular-nums">
+                    <span className="text-[#71717a]">Max Loss (SL):</span>
+                    <span className="text-red-400 tabular-nums">
                       -{formatCurrency(riskRewardMetrics.maxLoss, actualCurrency)} ({riskRewardMetrics.potentialLossPct.toFixed(1)}%)
                     </span>
                   </div>
@@ -743,42 +749,42 @@ export function PaperTradingDesk({
 
             {/* Currently Active Position for this symbol (if any) */}
             {activePosition && (
-              <div className="rounded-lg border border-[#00B2FF]/30 bg-[#00B2FF]/10 p-4 space-y-3 font-mono text-xs">
+              <div className="rounded-md border border-[#27272a] bg-[#0f0f12] p-4 space-y-3 font-mono text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-[#00B2FF] uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-[#00B2FF] animate-pulse" />
+                  <span className="text-[11px] font-bold text-[#f4f4f5] uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                     Open Position: {activePosition.ticker}
                   </span>
-                  <span className="text-[10px] text-[#6F7887]">
+                  <span className="text-[10px] text-[#71717a]">
                     {new Date(activePosition.openedAt).toLocaleTimeString()}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-[11px]">
                   <div>
-                    <span className="text-[#6F7887]">Shares: </span>
-                    <span className="text-[#F0F4F8] tabular-nums">
+                    <span className="text-[#71717a]">Shares: </span>
+                    <span className="text-[#f4f4f5] tabular-nums">
                       {activePosition.shares.toLocaleString()}
                       {activePosition.lots ? ` (${activePosition.lots} lot)` : ''}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#6F7887]">Entry: </span>
-                    <span className="text-[#F0F4F8] tabular-nums">{formatCurrency(activePosition.entryPrice, actualCurrency)}</span>
+                    <span className="text-[#71717a]">Entry: </span>
+                    <span className="text-[#f4f4f5] tabular-nums">{formatCurrency(activePosition.entryPrice, actualCurrency)}</span>
                   </div>
                   <div>
-                    <span className="text-[#6F7887]">Current: </span>
-                    <span className="text-[#F0F4F8] tabular-nums">{formatCurrency(currentPrice, actualCurrency)}</span>
+                    <span className="text-[#71717a]">Current: </span>
+                    <span className="text-[#f4f4f5] tabular-nums">{formatCurrency(currentPrice, actualCurrency)}</span>
                   </div>
                   <div>
-                    <span className="text-[#6F7887]">P&L: </span>
+                    <span className="text-[#71717a]">P&L: </span>
                     {(() => {
                       const pnl = activePosition.side === 'BUY'
                         ? (currentPrice - activePosition.entryPrice) * activePosition.shares
                         : (activePosition.entryPrice - currentPrice) * activePosition.shares
                       const pnlPct = activePosition.entryPrice > 0 ? (pnl / (activePosition.entryPrice * activePosition.shares)) * 100 : 0
                       return (
-                        <span className={cn('font-bold tabular-nums', pnl >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]')}>
+                        <span className={cn('font-bold tabular-nums', pnl >= 0 ? 'text-emerald-400' : 'text-red-400')}>
                           {pnl >= 0 ? '+' : ''}{formatCurrency(pnl, actualCurrency)} ({pnlPct.toFixed(2)}%)
                         </span>
                       )
@@ -789,7 +795,7 @@ export function PaperTradingDesk({
                 <button
                   type="button"
                   onClick={() => handleClosePosition(activePosition.id)}
-                  className="w-full py-2 rounded bg-[#FF3B56]/20 text-[#FF3B56] hover:bg-[#FF3B56]/30 border border-[#FF3B56]/40 font-mono text-[11px] font-semibold transition-colors cursor-pointer"
+                  className="w-full py-2 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 font-mono text-[11px] font-semibold transition-colors cursor-pointer"
                 >
                   Close Position (Market Exit at {formatCurrency(currentPrice, actualCurrency)})
                 </button>
@@ -801,15 +807,15 @@ export function PaperTradingDesk({
 
       {/* TAB 2: ALL OPEN POSITIONS */}
       {activeTab === 'portfolio' && (
-        <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4">
+        <div className="rounded-md border border-[#222226] bg-[#0f0f12] p-4">
           {positions.length === 0 ? (
-            <div className="py-8 text-center font-mono text-xs text-[#6F7887]">
+            <div className="py-8 text-center font-mono text-xs text-[#71717a]">
               No simulated positions currently open. Place an order via the Execution Ticket.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs font-mono text-left">
-                <thead className="border-b border-[#161C26] text-[#6F7887]">
+                <thead className="border-b border-[#222226] text-[#71717a]">
                   <tr>
                     <th className="pb-2">Ticker</th>
                     <th className="pb-2">Side</th>
@@ -820,45 +826,45 @@ export function PaperTradingDesk({
                     <th className="pb-2 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#161C26]">
+                <tbody className="divide-y divide-[#222226]">
                   {positions.map((pos) => {
                     const diff = pos.side === 'BUY'
                       ? (pos.currentPrice - pos.entryPrice) * pos.shares
                       : (pos.entryPrice - pos.currentPrice) * pos.shares
                     const pnlPct = pos.entryPrice > 0 ? (diff / (pos.entryPrice * pos.shares)) * 100 : 0
                     return (
-                      <tr key={pos.id} className="hover:bg-[#121620]">
-                        <td className="py-2.5 font-bold text-[#F0F4F8]">{pos.ticker}</td>
+                      <tr key={pos.id} className="hover:bg-[#141418]">
+                        <td className="py-2.5 font-bold text-[#f4f4f5]">{pos.ticker}</td>
                         <td className="py-2.5">
                           <span
                             className={cn(
                               'px-1.5 py-0.5 rounded text-[10px] font-bold',
                               pos.side === 'BUY'
-                                ? 'bg-[#00E599]/15 text-[#00E599]'
-                                : 'bg-[#FF3B56]/15 text-[#FF3B56]'
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : 'bg-red-500/10 text-red-400'
                             )}
                           >
                             {pos.side}
                           </span>
                         </td>
-                        <td className="py-2.5 text-[#8C96A5]">
+                        <td className="py-2.5 text-[#a1a1aa]">
                           {pos.shares.toLocaleString()} {pos.lots ? `(${pos.lots} L)` : ''}
                         </td>
-                        <td className="py-2.5 text-[#F0F4F8] tabular-nums">
+                        <td className="py-2.5 text-[#f4f4f5] tabular-nums">
                           {formatCurrency(pos.entryPrice, pos.currency)}
                         </td>
-                        <td className="py-2.5 text-[#F0F4F8] tabular-nums">
+                        <td className="py-2.5 text-[#f4f4f5] tabular-nums">
                           {formatCurrency(pos.currentPrice, pos.currency)}
                         </td>
                         <td className="py-2.5 tabular-nums">
-                          <span className={diff >= 0 ? 'text-[#00E599] font-semibold' : 'text-[#FF3B56] font-semibold'}>
+                          <span className={diff >= 0 ? 'text-emerald-400 font-semibold' : 'text-red-400 font-semibold'}>
                             {diff >= 0 ? '+' : ''}{formatCurrency(diff, pos.currency)} ({pnlPct.toFixed(2)}%)
                           </span>
                         </td>
                         <td className="py-2.5 text-right">
                           <button
                             onClick={() => handleClosePosition(pos.id)}
-                            className="px-2 py-1 rounded bg-[#FF3B56]/20 text-[#FF3B56] hover:bg-[#FF3B56]/30 text-[10px] font-semibold cursor-pointer"
+                            className="px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/30 text-[10px] font-semibold cursor-pointer"
                           >
                             Close
                           </button>
@@ -875,15 +881,15 @@ export function PaperTradingDesk({
 
       {/* TAB 3: TRADE HISTORY */}
       {activeTab === 'history' && (
-        <div className="rounded-lg border border-[#161C26] bg-[#0D0F14] p-4">
+        <div className="rounded-md border border-[#222226] bg-[#0f0f12] p-4">
           {history.length === 0 ? (
-            <div className="py-8 text-center font-mono text-xs text-[#6F7887]">
+            <div className="py-8 text-center font-mono text-xs text-[#71717a]">
               No completed paper trades recorded yet.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs font-mono text-left">
-                <thead className="border-b border-[#161C26] text-[#6F7887]">
+                <thead className="border-b border-[#222226] text-[#71717a]">
                   <tr>
                     <th className="pb-2">Date</th>
                     <th className="pb-2">Ticker</th>
@@ -894,34 +900,34 @@ export function PaperTradingDesk({
                     <th className="pb-2 text-right">Realized P&L</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#161C26]">
+                <tbody className="divide-y divide-[#222226]">
                   {history.map((h) => (
-                    <tr key={h.id} className="hover:bg-[#121620]">
-                      <td className="py-2.5 text-[#6F7887]">
+                    <tr key={h.id} className="hover:bg-[#141418]">
+                      <td className="py-2.5 text-[#71717a]">
                         {new Date(h.closedAt).toLocaleDateString()}
                       </td>
-                      <td className="py-2.5 font-bold text-[#F0F4F8]">{h.ticker}</td>
+                      <td className="py-2.5 font-bold text-[#f4f4f5]">{h.ticker}</td>
                       <td className="py-2.5">
                         <span
                           className={cn(
                             'px-1.5 py-0.5 rounded text-[10px] font-bold',
                             h.side === 'BUY'
-                              ? 'bg-[#00E599]/15 text-[#00E599]'
-                              : 'bg-[#FF3B56]/15 text-[#FF3B56]'
+                              ? 'bg-emerald-500/10 text-emerald-400'
+                              : 'bg-red-500/10 text-red-400'
                           )}
                         >
                           {h.side}
                         </span>
                       </td>
-                      <td className="py-2.5 text-[#8C96A5]">{h.shares.toLocaleString()}</td>
-                      <td className="py-2.5 text-[#F0F4F8] tabular-nums">
+                      <td className="py-2.5 text-[#a1a1aa]">{h.shares.toLocaleString()}</td>
+                      <td className="py-2.5 text-[#f4f4f5] tabular-nums">
                         {formatCurrency(h.entryPrice, h.currency)}
                       </td>
-                      <td className="py-2.5 text-[#F0F4F8] tabular-nums">
+                      <td className="py-2.5 text-[#f4f4f5] tabular-nums">
                         {formatCurrency(h.exitPrice, h.currency)}
                       </td>
                       <td className="py-2.5 text-right tabular-nums">
-                        <span className={h.realizedPnl >= 0 ? 'text-[#00E599] font-bold' : 'text-[#FF3B56] font-bold'}>
+                        <span className={h.realizedPnl >= 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
                           {h.realizedPnl >= 0 ? '+' : ''}{formatCurrency(h.realizedPnl, h.currency)} ({h.realizedPnlPercent.toFixed(2)}%)
                         </span>
                       </td>

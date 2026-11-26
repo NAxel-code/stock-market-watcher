@@ -134,13 +134,13 @@ export function SearchCommand() {
       <Button
         variant="outline"
         size="sm"
-        className="hidden sm:flex items-center gap-1 text-[#8C96A5] border-[#161C26] bg-[#0E121B] hover:bg-[#161D2B] hover:text-[#F0F4F8] hover:border-[#232B3A] w-28 xl:w-32 2xl:w-48 px-2 font-mono text-xs transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599] rounded-md shadow-xs"
+        className="hidden sm:flex items-center gap-1 text-[#71717a] border-[#222226] bg-[#141418] hover:bg-[#18181b] hover:text-[#f4f4f5] hover:border-[#27272a] w-28 xl:w-32 2xl:w-48 px-2 font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 rounded"
         onClick={() => setOpen(true)}
         aria-label="Search stocks"
       >
-        <Search className="h-3.5 w-3.5 text-[#6F7887] shrink-0" />
+        <Search className="h-3.5 w-3.5 text-[#71717a] shrink-0" />
         <span className="text-[11px] truncate">Search</span>
-        <kbd className="ml-auto text-[10px] bg-[#161C26] text-[#8C96A5] border border-[#232B3A] px-1 py-0.5 rounded font-mono shrink-0">⌘K</kbd>
+        <kbd className="ml-auto text-[10px] bg-[#0f0f12] text-[#71717a] border border-[#222226] px-1 py-0.5 rounded font-mono shrink-0">⌘K</kbd>
       </Button>
       <Button
         variant="ghost"
@@ -172,28 +172,28 @@ export function SearchCommand() {
                   }
                   toast.success(`Copied ${fxConversion.formattedResult} to clipboard!`)
                 }}
-                className="flex items-center justify-between p-2.5 bg-[#00B2FF]/5 border border-[#00B2FF]/20 rounded-md cursor-pointer hover:bg-[#00B2FF]/10 transition-colors my-1"
+                className="flex items-center justify-between p-2.5 bg-[#141418] border border-[#222226] rounded-md cursor-pointer hover:bg-[#18181b] transition-colors my-1"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-full bg-[#00B2FF]/15 text-[#00B2FF]">
+                  <div className="p-1.5 rounded-full bg-[#18181b] text-[#f4f4f5] border border-[#27272a]">
                     <ArrowRightLeft className="h-4 w-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-mono font-bold text-[#F0F4F8]">
+                    <div className="text-xs font-mono font-bold text-[#f4f4f5]">
                       {fxConversion.amount.toLocaleString()} {fxConversion.fromCurr}
                     </div>
                     {fxConversion.unitRateText && (
-                      <div className="text-[10px] font-mono text-[#6F7887]">
+                      <div className="text-[10px] font-mono text-[#71717a]">
                         Rate: {fxConversion.unitRateText}
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm font-mono font-bold text-[#00E599]">
+                  <div className="text-sm font-mono font-bold text-[#f4f4f5]">
                     {fxConversion.formattedResult}
                   </div>
-                  <div className="text-[10px] text-[#6F7887] font-sans flex items-center justify-end gap-1">
+                  <div className="text-[10px] text-[#71717a] font-sans flex items-center justify-end gap-1">
                     <Copy className="h-3 w-3" />
                     <span>Click to copy</span>
                   </div>

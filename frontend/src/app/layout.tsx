@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-[#07080A] text-[#F0F4F8] selection:bg-[#00E599]/20 selection:text-[#00E599]`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-[#09090b] text-[#f4f4f5] selection:bg-zinc-700 selection:text-white`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar />
