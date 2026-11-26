@@ -134,12 +134,12 @@ export function SearchCommand() {
       <Button
         variant="outline"
         size="sm"
-        className="hidden sm:flex items-center gap-1.5 text-[#8C96A5] border-[#161C26] bg-[#0E121B] hover:bg-[#161D2B] hover:text-[#F0F4F8] hover:border-[#232B3A] w-36 xl:w-44 2xl:w-52 px-2.5 font-mono text-xs transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599] rounded-md shadow-xs"
+        className="hidden sm:flex items-center gap-1 text-[#8C96A5] border-[#161C26] bg-[#0E121B] hover:bg-[#161D2B] hover:text-[#F0F4F8] hover:border-[#232B3A] w-28 xl:w-32 2xl:w-48 px-2 font-mono text-xs transition-all duration-150 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599] rounded-md shadow-xs"
         onClick={() => setOpen(true)}
         aria-label="Search stocks"
       >
         <Search className="h-3.5 w-3.5 text-[#6F7887] shrink-0" />
-        <span className="text-[11px] truncate">Search...</span>
+        <span className="text-[11px] truncate">Search</span>
         <kbd className="ml-auto text-[10px] bg-[#161C26] text-[#8C96A5] border border-[#232B3A] px-1 py-0.5 rounded font-mono shrink-0">⌘K</kbd>
       </Button>
       <Button
