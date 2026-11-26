@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import {
   X,
@@ -68,14 +68,12 @@ interface SpotlightTourProps {
   onClose: () => void
 }
 
+const emptySubscribe = () => () => {}
+
 export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
   const [currentStep, setCurrentStep] = useState(0)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Scroll target element into view once when active or step changes
   const scrollToTarget = useCallback(() => {
@@ -105,18 +103,19 @@ export function SpotlightTour({ isActive, onClose }: SpotlightTourProps) {
   useEffect(() => {
     if (isActive) {
       scrollToTarget()
-      updateRectOnly()
+      const raf = requestAnimationFrame(updateRectOnly)
       const timer = setTimeout(updateRectOnly, 350)
       window.addEventListener('resize', updateRectOnly)
       window.addEventListener('scroll', updateRectOnly)
       return () => {
+        cancelAnimationFrame(raf)
         clearTimeout(timer)
         window.removeEventListener('resize', updateRectOnly)
         window.removeEventListener('scroll', updateRectOnly)
       }
-    } else {
-      setTargetRect(null)
     }
+    const rafReset = requestAnimationFrame(() => setTargetRect(null))
+    return () => cancelAnimationFrame(rafReset)
   }, [isActive, currentStep, scrollToTarget, updateRectOnly])
 
   // Keyboard Navigation: Escape, ArrowLeft, ArrowRight

@@ -64,11 +64,30 @@ CREATE TABLE IF NOT EXISTS public.alerts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     ticker VARCHAR(10) NOT NULL,
-    target_price DECIMAL(10, 2) NOT NULL,
+    target_price DECIMAL(14, 4) NOT NULL,
     condition VARCHAR(20) NOT NULL CHECK (condition IN ('ABOVE', 'BELOW')),
     is_active BOOLEAN DEFAULT TRUE,
+    triggered_at TIMESTAMPTZ,
+    triggered_price DECIMAL(14, 4),
+    message TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Paper Trading Accounts (Multi-device sync)
+CREATE TABLE IF NOT EXISTS public.paper_accounts (
+    user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+    cash_balance_usd DECIMAL(16, 4) NOT NULL DEFAULT 100000.0,
+    initial_capital_usd DECIMAL(16, 4) NOT NULL DEFAULT 100000.0,
+    positions_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+    trades_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.paper_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "paper_accounts_user_policy"
+    ON public.paper_accounts FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_watchlists_user_id ON public.watchlists(user_id);

@@ -132,6 +132,9 @@ class PriceAlertResponse(BaseModel):
     condition: str
     is_active: bool = True
     created_at: str
+    triggered_at: str | None = None
+    triggered_price: float | None = None
+    message: str | None = None
 
 
 class HealthResponse(BaseModel):
@@ -397,6 +400,82 @@ class PortfolioAnalysisResponse(BaseModel):
 class PortfolioAnalyzeRequest(BaseModel):
     base_currency: str = "SGD"
     holdings: list[PortfolioHoldingItem]
+
+
+# ==========================================
+# Auth, Cloud Sync & Paper Trading Models
+# ==========================================
+class AuthRegisterRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=6, max_length=128)
+    display_name: str | None = Field(default=None, max_length=80)
+    workspace_id: str | None = Field(default=None, max_length=64)
+
+
+class AuthLoginRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=1, max_length=128)
+    workspace_id: str | None = Field(default=None, max_length=64)
+
+
+class AuthUserProfile(BaseModel):
+    id: str
+    email: str
+    display_name: str | None = None
+    created_at: str
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: AuthUserProfile
+
+
+class WatchlistSyncRequest(BaseModel):
+    tickers: list[str] = Field(default_factory=list, max_length=100)
+
+
+class WatchlistStateResponse(BaseModel):
+    owner_id: str
+    tickers: list[str]
+    items: list[WatchlistItem] = Field(default_factory=list)
+
+
+class PortfolioHoldingsReplaceRequest(BaseModel):
+    holdings: list[PortfolioHoldingItem] = Field(default_factory=list, max_length=200)
+
+
+class PaperPositionItem(BaseModel):
+    id: str
+    ticker: str
+    side: str = Field(..., pattern="^(LONG|SHORT)$")
+    shares: float = Field(..., gt=0)
+    entry_price: float = Field(..., gt=0)
+    current_price: float = Field(..., gt=0)
+    currency: str = "USD"
+    take_profit: float | None = None
+    stop_loss: float | None = None
+    opened_at: str
+
+
+class PaperTradeItem(BaseModel):
+    id: str
+    ticker: str
+    side: str
+    shares: float
+    price: float
+    currency: str
+    fee: float = 0.0
+    realized_pnl: float | None = None
+    executed_at: str
+
+
+class PaperStatePayload(BaseModel):
+    cash_balance_usd: float = Field(..., ge=0)
+    initial_capital_usd: float = Field(default=100000.0, gt=0)
+    positions: list[PaperPositionItem] = Field(default_factory=list)
+    trades: list[PaperTradeItem] = Field(default_factory=list)
+    updated_at: str | None = None
 
 
 

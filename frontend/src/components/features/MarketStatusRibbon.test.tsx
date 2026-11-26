@@ -34,7 +34,7 @@ describe('MarketStatusRibbon component', () => {
         },
       },
       isLoading: false,
-    } as any)
+    } as unknown as ReturnType<typeof useQuery>)
 
     render(<MarketStatusRibbon />)
 
@@ -51,8 +51,9 @@ describe('MarketStatusRibbon component', () => {
   })
 
   it('renders SGX market status and FX rates ticker when available', () => {
-    vi.mocked(useQuery).mockImplementation((options: any) => {
-      if (options.queryKey[1] === 'fx') {
+    vi.mocked(useQuery).mockImplementation((options) => {
+      const key = (options as unknown as { queryKey: string[] }).queryKey
+      if (key[1] === 'fx') {
         return {
           data: {
             rates: [
@@ -62,7 +63,7 @@ describe('MarketStatusRibbon component', () => {
             as_of: '2026-11-24T00:00:00Z',
           },
           isLoading: false,
-        } as any
+        } as unknown as ReturnType<typeof useQuery>
       }
 
       return {
@@ -72,7 +73,7 @@ describe('MarketStatusRibbon component', () => {
           sgx: { is_open: true, session_name: 'Morning Session', current_time_local: '11:00 SGT' },
         },
         isLoading: false,
-      } as any
+      } as unknown as ReturnType<typeof useQuery>
     })
 
     render(<MarketStatusRibbon />)

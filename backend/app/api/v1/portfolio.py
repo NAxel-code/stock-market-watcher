@@ -1,11 +1,16 @@
-"""Portfolio Tracker API Router."""
+"""Portfolio Tracker API Router with persistent cloud holdings storage."""
 
-from fastapi import APIRouter, Query, Response
+from typing import Annotated
 
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+
+from app.core.security import get_owner_id
+from app.db.store import store
 from app.models.schemas import (
     PortfolioAnalysisResponse,
     PortfolioAnalyzeRequest,
     PortfolioHoldingItem,
+    PortfolioHoldingsReplaceRequest,
 )
 from app.services import portfolio_engine
 
@@ -17,6 +22,60 @@ def get_default_institutional_holdings(response: Response) -> list[PortfolioHold
     """Get the default institutional multi-asset model portfolio holdings."""
     response.headers["Cache-Control"] = "public, max-age=300"
     return portfolio_engine.DEFAULT_INSTITUTIONAL_PORTFOLIO
+
+
+@router.get("/holdings", response_model=list[PortfolioHoldingItem])
+def get_saved_portfolio_holdings(
+    owner_id: Annotated[str, Depends(get_owner_id)],
+) -> list[PortfolioHoldingItem]:
+    """Fetch user/workspace cloud-persisted portfolio holdings, seeding institutional model if empty."""
+    rows = store.list_portfolio_holdings(owner_id)
+    if not rows:
+        seeded = [h.model_dump() for h in portfolio_engine.DEFAULT_INSTITUTIONAL_PORTFOLIO]
+        rows = store.replace_portfolio_holdings(owner_id, seeded)
+    return [PortfolioHoldingItem(**r) for r in rows]
+
+
+@router.post("/holdings", response_model=PortfolioHoldingItem)
+def upsert_portfolio_holding(
+    holding: PortfolioHoldingItem,
+    owner_id: Annotated[str, Depends(get_owner_id)],
+) -> PortfolioHoldingItem:
+    """Create or update a portfolio holding in persistent storage."""
+    saved = store.upsert_portfolio_holding(owner_id, holding.model_dump())
+    return PortfolioHoldingItem(**saved)
+
+
+@router.put("/holdings", response_model=list[PortfolioHoldingItem])
+def replace_portfolio_holdings(
+    payload: PortfolioHoldingsReplaceRequest,
+    owner_id: Annotated[str, Depends(get_owner_id)],
+) -> list[PortfolioHoldingItem]:
+    """Replace the caller's full persisted portfolio holdings list."""
+    rows = store.replace_portfolio_holdings(owner_id, [h.model_dump() for h in payload.holdings])
+    return [PortfolioHoldingItem(**r) for r in rows]
+
+
+@router.delete("/holdings/{holding_id}", response_model=dict)
+def delete_portfolio_holding(
+    holding_id: str,
+    owner_id: Annotated[str, Depends(get_owner_id)],
+) -> dict:
+    """Delete a persisted portfolio holding owned by caller."""
+    deleted = store.delete_portfolio_holding(owner_id, holding_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Holding not found")
+    return {"status": "success", "deleted_id": holding_id}
+
+
+@router.post("/holdings/reset", response_model=list[PortfolioHoldingItem])
+def reset_portfolio_holdings(
+    owner_id: Annotated[str, Depends(get_owner_id)],
+) -> list[PortfolioHoldingItem]:
+    """Reset persisted portfolio holdings to the default institutional model."""
+    seeded = [h.model_dump() for h in portfolio_engine.DEFAULT_INSTITUTIONAL_PORTFOLIO]
+    rows = store.replace_portfolio_holdings(owner_id, seeded)
+    return [PortfolioHoldingItem(**r) for r in rows]
 
 
 @router.get("/analyze", response_model=PortfolioAnalysisResponse)

@@ -1,8 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Plus, Bell, CheckCircle2, AlertTriangle, Send, Mail } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { Plus, Trash2, Cloud, Zap } from 'lucide-react'
+import { toast } from 'sonner'
+import { createAlert, deleteAlert, evaluateAlerts, fetchBatchQuotes } from '@/lib/api'
+import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface WatchlistStock {
@@ -185,93 +190,116 @@ const LISTS_DATA: Record<string, WatchlistStock[]> = {
   ],
 }
 
-interface AlertRule {
-  title: string
-  condition: string
-  channel: 'TELEGRAM' | 'EMAIL'
-  status: 'ACTIVE' | 'TRIGGERED'
-}
-
-const ALERT_RULES: AlertRule[] = [
-  {
-    title: 'NVDA falls below $150',
-    condition: 'PRICE < 150.00',
-    channel: 'TELEGRAM',
-    status: 'ACTIVE',
-  },
-  {
-    title: 'NVDA moves more than 5% in a day',
-    condition: '|1D| > 5%',
-    channel: 'TELEGRAM',
-    status: 'TRIGGERED',
-  },
-  {
-    title: 'D05.SI moves more than 3% in a day',
-    condition: '|1D| > 3%',
-    channel: 'TELEGRAM',
-    status: 'ACTIVE',
-  },
-  {
-    title: 'Any holding above 12% of portfolio',
-    condition: 'WEIGHT > 12%',
-    channel: 'EMAIL',
-    status: 'TRIGGERED',
-  },
-  {
-    title: 'High-importance news on watchlist',
-    condition: 'IMPORTANCE = HIGH',
-    channel: 'TELEGRAM',
-    status: 'ACTIVE',
-  },
-  {
-    title: 'Day before an FOMC decision',
-    condition: 'CALENDAR · FED',
-    channel: 'TELEGRAM',
-    status: 'ACTIVE',
-  },
-]
-
-interface TriggeredLog {
-  date: string
-  event: string
-  status: 'SENT'
-}
-
-const TRIGGERED_LOG: TriggeredLog[] = [
-  {
-    date: '23 NOV',
-    event: 'NVDA +32.77% (rule: |1D| > 5%)',
-    status: 'SENT',
-  },
-  {
-    date: '23 NOV',
-    event: 'NVDA weight 12.6% (rule: > 12%)',
-    status: 'SENT',
-  },
-  {
-    date: '23 NOV',
-    event: 'High importance: Nvidia reinstates Huang',
-    status: 'SENT',
-  },
-  {
-    date: '18 NOV',
-    event: 'High importance: BI raises rate to 6.00%',
-    status: 'SENT',
-  },
-]
-
 export function TerminalWatchlist() {
   const [activeList, setActiveList] = useState<string>('Core (8)')
+  const [showNewRule, setShowNewRule] = useState(false)
+  const [ruleTicker, setRuleTicker] = useState('NVDA')
+  const [ruleCondition, setRuleCondition] = useState<'ABOVE' | 'BELOW'>('BELOW')
+  const [ruleTarget, setRuleTarget] = useState('150')
+  const [submittingRule, setSubmittingRule] = useState(false)
 
-  const currentStocks = LISTS_DATA[activeList] || LISTS_DATA['Core (8)']
+  const {
+    watchlist,
+    alerts,
+    triggeredAlerts,
+    addAlert,
+    removeAlert,
+    syncAlertsWithCloud,
+    streamStatus,
+  } = useUIStore()
+
+  const fallbackStocks = LISTS_DATA[activeList] || LISTS_DATA['Core (8)']
+  const activeTickers = useMemo(() => {
+    if (activeList === 'Core (8)' && watchlist.length > 0) {
+      return watchlist.slice(0, 12)
+    }
+    return fallbackStocks.map((s) => s.ticker)
+  }, [activeList, watchlist, fallbackStocks])
+
+  const { data: liveBatchQuotes } = useQuery({
+    queryKey: ['quotes', 'batch', 'watchlist-terminal', activeTickers.join(',')],
+    queryFn: () => fetchBatchQuotes(activeTickers),
+    staleTime: 30_000,
+    refetchInterval: streamStatus === 'live' ? false : 60_000,
+  })
+
+  const currentStocks = useMemo<WatchlistStock[]>(() => {
+    if (!liveBatchQuotes || liveBatchQuotes.length === 0) {
+      return fallbackStocks
+    }
+    return liveBatchQuotes.map((q) => {
+      const curr = getStockCurrency(q)
+      const activeAlertCount = alerts.filter((a) => a.ticker === q.ticker && a.is_active).length
+      const dist52w = q.distance_from_52w_high != null ? `${q.distance_from_52w_high.toFixed(2)}%` : '—'
+      return {
+        ticker: q.ticker,
+        name: q.company_name,
+        last: formatCurrency(q.current_price, curr),
+        change1D: formatPercent(q.change_percent),
+        isPositive: q.change_percent >= 0,
+        from52WHigh: dist52w,
+        nextEvent: q.sector ? `${q.sector}` : 'Live Telemetry',
+        alerts: activeAlertCount > 0 ? `${activeAlertCount} RULE${activeAlertCount > 1 ? 'S' : ''}` : '—',
+      }
+    })
+  }, [liveBatchQuotes, fallbackStocks, alerts])
+
+  const handleCreateRule = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const targetNum = parseFloat(ruleTarget)
+    if (!ruleTicker.trim() || isNaN(targetNum) || targetNum <= 0) return
+
+    setSubmittingRule(true)
+    try {
+      const created = await createAlert({
+        ticker: ruleTicker.trim().toUpperCase(),
+        condition: ruleCondition,
+        target_price: targetNum,
+      })
+      addAlert(created)
+      toast.success(`24/7 Cloud Alert created: ${created.ticker} ${created.condition} ${created.target_price}`)
+      setShowNewRule(false)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create alert rule')
+    } finally {
+      setSubmittingRule(false)
+    }
+  }
+
+  const handleDeleteRule = async (id: string) => {
+    try {
+      await deleteAlert(id)
+      removeAlert(id)
+      toast.info('Alert rule deleted')
+    } catch {
+      removeAlert(id)
+    }
+  }
+
+  const handleEvaluateNow = async () => {
+    try {
+      const hits = await evaluateAlerts()
+      await syncAlertsWithCloud()
+      if (hits.length > 0) {
+        toast.warning(`${hits.length} price alert(s) triggered!`)
+      } else {
+        toast.success('Evaluated active alerts against live quotes — no thresholds crossed yet.')
+      }
+    } catch {
+      toast.error('Failed to evaluate alerts')
+    }
+  }
 
   return (
     <div className="space-y-4 font-mono text-[#F0F4F8]">
       {/* Header & List Selectors */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#161C26] pb-3">
         <div>
-          <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
-            WATCHLISTS / 3 LISTS · 6 ALERT RULES
+          <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887] flex items-center gap-2">
+            <span>WATCHLISTS / {Object.keys(LISTS_DATA).length} LISTS · {alerts.filter((a) => a.is_active).length} ACTIVE RULES</span>
+            <span className="inline-flex items-center gap-1 text-[#00E599]">
+              <Cloud className="h-3 w-3" /> Cloud Synced
+            </span>
           </div>
           <h1 className="text-xl font-bold tracking-tight text-[#F0F4F8]">
             Watchlists
@@ -298,12 +326,7 @@ export function TerminalWatchlist() {
           ))}
           <button
             type="button"
-            className="px-2 py-1 rounded bg-[#0E121B] text-[#8C96A5] border border-[#161C26] hover:text-[#F0F4F8] flex items-center gap-1"
-          >
-            <Plus className="h-3 w-3" /> New list
-          </button>
-          <button
-            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-search'))}
             className="px-2 py-1 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 hover:bg-[#00E599]/25 flex items-center gap-1 font-bold"
           >
             <Plus className="h-3 w-3" /> Add ticker
@@ -321,7 +344,7 @@ export function TerminalWatchlist() {
             <h2 className="text-sm font-bold text-[#F0F4F8]">{activeList}</h2>
           </div>
           <span className="text-[10px] text-[#6F7887]">
-            {currentStocks.length} INSTRUMENTS
+            {currentStocks.length} INSTRUMENTS · {streamStatus === 'live' ? 'LIVE SSE STREAM' : 'SYNCED'}
           </span>
         </div>
 
@@ -333,7 +356,7 @@ export function TerminalWatchlist() {
                 <th className="py-2 text-right font-normal">LAST</th>
                 <th className="py-2 text-right font-normal">1D</th>
                 <th className="py-2 text-right font-normal">FROM 52W HIGH</th>
-                <th className="py-2 font-normal pl-4">NEXT EVENT</th>
+                <th className="py-2 font-normal pl-4">SECTOR / NOTE</th>
                 <th className="py-2 text-right font-normal">ALERTS</th>
               </tr>
             </thead>
@@ -380,7 +403,7 @@ export function TerminalWatchlist() {
         </div>
       </div>
 
-      {/* 2-Column Bottom: Alert Rules & Triggered Log */}
+      {/* 2-Column Bottom: Persistent 24/7 Alert Rules & Triggered Log */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Left: Alert Rules */}
         <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
@@ -388,83 +411,168 @@ export function TerminalWatchlist() {
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#161C26]">
               <div>
                 <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
-                  RULES / DELIVERED BY TELEGRAM AND EMAIL
+                  24/7 SERVER-SIDE MONITOR · RUNS WITH BROWSER CLOSED
                 </div>
                 <h3 className="text-sm font-bold text-[#F0F4F8]">Alert rules</h3>
               </div>
-              <button
-                type="button"
-                className="text-[10px] font-mono text-[#00E599] hover:underline flex items-center gap-1 font-bold"
-              >
-                + NEW RULE
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleEvaluateNow}
+                  className="text-[10px] font-mono text-[#00B2FF] hover:underline flex items-center gap-1 font-bold"
+                  title="Evaluate all rules immediately against live prices"
+                >
+                  <Zap className="h-3 w-3" /> CHECK NOW
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowNewRule((prev) => !prev)}
+                  className="text-[10px] font-mono text-[#00E599] hover:underline flex items-center gap-1 font-bold"
+                >
+                  + NEW RULE
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-2 mt-2">
-              {ALERT_RULES.map((rule, idx) => (
-                <div
-                  key={idx}
-                  className="p-2 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-2 text-xs"
-                >
-                  <div>
-                    <div className="font-semibold text-[#F0F4F8]">{rule.title}</div>
-                    <div className="text-[10px] text-[#6F7887] font-mono">{rule.condition}</div>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#161C26] text-[#8C96A5] font-semibold flex items-center gap-1">
-                      {rule.channel === 'TELEGRAM' ? <Send className="h-2.5 w-2.5 text-[#00B2FF]" /> : <Mail className="h-2.5 w-2.5 text-amber-400" />}
-                      {rule.channel}
-                    </span>
-                    <span
-                      className={cn(
-                        'text-[9px] px-1.5 py-0.2 rounded font-bold border',
-                        rule.status === 'TRIGGERED'
-                          ? 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30'
-                          : 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/30'
-                      )}
-                    >
-                      {rule.status}
-                    </span>
-                  </div>
+            {showNewRule && (
+              <form onSubmit={handleCreateRule} className="p-2.5 mb-3 rounded bg-[#07080A] border border-[#00E599]/30 space-y-2">
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <input
+                    type="text"
+                    required
+                    value={ruleTicker}
+                    onChange={(e) => setRuleTicker(e.target.value)}
+                    placeholder="NVDA"
+                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white uppercase"
+                  />
+                  <select
+                    value={ruleCondition}
+                    onChange={(e) => setRuleCondition(e.target.value as 'ABOVE' | 'BELOW')}
+                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white"
+                  >
+                    <option value="ABOVE">ABOVE</option>
+                    <option value="BELOW">BELOW</option>
+                  </select>
+                  <input
+                    type="number"
+                    step="any"
+                    required
+                    value={ruleTarget}
+                    onChange={(e) => setRuleTarget(e.target.value)}
+                    placeholder="150.00"
+                    className="bg-[#121620] border border-[#161C26] rounded px-2 py-1 text-white"
+                  />
                 </div>
-              ))}
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowNewRule(false)}
+                    className="px-2 py-1 text-[10px] text-[#6F7887] hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingRule}
+                    className="px-3 py-1 rounded bg-[#00E599] text-[#07080A] font-bold text-[10px]"
+                  >
+                    {submittingRule ? 'Saving...' : 'Save Cloud Alert'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="space-y-2 mt-2">
+              {alerts.length === 0 ? (
+                <div className="p-3 rounded bg-[#121620] border border-[#161C26] text-xs text-[#6F7887]">
+                  No cloud price alerts configured yet. Click <strong className="text-[#00E599]">+ NEW RULE</strong> to monitor any ticker 24/7.
+                </div>
+              ) : (
+                alerts.map((rule) => (
+                  <div
+                    key={rule.id}
+                    className="p-2 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-2 text-xs"
+                  >
+                    <div>
+                      <div className="font-semibold text-[#F0F4F8]">
+                        {rule.ticker} crosses {rule.condition} {rule.target_price}
+                      </div>
+                      <div className="text-[10px] text-[#6F7887] font-mono">
+                        PRICE {rule.condition === 'ABOVE' ? '≥' : '≤'} {rule.target_price}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className={cn(
+                          'text-[9px] px-1.5 py-0.2 rounded font-bold border',
+                          !rule.is_active
+                            ? 'bg-[#FFB020]/15 text-[#FFB020] border-[#FFB020]/30'
+                            : 'bg-[#00E599]/15 text-[#00E599] border-[#00E599]/30'
+                        )}
+                      >
+                        {rule.is_active ? 'ACTIVE' : 'TRIGGERED'}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRule(rule.id)}
+                        className="p-1 text-[#6F7887] hover:text-[#FF3B56] transition-colors"
+                        title="Delete rule"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right: Triggered Log (last 7 days) */}
+        {/* Right: Triggered Log */}
         <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#161C26]">
               <div>
                 <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
-                  LOG / LAST 7 DAYS
+                  CLOUD ALERT LOG / LIVE SSE PUSH
                 </div>
                 <h3 className="text-sm font-bold text-[#F0F4F8]">Triggered</h3>
               </div>
-              <span className="text-[10px] text-[#6F7887]">4 NOTIFICATIONS SENT</span>
+              <span className="text-[10px] text-[#6F7887]">
+                {triggeredAlerts.length} EVENT{triggeredAlerts.length === 1 ? '' : 'S'}
+              </span>
             </div>
 
             <div className="space-y-2 mt-2">
-              {TRIGGERED_LOG.map((log, idx) => (
-                <div
-                  key={idx}
-                  className="p-2.5 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-[#6F7887] shrink-0">{log.date}</span>
-                    <span className="text-[#F0F4F8] font-medium">{log.event}</span>
-                  </div>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 font-bold shrink-0">
-                    {log.status}
-                  </span>
+              {triggeredAlerts.length === 0 ? (
+                <div className="p-3 rounded bg-[#121620] border border-[#161C26] text-xs text-[#6F7887]">
+                  No triggered alerts recorded yet. Background worker checks active thresholds every 15s and pushes hits live over SSE.
                 </div>
-              ))}
+              ) : (
+                triggeredAlerts.map((log) => (
+                  <div
+                    key={log.id}
+                    className="p-2.5 rounded bg-[#121620] border border-[#161C26] flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-[10px] font-bold text-[#6F7887] shrink-0">
+                        {(log.triggered_at || log.created_at).slice(0, 10)}
+                      </span>
+                      <span className="text-[#F0F4F8] font-medium truncate">
+                        {log.message || `${log.ticker} crossed ${log.condition} ${log.target_price}`}
+                      </span>
+                    </div>
+                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-[#00E599]/15 text-[#00E599] border border-[#00E599]/30 font-bold shrink-0">
+                      TRIGGERED
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
           <div className="pt-3 border-t border-[#161C26] mt-3 text-[10px] text-[#6F7887]">
-            Prices: StockPulse API snapshot, 23 Nov 2026. Alert rules and log are examples.
+            Watchlist, rules &amp; triggered alerts are persisted server-side and synchronized across devices.
           </div>
         </div>
       </div>

@@ -176,7 +176,7 @@ export default function CalendarPage() {
           <div className="text-[10px] uppercase text-[#6F7887]">COMPANY FISCAL CALENDARS</div>
           <h2 className="text-sm font-bold text-[#F0F4F8]">Where each company is</h2>
           <p className="text-[11px] text-[#8C96A5] font-sans mt-0.5">
-            Fiscal quarters don't match calendar quarters. NVDA is already in its fiscal Q4; MSFT is in fiscal Q2.
+            Fiscal quarters don&apos;t match calendar quarters. NVDA is already in its fiscal Q4; MSFT is in fiscal Q2.
           </p>
         </div>
 

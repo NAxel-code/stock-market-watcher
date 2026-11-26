@@ -72,6 +72,23 @@ const { mockAnalysis } = vi.hoisted(() => ({
 }))
 
 vi.mock('@/lib/api', () => ({
+  ensureClientWorkspaceId: vi.fn().mockReturnValue('ws-test'),
+  fetchPersistedHoldings: vi.fn().mockResolvedValue([
+    {
+      id: '1',
+      ticker: 'NVDA',
+      company_name: 'NVIDIA Corporation',
+      exchange: 'US',
+      asset_type: 'EQUITY',
+      shares: 100,
+      lot_size: 1,
+      cost_basis: 115.0,
+      currency: 'USD',
+      country: 'US',
+      sector: 'Technology',
+      fees: 0,
+    },
+  ]),
   fetchDefaultPortfolio: vi.fn().mockResolvedValue([
     {
       id: '1',
@@ -88,6 +105,9 @@ vi.mock('@/lib/api', () => ({
       fees: 0,
     },
   ]),
+  upsertPersistedHolding: vi.fn(),
+  deletePersistedHolding: vi.fn(),
+  resetPersistedHoldings: vi.fn(),
   analyzeCustomPortfolio: vi.fn().mockResolvedValue(mockAnalysis),
 }))
 

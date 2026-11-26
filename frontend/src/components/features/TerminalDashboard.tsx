@@ -1,8 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowUpRight, ArrowDownRight, AlertTriangle, Info, Calendar, ExternalLink, ChevronRight } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { fetchBatchQuotes, fetchPortfolioAnalysis } from '@/lib/api'
+import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface WatchlistRow {
@@ -253,6 +256,46 @@ export function TerminalDashboard() {
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | 'YTD' | '1Y'>('1D')
   const [newsFilter, setNewsFilter] = useState<string>('ALL')
   const [scheduleFilter, setScheduleFilter] = useState<string>('ALL')
+  const { watchlist, streamStatus, triggeredAlerts } = useUIStore()
+
+  const coreTickers = useMemo(
+    () => (watchlist.length > 0 ? watchlist.slice(0, 8) : SAMPLE_WATCHLIST.map((r) => r.ticker)),
+    [watchlist]
+  )
+
+  const { data: liveBatchQuotes } = useQuery({
+    queryKey: ['quotes', 'batch', 'terminal-core', coreTickers.join(',')],
+    queryFn: () => fetchBatchQuotes(coreTickers),
+    staleTime: 30_000,
+    refetchInterval: streamStatus === 'live' ? false : 60_000,
+  })
+
+  const { data: portfolioSnap } = useQuery({
+    queryKey: ['portfolio', 'analyze', 'SGD'],
+    queryFn: () => fetchPortfolioAnalysis('SGD'),
+    staleTime: 60_000,
+  })
+
+  const watchlistRows = useMemo<WatchlistRow[]>(() => {
+    if (!liveBatchQuotes || liveBatchQuotes.length === 0) {
+      return SAMPLE_WATCHLIST
+    }
+    return liveBatchQuotes.map((q) => {
+      const curr = getStockCurrency(q)
+      const isPositive = q.change_percent >= 0
+      const spark = q.sparkline_7d && q.sparkline_7d.length >= 2
+        ? q.sparkline_7d
+        : [q.previous_close || q.current_price, q.current_price]
+      return {
+        ticker: q.ticker,
+        name: q.company_name,
+        price: formatCurrency(q.current_price, curr),
+        change: formatPercent(q.change_percent),
+        isPositive,
+        sparkline: spark,
+      }
+    })
+  }, [liveBatchQuotes])
 
   const filteredNews = SAMPLE_NEWS.filter((item) => {
     if (newsFilter === 'ALL') return true
@@ -312,37 +355,57 @@ export function TerminalDashboard() {
         <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1.5">
             <span className="text-[#8C96A5] font-semibold tracking-wider">VALUE</span>
-            <span className="text-[#00E599] text-[11px] font-bold bg-[#00E599]/10 px-1.5 py-0.5 rounded border border-[#00E599]/20 flex items-center gap-0.5">
-              ↗ +2.6%
+            <span
+              className={cn(
+                'text-[11px] font-bold px-1.5 py-0.5 rounded border flex items-center gap-0.5',
+                (portfolioSnap?.unrealized_pnl_percent ?? 2.6) >= 0
+                  ? 'text-[#00E599] bg-[#00E599]/10 border-[#00E599]/20'
+                  : 'text-[#FF3B56] bg-[#FF3B56]/10 border-[#FF3B56]/20'
+              )}
+            >
+              {portfolioSnap ? formatPercent(portfolioSnap.unrealized_pnl_percent) : '↗ +2.6%'}
             </span>
           </div>
           <div className="text-2xl font-bold tracking-tight text-[#F0F4F8]">
-            S$124,800
+            {portfolioSnap
+              ? formatCurrency(portfolioSnap.total_value_base, portfolioSnap.base_currency)
+              : 'S$124,800'}
           </div>
           <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
             Total portfolio value
           </div>
           <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
-            9 holdings · 3 currencies
+            {portfolioSnap
+              ? `${portfolioSnap.holdings.length} holdings · ${Object.keys(portfolioSnap.allocation.by_currency).length} currencies`
+              : '9 holdings · 3 currencies'}
           </div>
         </div>
 
-        {/* Card 2: Today */}
+        {/* Card 2: Today / P&L */}
         <div className="bg-[#0E121B] border border-[#161C26] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-xs mb-1.5">
-            <span className="text-[#8C96A5] font-semibold tracking-wider">TODAY</span>
+            <span className="text-[#8C96A5] font-semibold tracking-wider">UNREALIZED P&amp;L</span>
             <span className="text-[#00E599] text-[11px] font-bold bg-[#00E599]/10 px-1.5 py-0.5 rounded border border-[#00E599]/20 flex items-center gap-0.5">
-              ↗ +2.6%
+              {streamStatus === 'live' ? '● LIVE' : '↗ +2.6%'}
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-[#00E599]">
-            +S$3,150
+          <div
+            className={cn(
+              'text-2xl font-bold tracking-tight',
+              (portfolioSnap?.unrealized_pnl_base ?? 3150) >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+            )}
+          >
+            {portfolioSnap
+              ? `${portfolioSnap.unrealized_pnl_base >= 0 ? '+' : ''}${formatCurrency(portfolioSnap.unrealized_pnl_base, portfolioSnap.base_currency)}`
+              : '+S$3,150'}
           </div>
           <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
-            Day profit and loss
+            Stock alpha + FX net P&amp;L
           </div>
           <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
-            NVDA +S$1,420 largest
+            {portfolioSnap
+              ? `Stock: ${formatCurrency(portfolioSnap.total_stock_move_pnl_base, portfolioSnap.base_currency)}`
+              : 'NVDA +S$1,420 largest'}
           </div>
         </div>
 
@@ -351,17 +414,17 @@ export function TerminalDashboard() {
           <div className="flex items-center justify-between text-xs mb-1.5">
             <span className="text-[#8C96A5] font-semibold tracking-wider">TOTAL RETURN</span>
             <span className="text-[#8C96A5] text-[11px] font-medium">
-              +2.3 pts
+              Sharpe {portfolioSnap?.risk.sharpe_ratio.toFixed(2) ?? '1.42'}
             </span>
           </div>
           <div className="text-2xl font-bold tracking-tight text-[#00E599]">
-            +8.4%
+            {portfolioSnap ? formatPercent(portfolioSnap.unrealized_pnl_percent) : '+8.4%'}
           </div>
           <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
-            Since 1 Jan 2026
+            Since cost basis inception
           </div>
           <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
-            Benchmark VWRA +6.1%
+            Beta {portfolioSnap?.risk.portfolio_beta.toFixed(2) ?? '1.05'} · Vol {portfolioSnap?.risk.annualized_volatility.toFixed(1) ?? '14.2'}%
           </div>
         </div>
 
@@ -370,17 +433,24 @@ export function TerminalDashboard() {
           <div className="flex items-center justify-between text-xs mb-1.5">
             <span className="text-[#8C96A5] font-semibold tracking-wider">FX EFFECT</span>
             <span className="text-[#FF3B56] text-[11px] font-bold bg-[#FF3B56]/10 px-1.5 py-0.5 rounded border border-[#FF3B56]/20 flex items-center gap-0.5">
-              ↘ FX
+              FX IMPACT
             </span>
           </div>
-          <div className="text-2xl font-bold tracking-tight text-[#FF3B56]">
-            −2.8%
+          <div
+            className={cn(
+              'text-2xl font-bold tracking-tight',
+              (portfolioSnap?.total_fx_move_pnl_base ?? -1) >= 0 ? 'text-[#00E599]' : 'text-[#FF3B56]'
+            )}
+          >
+            {portfolioSnap
+              ? formatCurrency(portfolioSnap.total_fx_move_pnl_base, portfolioSnap.base_currency)
+              : '−2.8%'}
           </div>
           <div className="text-[11px] text-[#6F7887] mt-1 font-sans">
-            USD/SGD drag on return
+            Cross-currency translation drag
           </div>
           <div className="text-[10px] text-[#8C96A5] mt-2 pt-2 border-t border-[#161C26]">
-            Stocks +11.2% · FX −2.8%
+            Net Dividend: {portfolioSnap ? formatCurrency(portfolioSnap.total_annual_dividend_net_base, portfolioSnap.base_currency) : 'S$1,840/yr'}
           </div>
         </div>
       </div>
@@ -413,7 +483,7 @@ export function TerminalDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#161C26]/60">
-                {SAMPLE_WATCHLIST.map((row) => (
+                {watchlistRows.map((row) => (
                   <tr key={row.ticker} className="hover:bg-[#121620] transition-colors group">
                     <td className="py-2">
                       <Link href={`/stocks/${row.ticker}`} className="block">
@@ -572,11 +642,23 @@ export function TerminalDashboard() {
           {/* Rule Checks / Alerts Section */}
           <div className="pt-3 border-t border-[#161C26] mt-2 space-y-2">
             <div className="text-[10px] uppercase font-mono tracking-wider text-[#6F7887]">
-              RULE CHECKS
+              RULE CHECKS &amp; 24/7 ALERTS
             </div>
+            {triggeredAlerts.slice(0, 2).map((alert) => (
+              <div key={alert.id} className="p-2 rounded bg-[#00E599]/10 border border-[#00E599]/25 text-xs flex items-start justify-between gap-2">
+                <div className="font-medium text-[#F0F4F8]">
+                  {alert.message ?? `${alert.ticker} ${alert.condition} ${alert.target_price}`}
+                </div>
+                <span className="text-[10px] font-bold text-[#00E599] bg-[#00E599]/20 px-1.5 py-0.5 rounded shrink-0">
+                  TRIGGERED
+                </span>
+              </div>
+            ))}
             <div className="p-2 rounded bg-[#FFB020]/10 border border-[#FFB020]/25 text-xs flex items-start justify-between gap-2">
               <div>
-                <div className="font-medium text-[#F0F4F8]">NVDA is 12.6% of the portfolio</div>
+                <div className="font-medium text-[#F0F4F8]">
+                  {portfolioSnap?.risk.position_cap_warnings?.[0] ?? 'NVDA is 12.6% of the portfolio'}
+                </div>
               </div>
               <span className="text-[10px] font-bold text-[#FFB020] bg-[#FFB020]/20 px-1.5 py-0.5 rounded shrink-0">
                 WARNING · &gt;12% TRIM
@@ -584,7 +666,11 @@ export function TerminalDashboard() {
             </div>
             <div className="p-2 rounded bg-[#00B2FF]/10 border border-[#00B2FF]/25 text-xs flex items-start justify-between gap-2">
               <div>
-                <div className="font-medium text-[#F0F4F8]">US-situs holdings US$44k of US$60k</div>
+                <div className="font-medium text-[#F0F4F8]">
+                  {portfolioSnap
+                    ? `US-situs exposure US$${Math.round(portfolioSnap.risk.us_estate_tax_exposure_usd / 1000)}k / US$60k`
+                    : 'US-situs holdings US$44k of US$60k'}
+                </div>
               </div>
               <span className="text-[10px] font-bold text-[#00B2FF] bg-[#00B2FF]/20 px-1.5 py-0.5 rounded shrink-0">
                 INFO · ESTATE LIMIT

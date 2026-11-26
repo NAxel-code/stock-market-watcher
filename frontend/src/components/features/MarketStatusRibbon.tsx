@@ -79,6 +79,7 @@ export function MarketStatusRibbon() {
   const setFXRates = useUIStore((s) => s.setFXRates)
   const timezoneMode = useUIStore((s) => s.timezoneMode)
   const setTimezoneMode = useUIStore((s) => s.setTimezoneMode)
+  const streamStatus = useUIStore((s) => s.streamStatus)
 
   const [isTzDropdownOpen, setIsTzDropdownOpen] = useState(false)
   const [clockData, setClockData] = useState(() => formatClockTime(new Date(), timezoneMode))
@@ -103,12 +104,17 @@ export function MarketStatusRibbon() {
 
   // Live real-time ticking clock (1s interval) with user-selected or local device timezone
   useEffect(() => {
-    setClockData(formatClockTime(new Date(), timezoneMode))
+    const syncTimer = setTimeout(() => {
+      setClockData(formatClockTime(new Date(), timezoneMode))
+    }, 0)
     const interval = setInterval(() => {
       setClockData(formatClockTime(new Date(), timezoneMode))
     }, 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(syncTimer)
+      clearInterval(interval)
+    }
   }, [timezoneMode])
 
   if (!data || !data.idx) return null
@@ -208,6 +214,43 @@ export function MarketStatusRibbon() {
             </div>
           )}
 
+          {/* Real-Time Stream Transport Badge */}
+          <div
+            className={cn(
+              'hidden sm:flex items-center gap-1.5 px-1.5 py-0.5 rounded border text-[10px] font-mono font-bold',
+              streamStatus === 'live'
+                ? 'bg-[#00E599]/10 border-[#00E599]/30 text-[#00E599]'
+                : streamStatus === 'connecting'
+                ? 'bg-[#FFB020]/10 border-[#FFB020]/30 text-[#FFB020]'
+                : 'bg-[#121620] border-[#161C26] text-[#6F7887]'
+            )}
+            title={
+              streamStatus === 'live'
+                ? 'Real-time SSE quote stream connected'
+                : streamStatus === 'connecting'
+                ? 'Establishing live quote stream...'
+                : 'HTTP polling fallback active'
+            }
+          >
+            <span
+              className={cn(
+                'inline-block h-1.5 w-1.5 rounded-full',
+                streamStatus === 'live'
+                  ? 'bg-[#00E599] animate-pulse'
+                  : streamStatus === 'connecting'
+                  ? 'bg-[#FFB020] animate-pulse'
+                  : 'bg-[#6F7887]'
+              )}
+            />
+            <span>
+              {streamStatus === 'live'
+                ? 'STREAM'
+                : streamStatus === 'connecting'
+                ? 'SYNC'
+                : 'POLL'}
+            </span>
+          </div>
+
           {/* Interactive Live Clock with Timezone Switcher (Defaults to Local Device) */}
           <div className="relative flex items-center pl-1 border-l border-[#161C26]">
             <button
@@ -217,10 +260,10 @@ export function MarketStatusRibbon() {
               title="Click to change timezone (Default: Local device)"
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#00E599] shrink-0" />
-              <span className="font-semibold text-[#8C96A5]">{clockData.label}:</span>
-              <strong className="text-[#F0F4F8] font-normal">{clockData.formatted}</strong>
+              <span className="font-semibold text-[#8C96A5]" suppressHydrationWarning>{clockData.label}:</span>
+              <strong className="text-[#F0F4F8] font-normal" suppressHydrationWarning>{clockData.formatted}</strong>
               {clockData.suffix && (
-                <span className="text-[10px] text-[#6F7887] font-semibold">{clockData.suffix}</span>
+                <span className="text-[10px] text-[#6F7887] font-semibold" suppressHydrationWarning>{clockData.suffix}</span>
               )}
               <ChevronDown className="h-3 w-3 text-[#6F7887] ml-0.5" />
             </button>

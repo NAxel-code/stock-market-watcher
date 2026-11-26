@@ -1,12 +1,12 @@
 """Yahoo Finance service with multi-level fallback, IDX mechanics, and circuit breaker."""
 
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
-import logging
 from typing import Any
 
-from cachetools import TTLCache
 import yfinance as yf
+from cachetools import TTLCache
 
 from app.core.exceptions import ExternalAPIError, StockNotFoundError
 from app.models.schemas import (

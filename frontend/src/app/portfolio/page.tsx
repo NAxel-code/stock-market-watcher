@@ -1,11 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Briefcase,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
   ShieldAlert,
   ShieldCheck,
   AlertTriangle,
@@ -17,16 +14,21 @@ import {
   Layers,
   Globe2,
   Coins,
-  ChevronDown,
-  Percent,
+  Cloud,
 } from 'lucide-react'
 import { useUIStore } from '@/stores/useUIStore'
-import { fetchDefaultPortfolio, analyzeCustomPortfolio } from '@/lib/api'
-import { formatCurrency } from '@/lib/formatters'
+import {
+  analyzeCustomPortfolio,
+  deletePersistedHolding,
+  ensureClientWorkspaceId,
+  fetchDefaultPortfolio,
+  fetchPersistedHoldings,
+  resetPersistedHoldings,
+  upsertPersistedHolding,
+} from '@/lib/api'
 import { cn } from '@/lib/utils'
 import type {
   PortfolioHoldingItem,
-  HoldingPerformance,
   PortfolioAnalysisResponse,
 } from '@/types/stock'
 
@@ -34,14 +36,23 @@ type AllocationTab = 'SECTOR' | 'COUNTRY' | 'CURRENCY'
 
 const STORAGE_KEY = 'stockpulse_portfolio_holdings'
 
+let fallbackSeq = 0
+function createHoldingId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `pos-${crypto.randomUUID().slice(0, 8)}`
+  }
+  fallbackSeq += 1
+  return `pos-${fallbackSeq}`
+}
+
 export default function PortfolioPage() {
-  const { language, displayCurrency } = useUIStore()
+  const { language, displayCurrency, user } = useUIStore()
   const baseCurrency = displayCurrency === 'NATIVE' ? 'SGD' : displayCurrency
 
   const [holdings, setHoldings] = useState<PortfolioHoldingItem[]>([])
   const [analysis, setAnalysis] = useState<PortfolioAnalysisResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isCloudSynced, setIsCloudSynced] = useState(false)
   const [allocationTab, setAllocationTab] = useState<AllocationTab>('SECTOR')
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
@@ -52,60 +63,81 @@ export default function PortfolioPage() {
   const [newShares, setNewShares] = useState('')
   const [newCostBasis, setNewCostBasis] = useState('')
   const [newCurrency, setNewCurrency] = useState('USD')
-  const [newSector, setNewSector] = useState('Technology')
+  const [newSector] = useState('Technology')
   const [newCountry, setNewCountry] = useState('US')
 
-  // 1. Initial Load: LocalStorage or Default Institutional Portfolio
-  useEffect(() => {
-    async function loadInitial() {
-      setIsLoading(true)
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY)
-        let initialHoldings: PortfolioHoldingItem[]
-        if (saved) {
-          initialHoldings = JSON.parse(saved)
-        } else {
-          initialHoldings = await fetchDefaultPortfolio()
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(initialHoldings))
-        }
-        setHoldings(initialHoldings)
-        const resp = await analyzeCustomPortfolio(initialHoldings, baseCurrency)
-        setAnalysis(resp)
-      } catch (err) {
-        console.error('Failed to load portfolio:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadInitial()
-  }, [])
-
-  // 2. Re-analyze when Base Currency or Holdings change
-  const runAnalysis = async (items: PortfolioHoldingItem[], curr: string) => {
-    setIsAnalyzing(true)
+  const runAnalysis = useCallback(async (items: PortfolioHoldingItem[], curr: string) => {
     try {
       const resp = await analyzeCustomPortfolio(items, curr)
       setAnalysis(resp)
     } catch (err) {
       console.error('Failed to analyze portfolio:', err)
-    } finally {
-      setIsAnalyzing(false)
     }
-  }
+  }, [])
 
+  // 1. Initial Load & Cloud Sync
   useEffect(() => {
-    if (holdings.length > 0) {
-      runAnalysis(holdings, baseCurrency)
+    let active = true
+    async function loadInitial() {
+      ensureClientWorkspaceId()
+      setIsLoading(true)
+      try {
+        let initialHoldings: PortfolioHoldingItem[]
+        try {
+          initialHoldings = await fetchPersistedHoldings()
+          if (active) setIsCloudSynced(true)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(initialHoldings))
+        } catch {
+          const saved = localStorage.getItem(STORAGE_KEY)
+          if (saved) {
+            initialHoldings = JSON.parse(saved)
+          } else {
+            initialHoldings = await fetchDefaultPortfolio()
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(initialHoldings))
+          }
+          if (active) setIsCloudSynced(false)
+        }
+        if (!active) return
+        setHoldings(initialHoldings)
+        const resp = await analyzeCustomPortfolio(initialHoldings, baseCurrency)
+        if (active) setAnalysis(resp)
+      } catch (err) {
+        console.error('Failed to load portfolio:', err)
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
-  }, [baseCurrency])
+    void loadInitial()
+    return () => {
+      active = false
+    }
+  }, [user?.id]) // Reload from cloud when user signs in/out
+
+  // 2. Re-analyze when Base Currency changes
+  useEffect(() => {
+    if (holdings.length === 0) return
+    let active = true
+    analyzeCustomPortfolio(holdings, baseCurrency)
+      .then((resp) => {
+        if (active) setAnalysis(resp)
+      })
+      .catch((err) => {
+        console.error('Failed to analyze portfolio:', err)
+      })
+    return () => {
+      active = false
+    }
+  }, [baseCurrency, holdings])
 
   // 3. Actions: Add Position
   const handleAddPosition = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTicker || !newShares || !newCostBasis) return
 
+    const uniqueId = createHoldingId()
+
     const newHolding: PortfolioHoldingItem = {
-      id: `pos-${Date.now()}`,
+      id: uniqueId,
       ticker: newTicker.trim().toUpperCase(),
       company_name: newName.trim() || newTicker.trim().toUpperCase(),
       exchange: newExchange,
@@ -126,6 +158,7 @@ export default function PortfolioPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
     setIsAddModalOpen(false)
     resetForm()
+    void upsertPersistedHolding(newHolding).then(() => setIsCloudSynced(true)).catch(() => {})
     await runAnalysis(updated, baseCurrency)
   }
 
@@ -134,6 +167,7 @@ export default function PortfolioPage() {
     const updated = holdings.filter((h) => h.id !== id)
     setHoldings(updated)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+    void deletePersistedHolding(id).catch(() => {})
     await runAnalysis(updated, baseCurrency)
   }
 
@@ -141,7 +175,13 @@ export default function PortfolioPage() {
   const handleResetToDefault = async () => {
     setIsLoading(true)
     try {
-      const defaults = await fetchDefaultPortfolio()
+      let defaults: PortfolioHoldingItem[]
+      try {
+        defaults = await resetPersistedHoldings()
+        setIsCloudSynced(true)
+      } catch {
+        defaults = await fetchDefaultPortfolio()
+      }
       setHoldings(defaults)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults))
       await runAnalysis(defaults, baseCurrency)
@@ -171,13 +211,19 @@ export default function PortfolioPage() {
               <div className="text-[10px] uppercase font-mono tracking-widest text-[#6F7887]">
                 PORTFOLIO / {baseCurrency} BASE / SAMPLE HOLDINGS
               </div>
-              <div className="flex items-center gap-2 mt-0.5">
+              <div className="flex flex-wrap items-center gap-2 mt-0.5">
                 <h1 className="text-xl md:text-2xl font-bold font-mono tracking-tight text-[#F0F4F8]">
                   Portfolio
                 </h1>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00E599]/10 text-[#00E599] border border-[#00E599]/30 font-semibold uppercase">
                   Institutional Multi-Asset Portfolio
                 </span>
+                {isCloudSynced && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#00B2FF]/10 text-[#00B2FF] border border-[#00B2FF]/30 font-semibold uppercase">
+                    <Cloud className="h-3 w-3" />
+                    Cloud Synced
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 mt-2 text-xs font-mono">
                 <span className="text-[#6F7887]">VIEW:</span>

@@ -118,7 +118,7 @@ describe('MarketsPage', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useQuery>)
 
     render(<MarketsPage />)
 
@@ -138,7 +138,7 @@ describe('MarketsPage', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useQuery>)
 
     render(<MarketsPage />)
 

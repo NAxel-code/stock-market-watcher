@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { isIdxTicker } from '@/lib/formatters'
+import { fetchPersistedPaperState, resetPersistedPaperState, savePersistedPaperState } from '@/lib/api'
 
 export interface PaperPosition {
   id: string
@@ -63,10 +64,43 @@ interface PaperTradingState {
   resetAccount: () => void
 
   getPositionForTicker: (ticker: string) => PaperPosition | undefined
+
+  syncWithCloud: () => Promise<void>
 }
 
 const INITIAL_CASH_IDR = 100_000_000 // Rp 100 Juta
 const INITIAL_CASH_USD = 10_000 // $10,000
+
+function _pushPaperToCloud(state: Pick<PaperTradingState, 'cashBalanceUSD' | 'positions' | 'history'>) {
+  if (typeof window === 'undefined') return
+  void savePersistedPaperState({
+    cash_balance_usd: state.cashBalanceUSD,
+    initial_capital_usd: INITIAL_CASH_USD,
+    positions: state.positions.map((p) => ({
+      id: p.id,
+      ticker: p.ticker,
+      side: p.side === 'BUY' ? 'LONG' : 'SHORT',
+      shares: p.shares,
+      entry_price: p.entryPrice,
+      current_price: p.currentPrice,
+      currency: p.currency,
+      take_profit: p.takeProfit ?? null,
+      stop_loss: p.stopLoss ?? null,
+      opened_at: p.openedAt,
+    })),
+    trades: state.history.map((h) => ({
+      id: h.id,
+      ticker: h.ticker,
+      side: h.side,
+      shares: h.shares,
+      price: h.exitPrice,
+      currency: h.currency,
+      fee: h.feePaid,
+      realized_pnl: h.realizedPnl,
+      executed_at: h.closedAt,
+    })),
+  }).catch(() => {})
+}
 
 export const usePaperTradingStore = create<PaperTradingState>()(
   persist(
@@ -208,6 +242,8 @@ export const usePaperTradingStore = create<PaperTradingState>()(
           }))
         }
 
+        _pushPaperToCloud(get())
+
         return {
           success: true,
           message: `Simulated ${params.side} order executed for ${symbol}`,
@@ -282,6 +318,8 @@ export const usePaperTradingStore = create<PaperTradingState>()(
           }))
         }
 
+        _pushPaperToCloud(get())
+
         return {
           success: true,
           message: `Position closed at ${isIDR ? `Rp ${exitPrice.toLocaleString('id-ID')}` : `$${exitPrice.toFixed(2)}`}. Realized P&L: ${realizedPnl >= 0 ? '+' : ''}${isIDR ? `Rp ${realizedPnl.toLocaleString('id-ID')}` : `$${realizedPnl.toFixed(2)}`}`,
@@ -295,6 +333,7 @@ export const usePaperTradingStore = create<PaperTradingState>()(
             p.id === positionId ? { ...p, takeProfit, stopLoss } : p
           ),
         }))
+        _pushPaperToCloud(get())
       },
 
       updateCurrentPrice: (ticker, currentPrice) => {
@@ -315,11 +354,40 @@ export const usePaperTradingStore = create<PaperTradingState>()(
           positions: [],
           history: [],
         })
+        if (typeof window !== 'undefined') {
+          void resetPersistedPaperState().catch(() => {})
+        }
       },
 
       getPositionForTicker: (ticker) => {
         const symbol = ticker.toUpperCase()
         return get().positions.find((p) => p.ticker.toUpperCase() === symbol)
+      },
+
+      syncWithCloud: async () => {
+        try {
+          const remote = await fetchPersistedPaperState()
+          if (remote && (remote.positions.length > 0 || remote.trades.length > 0)) {
+            set({
+              cashBalanceUSD: remote.cash_balance_usd,
+              positions: remote.positions.map((p) => ({
+                id: p.id,
+                ticker: p.ticker,
+                side: p.side === 'LONG' ? 'BUY' : 'SELL',
+                shares: p.shares,
+                entryPrice: p.entry_price,
+                currentPrice: p.current_price,
+                currency: p.currency === 'IDR' ? 'IDR' : 'USD',
+                takeProfit: p.take_profit ?? undefined,
+                stopLoss: p.stop_loss ?? undefined,
+                feePaid: 0,
+                openedAt: p.opened_at,
+              })),
+            })
+          }
+        } catch {
+          // Offline fallback
+        }
       },
     }),
     {

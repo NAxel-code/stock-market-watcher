@@ -26,9 +26,13 @@ export function IdxLotCalculator({ currentPrice, ticker, volume }: IdxLotCalcula
 
   // Almgren-Chriss Market Impact Model
   const executionModel = useMemo(() => {
+    const sharesCount = lots * 100
+    const gross = calculateLotValue(currentPrice, lots)
+    const fee = calculateEstimatedFee(gross, tradeType)
+    const net = tradeType === 'buy' ? gross + fee : gross - fee
     // 20-day Average Daily Volume (ADV) estimate
     const adv = volume && volume > 0 ? volume : 15_000_000
-    const participationRate = (totalShares / adv) * 100
+    const participationRate = (sharesCount / adv) * 100
 
     // Temporary slippage multiplier based on urgency
     const urgencyMultiplier =
@@ -37,13 +41,13 @@ export function IdxLotCalculator({ currentPrice, ticker, volume }: IdxLotCalcula
     // Almgren-Chriss power-law non-linear market impact estimation
     // Slippage percentage = 0.12 * (Shares / (ADV * 0.1))^0.6 * urgencyMultiplier
     const rawSlippagePct =
-      0.12 * Math.pow(totalShares / (adv * 0.1), 0.6) * urgencyMultiplier
+      0.12 * Math.pow(sharesCount / (adv * 0.1), 0.6) * urgencyMultiplier
     const slippagePct = Math.min(Math.max(rawSlippagePct, 0.02), 6.0)
 
-    const slippageCost = Math.round(grossValue * (slippagePct / 100))
+    const slippageCost = Math.round(gross * (slippagePct / 100))
     const impactPerShare = Math.round(currentPrice * (slippagePct / 100))
     const trueExecutionCost =
-      tradeType === 'buy' ? netTotal + slippageCost : netTotal - slippageCost
+      tradeType === 'buy' ? net + slippageCost : net - slippageCost
 
     // 4-Slice optimal execution trajectory
     const sliceWeights =
@@ -55,8 +59,8 @@ export function IdxLotCalculator({ currentPrice, ticker, volume }: IdxLotCalcula
 
     const slices = sliceWeights.map((w, idx) => ({
       sliceNum: idx + 1,
-      shares: Math.round(totalShares * w),
-      lots: Math.max(1, Math.round((totalShares * w) / 100)),
+      shares: Math.round(sharesCount * w),
+      lots: Math.max(1, Math.round((sharesCount * w) / 100)),
       pct: Math.round(w * 100),
     }))
 
@@ -87,7 +91,7 @@ export function IdxLotCalculator({ currentPrice, ticker, volume }: IdxLotCalcula
       slices,
       liquidityBadge,
     }
-  }, [totalShares, currentPrice, grossValue, netTotal, tradeType, volume, urgency])
+  }, [lots, currentPrice, tradeType, volume, urgency])
 
   return (
     <div className="rounded-xl border border-zinc-800/90 border-t-zinc-700/50 bg-zinc-900/80 p-4 space-y-4">

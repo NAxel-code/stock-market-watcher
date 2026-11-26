@@ -110,6 +110,9 @@ export interface PriceAlert {
   condition: 'ABOVE' | 'BELOW'
   is_active: boolean
   created_at: string
+  triggered_at?: string | null
+  triggered_price?: number | null
+  message?: string | null
 }
 
 export type Period = '1d' | '1w' | '1m' | '3m' | '1y'
@@ -344,5 +347,68 @@ export interface PortfolioAnalysisResponse {
   risk: PortfolioRiskMetrics
   benchmark_comparison: Record<string, number>
 }
+
+export interface AuthUserProfile {
+  id: string
+  email: string
+  display_name?: string | null
+  created_at: string
+}
+
+export interface AuthTokenResponse {
+  access_token: string
+  token_type: string
+  user: AuthUserProfile
+}
+
+export interface WatchlistStateResponse {
+  owner_id: string
+  tickers: string[]
+  items: Array<{ ticker: string; added_at: string }>
+}
+
+export interface CloudPaperPosition {
+  id: string
+  ticker: string
+  side: 'LONG' | 'SHORT'
+  shares: number
+  entry_price: number
+  current_price: number
+  currency: string
+  take_profit?: number | null
+  stop_loss?: number | null
+  opened_at: string
+}
+
+export interface CloudPaperTrade {
+  id: string
+  ticker: string
+  side: string
+  shares: number
+  price: number
+  currency: string
+  fee: number
+  realized_pnl?: number | null
+  executed_at: string
+}
+
+export interface CloudPaperState {
+  cash_balance_usd: number
+  initial_capital_usd: number
+  positions: CloudPaperPosition[]
+  trades: CloudPaperTrade[]
+  updated_at?: string | null
+}
+
+export interface TriggeredAlertEvent {
+  alert_id: string
+  ticker: string
+  condition: 'ABOVE' | 'BELOW'
+  target_price: number
+  current_price: number
+  triggered_at: string
+  message: string
+}
+
 
 
