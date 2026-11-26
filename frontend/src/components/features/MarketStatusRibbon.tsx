@@ -177,16 +177,10 @@ export function MarketStatusRibbon() {
             </span>
           </div>
 
-          <span className="text-[#232B3A]">|</span>
+          <span className="text-[#232B3A] hidden xl:inline">|</span>
 
-          {/* Major Indices Strip */}
+          {/* Central Bank Policy Anchors */}
           <div className="hidden xl:flex items-center gap-3 text-[11px] font-mono">
-            <span className="text-[#8C96A5]">SPX <strong className="text-[#F0F4F8] font-medium">7,264.73</strong> <span className="text-[#00E599]">+5.13%</span></span>
-            <span className="text-[#8C96A5]">COMP <strong className="text-[#F0F4F8] font-medium">24,188.64</strong> <span className="text-[#00E599]">+6.95%</span></span>
-            <span className="text-[#8C96A5]">DJI <strong className="text-[#F0F4F8] font-medium">49,753.08</strong> <span className="text-[#00E599]">+3.34%</span></span>
-            <span className="text-[#8C96A5]">JCI <strong className="text-[#F0F4F8] font-medium">5,215.85</strong> <span className="text-[#00E599]">+1.35%</span></span>
-            <span className="text-[#232B3A]">|</span>
-            <span className="text-[#8C96A5]">USD/IDR <strong className="text-[#F0F4F8] font-medium">18,245</strong> <span className="text-[10px] text-[#6F7887]">BI 17 NOV</span></span>
             <span className="text-[#8C96A5]">FED <strong className="text-[#F0F4F8] font-medium">3.75–4.00%</strong></span>
             <span className="text-[#8C96A5]">BI <strong className="text-[#F0F4F8] font-medium">6.00%</strong></span>
           </div>
