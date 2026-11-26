@@ -1,24 +1,28 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useSyncExternalStore } from 'react'
 import { Sparkles, X, Compass, BookOpen } from 'lucide-react'
 import { useUIStore } from '@/stores/useUIStore'
 
+const emptySubscribe = () => () => {}
+
 export function OnboardingBanner() {
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
   const [visible, setVisible] = useState(false)
   const { openTutorial, startSpotlightTour } = useUIStore()
 
   useEffect(() => {
-    setMounted(true)
-    try {
-      const hasSeen = localStorage.getItem('stockpulse_has_seen_tutorial')
-      if (!hasSeen) {
-        setVisible(true)
+    const timer = setTimeout(() => {
+      try {
+        const hasSeen = localStorage.getItem('stockpulse_has_seen_tutorial')
+        if (!hasSeen) {
+          setVisible(true)
+        }
+      } catch {
+        // Ignore localStorage errors
       }
-    } catch {
-      // Ignore localStorage errors
-    }
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   if (!mounted || !visible) return null

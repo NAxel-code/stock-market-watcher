@@ -46,7 +46,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: true,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
     expect(screen.getByText(/Computing Marchenko-Pastur spectral decomposition/i)).toBeInTheDocument()
@@ -59,7 +59,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 
@@ -84,7 +84,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 
@@ -107,7 +107,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 

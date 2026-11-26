@@ -64,11 +64,30 @@ CREATE TABLE IF NOT EXISTS public.alerts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
     ticker VARCHAR(10) NOT NULL,
-    target_price DECIMAL(10, 2) NOT NULL,
+    target_price DECIMAL(14, 4) NOT NULL,
     condition VARCHAR(20) NOT NULL CHECK (condition IN ('ABOVE', 'BELOW')),
     is_active BOOLEAN DEFAULT TRUE,
+    triggered_at TIMESTAMPTZ,
+    triggered_price DECIMAL(14, 4),
+    message TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Paper Trading Accounts (Multi-device sync)
+CREATE TABLE IF NOT EXISTS public.paper_accounts (
+    user_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
+    cash_balance_usd DECIMAL(16, 4) NOT NULL DEFAULT 100000.0,
+    initial_capital_usd DECIMAL(16, 4) NOT NULL DEFAULT 100000.0,
+    positions_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+    trades_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.paper_accounts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "paper_accounts_user_policy"
+    ON public.paper_accounts FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_watchlists_user_id ON public.watchlists(user_id);
@@ -84,5 +103,34 @@ CREATE POLICY IF NOT EXISTS "watchlist_user_policy"
 ALTER TABLE public.alerts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY IF NOT EXISTS "alerts_user_policy"
     ON public.alerts FOR ALL
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+-- Portfolio Holdings (Multi-asset lots, cost bases, and fees)
+CREATE TABLE IF NOT EXISTS public.portfolio_holdings (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    ticker VARCHAR(20) NOT NULL,
+    company_name VARCHAR(255) NOT NULL,
+    exchange VARCHAR(20) NOT NULL,
+    asset_type VARCHAR(20) DEFAULT 'EQUITY',
+    shares DECIMAL(16, 4) NOT NULL,
+    lot_size INT DEFAULT 1,
+    cost_basis DECIMAL(16, 4) NOT NULL,
+    currency VARCHAR(10) NOT NULL,
+    purchase_date DATE,
+    sector VARCHAR(100),
+    country VARCHAR(10),
+    fees DECIMAL(12, 2) DEFAULT 0.0,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_portfolio_user_id ON public.portfolio_holdings(user_id);
+
+ALTER TABLE public.portfolio_holdings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "portfolio_user_policy"
+    ON public.portfolio_holdings FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);

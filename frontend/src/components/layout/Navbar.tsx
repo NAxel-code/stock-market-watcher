@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { List, BarChart2, HelpCircle, Search, User } from 'lucide-react'
+import { List, BarChart2, Globe, Briefcase, HelpCircle, Search, User } from 'lucide-react'
 import { StockPulseLogo } from '@/components/ui/StockPulseLogo'
 import { ThemeToggle } from '@/components/features/ThemeToggle'
 import { SearchCommand } from '@/components/features/SearchCommand'
@@ -34,6 +34,8 @@ export function Navbar() {
   } = useUIStore()
 
   const tDashboard = getTranslation('dashboard', language)
+  const tMarkets = getTranslation('markets', language)
+  const tPortfolio = getTranslation('portfolio', language)
   const tWatchlist = getTranslation('watchlist', language)
   const tSearch = getTranslation('search', language)
   const tAccount = getTranslation('account', language)
@@ -62,30 +64,36 @@ export function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/"
-              className={cn(
-                'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
-                pathname === '/'
-                  ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
-                  : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
-              )}
-            >
-              {tDashboard}
-            </Link>
-            <Link
-              href="/watchlist"
-              className={cn(
-                'px-3 py-1.5 rounded-md text-xs font-mono font-medium uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
-                pathname === '/watchlist'
-                  ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30 shadow-[0_0_12px_rgba(0,229,153,0.1)]'
-                  : 'text-[#6F7887] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
-              )}
-            >
-              {tWatchlist}
-            </Link>
+          {/* Desktop Nav - Institutional Quant Terminal Suite */}
+          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto scrollbar-none py-1 text-xs font-mono font-medium tracking-tight">
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/portfolio', label: 'Portfolio' },
+              { href: '/watchlist', label: 'Watchlists' },
+              { href: '/markets', label: 'Markets' },
+              { href: '/macro', label: 'Macro' },
+              { href: '/news', label: 'News' },
+              { href: '/calendar', label: 'Calendar' },
+              { href: '/map', label: 'Map' },
+              { href: '/screener', label: 'Screener' },
+              { href: '/models', label: 'Models' },
+            ].map((tab) => {
+              const isActive = pathname === tab.href
+              return (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  className={cn(
+                    'px-2.5 py-1 rounded transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00E599]',
+                    isActive
+                      ? 'bg-[#121620] text-[#00E599] font-bold border border-[#00E599]/30'
+                      : 'text-[#8C96A5] hover:text-[#F0F4F8] hover:bg-[#121620]/60'
+                  )}
+                >
+                  {tab.label}
+                </Link>
+              )
+            })}
           </nav>
 
           {/* Actions */}
@@ -125,6 +133,26 @@ export function Navbar() {
             <span>{tDashboard}</span>
           </Link>
           <Link
+            href="/markets"
+            className={cn(
+              'flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+              pathname === '/markets' ? 'text-[#00E599] font-bold' : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            )}
+          >
+            <Globe className="h-4 w-4" />
+            <span>{tMarkets}</span>
+          </Link>
+          <Link
+            href="/portfolio"
+            className={cn(
+              'flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
+              pathname === '/portfolio' ? 'text-[#00E599] font-bold' : 'text-[#6F7887] hover:text-[#F0F4F8]'
+            )}
+          >
+            <Briefcase className="h-4 w-4" />
+            <span>{tPortfolio}</span>
+          </Link>
+          <Link
             href="/watchlist"
             className={cn(
               'flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E599]',
@@ -142,24 +170,6 @@ export function Navbar() {
           >
             <Search className="h-4 w-4 text-[#00B2FF]" />
             <span>{tSearch}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-auth'))}
-            className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium text-[#6F7887] hover:text-[#F0F4F8] transition-colors"
-            aria-label="Account & Login"
-          >
-            <User className="h-4 w-4 text-purple-400" />
-            <span>{tAccount}</span>
-          </button>
-          <button
-            type="button"
-            onClick={openTutorial}
-            className="flex flex-col items-center justify-center gap-0.5 py-1 min-h-[48px] text-[10px] font-medium text-[#6F7887] hover:text-white transition-colors"
-            aria-label="Open platform guide"
-          >
-            <HelpCircle className="h-4 w-4 text-[#FFB800]" />
-            <span>{tGuide}</span>
           </button>
         </div>
       </nav>

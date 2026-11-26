@@ -132,6 +132,9 @@ class PriceAlertResponse(BaseModel):
     condition: str
     is_active: bool = True
     created_at: str
+    triggered_at: str | None = None
+    triggered_price: float | None = None
+    message: str | None = None
 
 
 class HealthResponse(BaseModel):
@@ -271,5 +274,208 @@ class SecurityMasterResponse(BaseModel):
     total: int
     securities: list[SecurityMasterItem]
     as_of: str
+
+
+# ==========================================
+# Markets Screen Telemetry Models
+# ==========================================
+class MarketInstrument(BaseModel):
+    ticker: str
+    name: str
+    category: str  # 'INDEX' | 'ETF' | 'FX' | 'RATE' | 'COMMODITY'
+    current_price: float
+    change: float
+    change_percent: float
+    unit: str = "$"
+    as_of: str
+    source: str
+    is_stale: bool = False
+
+
+class YieldCurvePoint(BaseModel):
+    tenor: str  # '3M', '6M', '2Y', '5Y', '10Y', '30Y'
+    yield_rate: float  # in percentage, e.g. 4.25
+    change_bps: float  # basis points change, e.g. -2.5
+    country: str  # 'US', 'SG', 'ID'
+    source: str = "Central Bank / Treasury"
+
+
+class UnusualMover(BaseModel):
+    ticker: str
+    name: str
+    exchange: str
+    current_price: float
+    change_percent: float
+    daily_volatility_1y: float
+    z_score_shock: float  # daily return / 1y daily vol
+    direction: str  # 'SURGE' | 'DUMP'
+
+
+class MarketsOverviewResponse(BaseModel):
+    as_of: str
+    indices: list[MarketInstrument]
+    etfs: list[MarketInstrument]
+    fx_rates: list[MarketInstrument]
+    sovereign_rates: list[YieldCurvePoint]
+    commodities: list[MarketInstrument]
+    unusual_moves: list[UnusualMover]
+
+
+# ==========================================
+# Portfolio Tracker Models
+# ==========================================
+class PortfolioHoldingItem(BaseModel):
+    id: str
+    ticker: str
+    company_name: str
+    exchange: str  # 'US' | 'SGX' | 'IDX' | 'LSE'
+    asset_type: str = "EQUITY"
+    shares: float
+    lot_size: int = 1
+    cost_basis: float
+    currency: str  # 'USD' | 'SGD' | 'IDR' | 'GBP'
+    purchase_date: str | None = None
+    sector: str | None = None
+    country: str | None = None  # 'US', 'SG', 'ID', 'IE' (Ireland UCITS)
+    fees: float = 0.0
+    notes: str | None = None
+
+
+class HoldingPerformance(BaseModel):
+    holding: PortfolioHoldingItem
+    current_price: float
+    current_value_native: float
+    current_value_base: float
+    cost_value_base: float
+    unrealized_pnl_base: float
+    unrealized_pnl_percent: float
+    weight_percent: float
+    stock_return_pct: float
+    fx_return_pct: float
+    stock_alpha_contribution_base: float
+    fx_contribution_base: float
+    est_annual_dividend_gross: float
+    est_annual_dividend_net: float
+    us_withholding_tax_applied: bool
+    is_us_situs: bool
+    is_above_8pct_cap: bool
+    is_above_12pct_trim: bool
+
+
+class PortfolioAllocationBreakdown(BaseModel):
+    by_sector: dict[str, float]
+    by_country: dict[str, float]
+    by_currency: dict[str, float]
+
+
+class PortfolioRiskMetrics(BaseModel):
+    portfolio_beta: float
+    annualized_volatility: float
+    max_drawdown: float
+    sharpe_ratio: float
+    position_cap_warnings: list[str]
+    us_estate_tax_exposure_usd: float
+    us_estate_tax_limit_usd: float = 60000.0
+    us_estate_tax_alert: bool
+    us_estate_tax_message: str
+
+
+class PortfolioAnalysisResponse(BaseModel):
+    base_currency: str = "SGD"
+    as_of: str
+    total_cost_base: float
+    total_value_base: float
+    unrealized_pnl_base: float
+    unrealized_pnl_percent: float
+    total_stock_move_pnl_base: float
+    total_fx_move_pnl_base: float
+    total_annual_dividend_gross_base: float
+    total_annual_dividend_net_base: float
+    holdings: list[HoldingPerformance]
+    allocation: PortfolioAllocationBreakdown
+    risk: PortfolioRiskMetrics
+    benchmark_comparison: dict[str, float]
+
+
+class PortfolioAnalyzeRequest(BaseModel):
+    base_currency: str = "SGD"
+    holdings: list[PortfolioHoldingItem]
+
+
+# ==========================================
+# Auth, Cloud Sync & Paper Trading Models
+# ==========================================
+class AuthRegisterRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=6, max_length=128)
+    display_name: str | None = Field(default=None, max_length=80)
+    workspace_id: str | None = Field(default=None, max_length=64)
+
+
+class AuthLoginRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=1, max_length=128)
+    workspace_id: str | None = Field(default=None, max_length=64)
+
+
+class AuthUserProfile(BaseModel):
+    id: str
+    email: str
+    display_name: str | None = None
+    created_at: str
+
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: AuthUserProfile
+
+
+class WatchlistSyncRequest(BaseModel):
+    tickers: list[str] = Field(default_factory=list, max_length=100)
+
+
+class WatchlistStateResponse(BaseModel):
+    owner_id: str
+    tickers: list[str]
+    items: list[WatchlistItem] = Field(default_factory=list)
+
+
+class PortfolioHoldingsReplaceRequest(BaseModel):
+    holdings: list[PortfolioHoldingItem] = Field(default_factory=list, max_length=200)
+
+
+class PaperPositionItem(BaseModel):
+    id: str
+    ticker: str
+    side: str = Field(..., pattern="^(LONG|SHORT)$")
+    shares: float = Field(..., gt=0)
+    entry_price: float = Field(..., gt=0)
+    current_price: float = Field(..., gt=0)
+    currency: str = "USD"
+    take_profit: float | None = None
+    stop_loss: float | None = None
+    opened_at: str
+
+
+class PaperTradeItem(BaseModel):
+    id: str
+    ticker: str
+    side: str
+    shares: float
+    price: float
+    currency: str
+    fee: float = 0.0
+    realized_pnl: float | None = None
+    executed_at: str
+
+
+class PaperStatePayload(BaseModel):
+    cash_balance_usd: float = Field(..., ge=0)
+    initial_capital_usd: float = Field(default=100000.0, gt=0)
+    positions: list[PaperPositionItem] = Field(default_factory=list)
+    trades: list[PaperTradeItem] = Field(default_factory=list)
+    updated_at: str | None = None
+
 
 

@@ -122,7 +122,7 @@ describe('AnalysisDeskTab component', () => {
       isLoading: true,
       isError: false,
       error: null,
-    } as any)
+    } as unknown as ReturnType<typeof useStockDesk>)
 
     render(<AnalysisDeskTab ticker="BBRI.JK" />)
     expect(screen.getByText(/Generating Institutional Technical Desk Analysis/i)).toBeInTheDocument()
@@ -134,7 +134,7 @@ describe('AnalysisDeskTab component', () => {
       isLoading: false,
       isError: true,
       error: new Error('Failed to fetch'),
-    } as any)
+    } as unknown as ReturnType<typeof useStockDesk>)
 
     render(<AnalysisDeskTab ticker="BBRI.JK" />)
     expect(screen.getByText(/Unable to load technical desk analysis/i)).toBeInTheDocument()
@@ -146,7 +146,7 @@ describe('AnalysisDeskTab component', () => {
       isLoading: false,
       isError: false,
       error: null,
-    } as any)
+    } as unknown as ReturnType<typeof useStockDesk>)
 
     render(<AnalysisDeskTab ticker="BBRI.JK" />)
 

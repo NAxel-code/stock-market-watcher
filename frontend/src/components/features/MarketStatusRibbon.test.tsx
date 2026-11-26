@@ -19,7 +19,7 @@ describe('MarketStatusRibbon component', () => {
     vi.useRealTimers()
   })
 
-  it('renders live ticking Jakarta clock and market status', () => {
+  it('renders live ticking local device clock and market status', () => {
     vi.mocked(useQuery).mockReturnValue({
       data: {
         idx: {
@@ -34,25 +34,26 @@ describe('MarketStatusRibbon component', () => {
         },
       },
       isLoading: false,
-    } as any)
+    } as unknown as ReturnType<typeof useQuery>)
 
     render(<MarketStatusRibbon />)
 
     expect(screen.getByText(/IDX \(BEI\):/i)).toBeInTheDocument()
     expect(screen.getByText(/Session 2 \(Open\)/i)).toBeInTheDocument()
-    expect(screen.getByText(/Jakarta:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Local:/i)).toBeInTheDocument()
 
     // Fast-forward 2 seconds
     act(() => {
       vi.advanceTimersByTime(2000)
     })
 
-    expect(screen.getByText(/Jakarta:/i)).toBeInTheDocument()
+    expect(screen.getByText(/Local:/i)).toBeInTheDocument()
   })
 
   it('renders SGX market status and FX rates ticker when available', () => {
-    vi.mocked(useQuery).mockImplementation((options: any) => {
-      if (options.queryKey[1] === 'fx') {
+    vi.mocked(useQuery).mockImplementation((options) => {
+      const key = (options as unknown as { queryKey: string[] }).queryKey
+      if (key[1] === 'fx') {
         return {
           data: {
             rates: [
@@ -62,7 +63,7 @@ describe('MarketStatusRibbon component', () => {
             as_of: '2026-11-24T00:00:00Z',
           },
           isLoading: false,
-        } as any
+        } as unknown as ReturnType<typeof useQuery>
       }
 
       return {
@@ -72,7 +73,7 @@ describe('MarketStatusRibbon component', () => {
           sgx: { is_open: true, session_name: 'Morning Session', current_time_local: '11:00 SGT' },
         },
         isLoading: false,
-      } as any
+      } as unknown as ReturnType<typeof useQuery>
     })
 
     render(<MarketStatusRibbon />)
@@ -81,6 +82,6 @@ describe('MarketStatusRibbon component', () => {
     expect(screen.getByText(/Morning Session/i)).toBeInTheDocument()
     expect(screen.getByText('USD/SGD')).toBeInTheDocument()
     expect(screen.getByText('1.3450')).toBeInTheDocument()
-    expect(screen.getByText('USD/IDR')).toBeInTheDocument()
+    expect(screen.getAllByText('USD/IDR').length).toBeGreaterThanOrEqual(1)
   })
 })

@@ -22,6 +22,7 @@ interface StockCardProps {
 export function StockCard({ quote, isLoading, error, onRemove, showRemove }: StockCardProps) {
   const [flashClass, setFlashClass] = useState('')
   const prevPriceRef = useRef<number | undefined>(undefined)
+  const { displayCurrency, fxRates } = useUIStore()
 
   const currentPrice = quote?.current_price
 
@@ -58,7 +59,6 @@ export function StockCard({ quote, isLoading, error, onRemove, showRemove }: Sto
 
   const isPositive = quote.change_percent >= 0
   const stockCurrency = getStockCurrency(quote)
-  const { displayCurrency, fxRates } = useUIStore()
 
   const isConverted = displayCurrency !== 'NATIVE' && displayCurrency !== stockCurrency
   const convertedAmount = isConverted
