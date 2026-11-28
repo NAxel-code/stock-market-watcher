@@ -28,10 +28,18 @@ export function Navbar() {
     language,
   } = useUIStore()
 
+  const tHome = getTranslation('home', language)
   const tDashboard = getTranslation('dashboard', language)
   const tMarkets = getTranslation('markets', language)
+  const tMacro = getTranslation('macro', language)
+  const tNews = getTranslation('news', language)
+  const tCalendar = getTranslation('calendar', language)
+  const tMap = getTranslation('map', language)
+  const tScreener = getTranslation('screener', language)
+  const tModels = getTranslation('models', language)
   const tPortfolio = getTranslation('portfolio', language)
   const tWatchlist = getTranslation('watchlist', language)
+  const tWatchlists = getTranslation('watchlists', language)
   const tSearch = getTranslation('search', language)
   const tGuide = getTranslation('guide', language)
 
@@ -52,16 +60,16 @@ export function Navbar() {
             {/* Desktop Nav - Minimalist 10-Screen Suite */}
             <nav className="hidden lg:flex items-center gap-0.5 py-1 text-[11px] xl:text-xs font-sans font-medium tracking-tight shrink-0">
               {[
-                { href: '/', label: 'Home' },
-                { href: '/portfolio', label: 'Portfolio' },
-                { href: '/watchlist', label: 'Watchlists' },
-                { href: '/markets', label: 'Markets' },
-                { href: '/macro', label: 'Macro' },
-                { href: '/news', label: 'News' },
-                { href: '/calendar', label: 'Calendar' },
-                { href: '/map', label: 'Map' },
-                { href: '/screener', label: 'Screener' },
-                { href: '/models', label: 'Models' },
+                { href: '/', label: tHome },
+                { href: '/portfolio', label: tPortfolio },
+                { href: '/watchlist', label: tWatchlists },
+                { href: '/markets', label: tMarkets },
+                { href: '/macro', label: tMacro },
+                { href: '/news', label: tNews },
+                { href: '/calendar', label: tCalendar },
+                { href: '/map', label: tMap },
+                { href: '/screener', label: tScreener },
+                { href: '/models', label: tModels },
               ].map((tab) => {
                 const isActive = pathname === tab.href
                 return (

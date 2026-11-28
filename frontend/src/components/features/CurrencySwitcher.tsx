@@ -4,16 +4,17 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useUIStore } from '@/stores/useUIStore'
 import type { DisplayCurrency } from '@/lib/currency'
 import { ChevronDown, Check } from 'lucide-react'
+import { getTranslation } from '@/lib/i18n'
 
-const CURRENCIES: { id: DisplayCurrency; label: string; symbol: string; desc: string }[] = [
-  { id: 'NATIVE', label: 'Native', symbol: 'NAT', desc: 'Listing Exchange Currency' },
-  { id: 'SGD', label: 'SGD', symbol: 'S$', desc: 'Singapore Dollar' },
-  { id: 'USD', label: 'USD', symbol: '$', desc: 'US Dollar' },
-  { id: 'IDR', label: 'IDR', symbol: 'Rp', desc: 'Indonesian Rupiah' },
+const CURRENCIES: { id: DisplayCurrency; label: string; symbol: string; desc: string; descId: string }[] = [
+  { id: 'NATIVE', label: 'Native', symbol: 'NAT', desc: 'Listing Exchange Currency', descId: 'Mata Uang Asli Bursa' },
+  { id: 'SGD', label: 'SGD', symbol: 'S$', desc: 'Singapore Dollar', descId: 'Dolar Singapura' },
+  { id: 'USD', label: 'USD', symbol: '$', desc: 'US Dollar', descId: 'Dolar AS' },
+  { id: 'IDR', label: 'IDR', symbol: 'Rp', desc: 'Indonesian Rupiah', descId: 'Rupiah Indonesia' },
 ]
 
 export function CurrencySwitcher() {
-  const { displayCurrency, setDisplayCurrency } = useUIStore()
+  const { displayCurrency, setDisplayCurrency, language } = useUIStore()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -54,7 +55,7 @@ export function CurrencySwitcher() {
           className="absolute right-0 mt-1.5 w-48 rounded-md bg-[#0f0f12] border border-[#27272a] shadow-xl z-50 p-1 font-mono text-xs"
         >
           <div className="px-2 py-1 text-[10px] uppercase text-[#71717a] font-semibold border-b border-[#222226] mb-1">
-            Display Currency
+            {getTranslation('displayCurrency', language)}
           </div>
           {CURRENCIES.map((item) => {
             const isSelected = item.id === displayCurrency
@@ -77,7 +78,9 @@ export function CurrencySwitcher() {
                   <span className="text-[10px] w-6 opacity-70">{item.symbol}</span>
                   <div>
                     <div className="font-semibold text-xs">{item.label}</div>
-                    <div className={`text-[10px] font-sans ${isSelected ? 'text-zinc-600' : 'text-[#71717a]'}`}>{item.desc}</div>
+                    <div className={`text-[10px] font-sans ${isSelected ? 'text-zinc-600' : 'text-[#71717a]'}`}>
+                      {language === 'id' ? item.descId : item.desc}
+                    </div>
                   </div>
                 </div>
                 {isSelected && <Check className="h-3.5 w-3.5 text-[#09090b]" />}

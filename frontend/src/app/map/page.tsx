@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { LayoutGrid, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface HeatmapTile {
@@ -37,6 +37,8 @@ export default function MarketMapPage() {
   const [selectedTicker, setSelectedTicker] = useState('NVDA')
   const [market, setMarket] = useState<'US' | 'ID' | 'SG'>('US')
   const [mode, setMode] = useState<'1D' | 'FROM HIGH'>('1D')
+  const { language } = useUIStore()
+  const isId = language === 'id'
 
   const selected = HEATMAP_DATA.find((t) => t.ticker === selectedTicker) || HEATMAP_DATA[0]
 
@@ -45,11 +47,11 @@ export default function MarketMapPage() {
       {/* Top Header */}
       <div className="border-b border-[#222226] pb-3">
         <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-          MARKET MAP / US LARGE CAPS · 16 NAMES · SIZE = MARKET CAP
+          {isId ? 'PETA PASAR / SAHAM BESAR AS · 16 EMITEN · UKURAN = KAPITALISASI' : 'MARKET MAP / US LARGE CAPS · 16 NAMES · SIZE = MARKET CAP'}
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
           <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
-            Market map
+            {isId ? 'Peta pasar' : 'Market map'}
           </h1>
 
           <div className="flex items-center gap-3 text-xs">

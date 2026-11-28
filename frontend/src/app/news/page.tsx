@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { Newspaper, ExternalLink, ArrowRight, CheckCircle2, Clock } from 'lucide-react'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface NewsArticle {
@@ -83,17 +82,21 @@ const NEWS_ARTICLES: NewsArticle[] = [
 
 export default function NewsPage() {
   const [filter, setFilter] = useState('All')
+  const { language } = useUIStore()
+  const isId = language === 'id'
 
   return (
     <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
       <div className="border-b border-[#222226] pb-3">
         <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-          NEWS / HEADLINES AND LINKS ONLY · FULL ARTICLES STAY ON THE SOURCE SITE
+          {isId
+            ? 'BERITA / HANYA JUDUL & TAUTAN · ARTIKEL LENGKAP TETAP DI SITUS SUMBER'
+            : 'NEWS / HEADLINES AND LINKS ONLY · FULL ARTICLES STAY ON THE SOURCE SITE'}
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
           <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
-            News
+            {isId ? 'Berita' : 'News'}
           </h1>
           {/* Lens Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-xs">

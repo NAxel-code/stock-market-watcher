@@ -1,20 +1,23 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
-import { ShieldAlert, Layers, TrendingUp, Sliders, ArrowUpRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useUIStore } from '@/stores/useUIStore'
 
 export default function ModelsPage() {
+  const { language } = useUIStore()
+  const isId = language === 'id'
+
   return (
     <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
       <div className="border-b border-[#222226] pb-3">
         <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-          MODELS / TEMPLATES, TREND SIGNALS AND RISK ON YOUR SAMPLE PORTFOLIO
+          {isId
+            ? 'MODEL / TEMPLAT, SINYAL TREN & RISIKO PORTOFOLIO'
+            : 'MODELS / TEMPLATES, TREND SIGNALS AND RISK ON YOUR SAMPLE PORTFOLIO'}
         </div>
         <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5] mt-1">
-          Models and risk
+          {isId ? 'Model dan risiko' : 'Models and risk'}
         </h1>
       </div>
 
@@ -22,8 +25,10 @@ export default function ModelsPage() {
       <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-[#222226]">
           <div>
-            <div className="text-[10px] uppercase text-[#71717a]">START A PORTFOLIO FROM A TEMPLATE</div>
-            <h2 className="text-sm font-bold text-[#f4f4f5]">Templates</h2>
+            <div className="text-[10px] uppercase text-[#71717a]">
+              {isId ? 'MULAI PORTOFOLIO DARI TEMPLAT' : 'START A PORTFOLIO FROM A TEMPLATE'}
+            </div>
+            <h2 className="text-sm font-bold text-[#f4f4f5]">{isId ? 'Templat' : 'Templates'}</h2>
           </div>
           <span className="text-[10px] text-[#71717a]">BACKTESTS · PHASE 3.4</span>
         </div>

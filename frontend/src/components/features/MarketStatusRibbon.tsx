@@ -80,6 +80,7 @@ export function MarketStatusRibbon() {
   const timezoneMode = useUIStore((s) => s.timezoneMode)
   const setTimezoneMode = useUIStore((s) => s.setTimezoneMode)
   const streamStatus = useUIStore((s) => s.streamStatus)
+  const language = useUIStore((s) => s.language)
 
   const [isTzDropdownOpen, setIsTzDropdownOpen] = useState(false)
   const [clockData, setClockData] = useState(() => formatClockTime(new Date(), timezoneMode))
@@ -121,6 +122,21 @@ export function MarketStatusRibbon() {
 
   const fxRates = Array.isArray(fxData?.rates) ? fxData.rates : []
 
+  const translateSession = (name?: string | null, isOpen?: boolean) => {
+    if (language !== 'id') return name || (isOpen ? 'OPEN' : 'CLOSED')
+    if (!name) return isOpen ? 'BUKA' : 'TUTUP'
+    const lower = name.toLowerCase()
+    if (lower.includes('weekend closed')) return 'Tutup Akhir Pekan'
+    if (lower.includes('market closed') || lower === 'closed') return 'Tutup'
+    if (lower.includes('pre-market')) return 'Pra-Pembukaan'
+    if (lower.includes('after-hours')) return 'Pasca-Penutupan'
+    if (lower.includes('lunch break')) return 'Istirahat Siang'
+    if (lower.includes('morning session')) return 'Sesi Pagi (Buka)'
+    if (lower.includes('session 1')) return 'Sesi 1 (Buka)'
+    if (lower.includes('session 2')) return 'Sesi 2 (Buka)'
+    return name
+  }
+
   return (
     <div
       id="tour-market-status"
@@ -140,7 +156,9 @@ export function MarketStatusRibbon() {
             )}
             <span className="font-medium text-[#a1a1aa] uppercase tracking-wider">US</span>
             <span className={data.us.is_open ? 'text-emerald-400 font-medium' : 'text-[#71717a]'}>
-              {data.us.is_open ? 'OPEN' : 'CLOSED'}
+              {data.us.is_open
+                ? (language === 'id' ? 'BUKA' : 'OPEN')
+                : (language === 'id' ? 'TUTUP' : 'CLOSED')}
             </span>
           </div>
 
@@ -157,7 +175,7 @@ export function MarketStatusRibbon() {
                 )}
                 <span className="font-medium text-[#a1a1aa] uppercase tracking-wider">SGX:</span>
                 <span className={data.sgx.is_open ? 'text-emerald-400 font-medium' : 'text-[#71717a]'}>
-                  {data.sgx.session_name || (data.sgx.is_open ? 'OPEN' : 'CLOSED')}
+                  {translateSession(data.sgx.session_name, data.sgx.is_open)}
                 </span>
               </div>
               <span className="text-[#27272a]">·</span>
@@ -173,7 +191,7 @@ export function MarketStatusRibbon() {
             )}
             <span className="font-medium text-[#a1a1aa] uppercase tracking-wider">IDX (BEI):</span>
             <span className={data.idx.is_open ? 'text-emerald-400 font-medium' : 'text-[#71717a]'}>
-              {data.idx.session_name || (data.idx.is_open ? 'OPEN' : 'CLOSED')}
+              {translateSession(data.idx.session_name, data.idx.is_open)}
             </span>
           </div>
 

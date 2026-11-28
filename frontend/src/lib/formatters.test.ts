@@ -45,7 +45,8 @@ describe('formatters utility', () => {
 
   it('formats SGD currency correctly for Singapore market', () => {
     const formatted = formatCurrency(66.5, 'SGD')
-    expect(formatted).toContain('66.50')
+    expect(formatted).toBe('S$66.50')
+    expect(formatCurrency(-120.5, 'SGD')).toBe('-S$120.50')
   })
 
   it('formats percent changes with correct sign', () => {

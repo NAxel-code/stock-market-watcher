@@ -7,12 +7,15 @@ import { Plus, Trash2, Cloud, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { createAlert, deleteAlert, evaluateAlerts, fetchBatchQuotes } from '@/lib/api'
 import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { convertCurrency } from '@/lib/currency'
 import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface WatchlistStock {
   ticker: string
   name: string
+  nativeLast?: number
+  nativeCurrency?: string
   last: string
   change1D: string
   isPositive: boolean
@@ -206,7 +209,11 @@ export function TerminalWatchlist() {
     removeAlert,
     syncAlertsWithCloud,
     streamStatus,
+    displayCurrency,
+    fxRates,
+    language,
   } = useUIStore()
+  const isId = language === 'id'
 
   const fallbackStocks = LISTS_DATA[activeList] || LISTS_DATA['Core (8)']
   const activeTickers = useMemo(() => {
@@ -224,8 +231,31 @@ export function TerminalWatchlist() {
   })
 
   const currentStocks = useMemo<WatchlistStock[]>(() => {
+    const parseFallback = (s: WatchlistStock): { amount: number; curr: string } | null => {
+      if (s.last.startsWith('Rp')) {
+        return { amount: parseFloat(s.last.replace(/[^0-9.]/g, '')), curr: 'IDR' }
+      }
+      if (s.last.startsWith('S$')) {
+        return { amount: parseFloat(s.last.replace(/[^0-9.]/g, '')), curr: 'SGD' }
+      }
+      const num = parseFloat(s.last.replace(/[^0-9.]/g, ''))
+      return isNaN(num) ? null : { amount: num, curr: 'USD' }
+    }
+
+    const convertPriceStr = (amount: number, fromCurr: string) => {
+      const targetCurr = displayCurrency === 'NATIVE' ? fromCurr : displayCurrency
+      const converted =
+        targetCurr === fromCurr
+          ? amount
+          : convertCurrency(amount, fromCurr, targetCurr, fxRates)
+      return formatCurrency(converted !== null ? converted : amount, converted !== null ? targetCurr : fromCurr)
+    }
+
     if (!liveBatchQuotes || liveBatchQuotes.length === 0) {
-      return fallbackStocks
+      return fallbackStocks.map((s) => {
+        const parsed = parseFallback(s)
+        return parsed ? { ...s, last: convertPriceStr(parsed.amount, parsed.curr) } : s
+      })
     }
     return liveBatchQuotes.map((q) => {
       const curr = getStockCurrency(q)
@@ -234,15 +264,15 @@ export function TerminalWatchlist() {
       return {
         ticker: q.ticker,
         name: q.company_name,
-        last: formatCurrency(q.current_price, curr),
+        last: convertPriceStr(q.current_price, curr),
         change1D: formatPercent(q.change_percent),
         isPositive: q.change_percent >= 0,
         from52WHigh: dist52w,
-        nextEvent: q.sector ? `${q.sector}` : 'Live Telemetry',
-        alerts: activeAlertCount > 0 ? `${activeAlertCount} RULE${activeAlertCount > 1 ? 'S' : ''}` : '—',
+        nextEvent: q.sector ? `${q.sector}` : (isId ? 'Telemetri Live' : 'Live Telemetry'),
+        alerts: activeAlertCount > 0 ? `${activeAlertCount} ${isId ? 'ATURAN' : `RULE${activeAlertCount > 1 ? 'S' : ''}`}` : '—',
       }
     })
-  }, [liveBatchQuotes, fallbackStocks, alerts])
+  }, [liveBatchQuotes, fallbackStocks, alerts, displayCurrency, fxRates, isId])
 
   const handleCreateRule = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -296,19 +326,23 @@ export function TerminalWatchlist() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#222226] pb-3">
         <div>
           <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a] flex items-center gap-2">
-            <span>WATCHLISTS / {Object.keys(LISTS_DATA).length} LISTS · {alerts.filter((a) => a.is_active).length} ACTIVE RULES</span>
+            <span>
+              {isId
+                ? `DAFTAR PANTAU / ${Object.keys(LISTS_DATA).length} DAFTAR · ${alerts.filter((a) => a.is_active).length} ATURAN AKTIF`
+                : `WATCHLISTS / ${Object.keys(LISTS_DATA).length} LISTS · ${alerts.filter((a) => a.is_active).length} ACTIVE RULES`}
+            </span>
             <span className="inline-flex items-center gap-1 text-emerald-400">
-              <Cloud className="h-3 w-3" /> Cloud Synced
+              <Cloud className="h-3 w-3" /> {isId ? 'Tersinkron Cloud' : 'Cloud Synced'}
             </span>
           </div>
           <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
-            Watchlists
+            {isId ? 'Daftar Pantau' : 'Watchlists'}
           </h1>
         </div>
 
         {/* List Tabs + Actions */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <span className="text-[#71717a] mr-1">LIST:</span>
+          <span className="text-[#71717a] mr-1">{isId ? 'DAFTAR:' : 'LIST:'}</span>
           {Object.keys(LISTS_DATA).map((name) => (
             <button
               key={name}
@@ -329,7 +363,7 @@ export function TerminalWatchlist() {
             onClick={() => window.dispatchEvent(new CustomEvent('stockpulse:open-search'))}
             className="px-2.5 py-1 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white transition-colors flex items-center gap-1 font-bold"
           >
-            <Plus className="h-3 w-3" /> Add ticker
+            <Plus className="h-3 w-3" /> {isId ? 'Tambah emiten' : 'Add ticker'}
           </button>
         </div>
       </div>
@@ -344,7 +378,7 @@ export function TerminalWatchlist() {
             <h2 className="text-sm font-bold text-[#f4f4f5]">{activeList}</h2>
           </div>
           <span className="text-[10px] text-[#71717a]">
-            {currentStocks.length} INSTRUMENTS · {streamStatus === 'live' ? 'LIVE SSE STREAM' : 'SYNCED'}
+            {currentStocks.length} {isId ? 'INSTRUMEN' : 'INSTRUMENTS'} · {streamStatus === 'live' ? (isId ? 'STREAM SSE LIVE' : 'LIVE SSE STREAM') : (isId ? 'TERSINKRON' : 'SYNCED')}
           </span>
         </div>
 
@@ -352,12 +386,12 @@ export function TerminalWatchlist() {
           <table className="w-full text-left text-xs font-mono">
             <thead>
               <tr className="border-b border-[#222226] text-[10px] uppercase text-[#71717a]">
-                <th className="py-2 font-normal">TICKER</th>
-                <th className="py-2 text-right font-normal">LAST</th>
-                <th className="py-2 text-right font-normal">1D</th>
-                <th className="py-2 text-right font-normal">FROM 52W HIGH</th>
-                <th className="py-2 font-normal pl-4">SECTOR / NOTE</th>
-                <th className="py-2 text-right font-normal">ALERTS</th>
+                <th className="py-2 font-normal">{isId ? 'EMITEN' : 'TICKER'}</th>
+                <th className="py-2 text-right font-normal">{isId ? 'HARGA' : 'LAST'}</th>
+                <th className="py-2 text-right font-normal">{isId ? '1H' : '1D'}</th>
+                <th className="py-2 text-right font-normal">{isId ? 'DARI 52M TERTINGGI' : 'FROM 52W HIGH'}</th>
+                <th className="py-2 font-normal pl-4">{isId ? 'SEKTOR / CATATAN' : 'SECTOR / NOTE'}</th>
+                <th className="py-2 text-right font-normal">{isId ? 'PERINGATAN' : 'ALERTS'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#222226]/70">
@@ -411,9 +445,9 @@ export function TerminalWatchlist() {
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#222226]">
               <div>
                 <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
-                  24/7 SERVER-SIDE MONITOR · RUNS WITH BROWSER CLOSED
+                  {isId ? 'MONITOR SERVER 24/7 · AKTIF MESKI BROWSER TUTUP' : '24/7 SERVER-SIDE MONITOR · RUNS WITH BROWSER CLOSED'}
                 </div>
-                <h3 className="text-sm font-bold text-[#f4f4f5]">Alert rules</h3>
+                <h3 className="text-sm font-bold text-[#f4f4f5]">{isId ? 'Aturan peringatan' : 'Alert rules'}</h3>
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -422,14 +456,14 @@ export function TerminalWatchlist() {
                   className="text-[10px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] flex items-center gap-1 font-bold transition-colors"
                   title="Evaluate all rules immediately against live prices"
                 >
-                  <Zap className="h-3 w-3" /> CHECK NOW
+                  <Zap className="h-3 w-3" /> {isId ? 'CEK SEKARANG' : 'CHECK NOW'}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowNewRule((prev) => !prev)}
                   className="text-[10px] font-mono text-[#f4f4f5] hover:underline flex items-center gap-1 font-bold"
                 >
-                  + NEW RULE
+                  {isId ? '+ ATURAN BARU' : '+ NEW RULE'}
                 </button>
               </div>
             </div>

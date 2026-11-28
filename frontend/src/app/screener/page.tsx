@@ -2,18 +2,21 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Filter, SlidersHorizontal, Plus, AlertCircle } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 export default function ScreenerPage() {
   const [screen, setScreen] = useState('Beaten-down megacaps')
+  const { language } = useUIStore()
+  const isId = language === 'id'
 
   return (
     <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
       <div className="border-b border-[#222226] pb-3">
         <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-          SCREENER / SAVED SCREEN
+          {isId ? 'SCREENER / PENYARINGAN TERSIMPAN' : 'SCREENER / SAVED SCREEN'}
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-1">
           <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5]">
@@ -21,7 +24,7 @@ export default function ScreenerPage() {
           </h1>
 
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-[#71717a]">SAVED:</span>
+            <span className="text-[#71717a]">{isId ? 'TERSIMPAN:' : 'SAVED:'}</span>
             {['Beaten-down megacaps', 'SG dividend payers', 'ID banks'].map((sc) => (
               <button
                 key={sc}
@@ -37,13 +40,13 @@ export default function ScreenerPage() {
               </button>
             ))}
             <button className="px-2 py-0.5 rounded bg-[#0f0f12] text-[#a1a1aa] border border-[#222226] hover:text-[#f4f4f5] flex items-center gap-1">
-              <Plus className="h-3 w-3" /> New screen
+              <Plus className="h-3 w-3" /> {isId ? 'Filter baru' : 'New screen'}
             </button>
             <Link
               href="/watchlist"
               className="px-2.5 py-0.5 rounded bg-[#f4f4f5] text-[#09090b] hover:bg-white font-bold transition-colors"
             >
-              Add all to watchlist
+              {isId ? 'Tambah semua ke pantauan' : 'Add all to watchlist'}
             </Link>
           </div>
         </div>

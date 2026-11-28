@@ -9,14 +9,13 @@ export function formatCurrency(value: number, currency = 'USD'): string {
       maximumFractionDigits: 0,
     }).format(value)
   }
-  // Singapore Dollar: S$
+  // Singapore Dollar: explicit S$ prefix so it never collapses into ambiguous "$"
   if (curr === 'SGD') {
-    return new Intl.NumberFormat('en-SG', {
-      style: 'currency',
-      currency: 'SGD',
+    const absFormatted = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(value)
+    }).format(Math.abs(value))
+    return value < 0 ? `-S$${absFormatted}` : `S$${absFormatted}`
   }
   // Japanese Yen: ¥
   if (curr === 'JPY') {
@@ -33,6 +32,23 @@ export function formatCurrency(value: number, currency = 'USD'): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
+}
+
+export function formatCompactCurrency(value: number, currency = 'USD'): string {
+  const curr = currency.toUpperCase()
+  const sign = value < 0 ? '-' : ''
+  const abs = Math.abs(value)
+  if (curr === 'IDR') {
+    if (abs >= 1e9) return `${sign}Rp ${(abs / 1e9).toFixed(2)}B`
+    if (abs >= 1e6) return `${sign}Rp ${(abs / 1e6).toFixed(1)}M`
+    if (abs >= 1e3) return `${sign}Rp ${(abs / 1e3).toFixed(0)}k`
+    return `${sign}Rp ${Math.round(abs).toLocaleString('id-ID')}`
+  }
+  const prefix = curr === 'SGD' ? 'S$' : curr === 'JPY' ? '¥' : '$'
+  if (abs >= 1e9) return `${sign}${prefix}${(abs / 1e9).toFixed(2)}B`
+  if (abs >= 1e6) return `${sign}${prefix}${(abs / 1e6).toFixed(1)}M`
+  if (abs >= 1e3) return `${sign}${prefix}${(abs / 1e3).toFixed(1)}k`
+  return `${sign}${prefix}${abs.toFixed(0)}`
 }
 
 /**

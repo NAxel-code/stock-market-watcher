@@ -19,14 +19,15 @@ import {
 } from 'lucide-react'
 import { useMarketsOverview } from '@/hooks/useMarketsOverview'
 import { useUIStore } from '@/stores/useUIStore'
-import { getTranslation } from '@/lib/i18n'
+import { formatCurrency } from '@/lib/formatters'
+import { convertCurrency } from '@/lib/currency'
 import { cn } from '@/lib/utils'
-import type { MarketInstrument, YieldCurvePoint, UnusualMover } from '@/types/stock'
+import type { MarketInstrument, YieldCurvePoint } from '@/types/stock'
 
 type MarketTab = 'ALL' | 'INDICES' | 'ETFS' | 'RATES' | 'FX' | 'COMMODITIES' | 'UNUSUAL'
 
 export default function MarketsPage() {
-  const { language } = useUIStore()
+  const { language, displayCurrency, fxRates } = useUIStore()
   const { data: overview, isLoading, isError, refetch, isFetching } = useMarketsOverview()
   const [activeTab, setActiveTab] = useState<MarketTab>('ALL')
 
@@ -35,6 +36,25 @@ export default function MarketsPage() {
     language === 'id'
       ? 'Kurva yield obligasi, ETF lintas pasar, suku bunga acuan bank sentral, komoditas ASEAN, dan statistical volatility shocks.'
       : 'Sovereign yield curves, cross-border ETFs, central bank benchmarks, ASEAN commodities, and statistical volatility shocks.'
+
+  const formatConvertedInstrument = (price: number, unit: string, isFx = false) => {
+    const clean = unit.trim().toUpperCase()
+    const fromCurr =
+      clean === 'SGD' || clean === 'S$'
+        ? 'SGD'
+        : clean === 'IDR' || clean === 'RP'
+        ? 'IDR'
+        : clean === 'USD' || clean === '$'
+        ? 'USD'
+        : null
+    if (displayCurrency !== 'NATIVE' && fromCurr && !isFx) {
+      const converted = convertCurrency(price, fromCurr, displayCurrency, fxRates)
+      if (converted !== null) {
+        return formatCurrency(converted, displayCurrency)
+      }
+    }
+    return `${unit} ${price.toLocaleString(undefined, { minimumFractionDigits: isFx ? 4 : 2 })}`
+  }
 
   return (
     <div className="min-h-screen bg-[#09090b] text-[#f4f4f5] pb-24 md:pb-16">
@@ -48,10 +68,10 @@ export default function MarketsPage() {
               </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <h1 className="text-xl md:text-2xl font-bold font-mono tracking-tight text-[#f4f4f5]">
-                  Markets
+                  {language === 'id' ? 'Pasar' : 'Markets'}
                 </h1>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141418] text-[#a1a1aa] border border-[#222226] uppercase font-semibold">
-                  Multi-Asset Market Intelligence
+                  {tTitle}
                 </span>
               </div>
               <p className="text-xs text-[#71717a] font-mono mt-1 max-w-3xl">
@@ -200,7 +220,7 @@ export default function MarketsPage() {
                         </div>
                         <div className="text-right">
                           <span className="font-mono font-bold text-sm text-[#f4f4f5]">
-                            {etf.unit} {etf.current_price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {formatConvertedInstrument(etf.current_price, etf.unit)}
                           </span>
                           <div
                             className={cn(
@@ -478,6 +498,21 @@ export default function MarketsPage() {
 
 function InstrumentCard({ item }: { item: MarketInstrument }) {
   const isPositive = item.change_percent >= 0
+  const { displayCurrency, fxRates } = useUIStore()
+  const cleanUnit = item.unit.trim().toUpperCase()
+  const fromCurr =
+    cleanUnit === 'SGD' || cleanUnit === 'S$'
+      ? 'SGD'
+      : cleanUnit === 'IDR' || cleanUnit === 'RP'
+      ? 'IDR'
+      : cleanUnit === 'USD' || cleanUnit === '$'
+      ? 'USD'
+      : null
+  const convertedPrice =
+    displayCurrency !== 'NATIVE' && fromCurr && item.category !== 'FX'
+      ? convertCurrency(item.current_price, fromCurr, displayCurrency, fxRates)
+      : null
+
   return (
     <div className="p-3.5 rounded-md bg-[#0f0f12] border border-[#222226] hover:border-[#3f3f46] transition-all flex flex-col justify-between">
       <div className="flex items-start justify-between gap-2">
@@ -486,12 +521,18 @@ function InstrumentCard({ item }: { item: MarketInstrument }) {
           <p className="text-[10px] text-[#71717a] font-mono mt-0.5">{item.ticker}</p>
         </div>
         <div className="text-right">
-          <span className="font-mono font-bold text-sm text-[#f4f4f5]">
-            {item.current_price.toLocaleString(undefined, {
-              minimumFractionDigits: item.category === 'FX' ? 4 : 2,
-            })}{' '}
-            <span className="text-[10px] text-[#71717a] font-normal">{item.unit}</span>
-          </span>
+          {convertedPrice !== null ? (
+            <span className="font-mono font-bold text-sm text-[#f4f4f5]">
+              {formatCurrency(convertedPrice, displayCurrency)}
+            </span>
+          ) : (
+            <span className="font-mono font-bold text-sm text-[#f4f4f5]">
+              {item.current_price.toLocaleString(undefined, {
+                minimumFractionDigits: item.category === 'FX' ? 4 : 2,
+              })}{' '}
+              <span className="text-[10px] text-[#71717a] font-normal">{item.unit}</span>
+            </span>
+          )}
           <div
             className={cn(
               'text-xs font-mono font-semibold flex items-center justify-end gap-0.5 mt-0.5',

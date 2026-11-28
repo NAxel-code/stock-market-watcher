@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Landmark, TrendingUp, Percent, ArrowUpRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useUIStore } from '@/stores/useUIStore'
 
 export default function MacroPage() {
+  const { language } = useUIStore()
+  const isId = language === 'id'
+
   return (
     <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
@@ -13,15 +15,15 @@ export default function MacroPage() {
           MACRO / US · SG · ID · JP (PHASE 4)
         </div>
         <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5] mt-1">
-          Rates and macro
+          {isId ? 'Suku bunga dan makro' : 'Rates and macro'}
         </h1>
       </div>
 
       {/* Central Banks Policy Table */}
       <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
         <div className="pb-2 border-b border-[#222226]">
-          <div className="text-[10px] uppercase text-[#71717a]">POLICY</div>
-          <h2 className="text-sm font-bold text-[#f4f4f5]">Central banks</h2>
+          <div className="text-[10px] uppercase text-[#71717a]">{isId ? 'KEBIJAKAN' : 'POLICY'}</div>
+          <h2 className="text-sm font-bold text-[#f4f4f5]">{isId ? 'Bank sentral' : 'Central banks'}</h2>
         </div>
 
         <div className="overflow-x-auto">

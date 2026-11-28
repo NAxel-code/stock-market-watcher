@@ -27,6 +27,7 @@ import {
   upsertPersistedHolding,
 } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/formatters'
 import type {
   PortfolioHoldingItem,
   PortfolioAnalysisResponse,
@@ -209,32 +210,32 @@ export default function PortfolioPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-                PORTFOLIO / {baseCurrency} BASE / SAMPLE HOLDINGS
+                {language === 'id' ? `PORTOFOLIO / BASIS ${baseCurrency} / CONTOH KEPEMILIKAN` : `PORTFOLIO / ${baseCurrency} BASE / SAMPLE HOLDINGS`}
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-0.5">
                 <h1 className="text-xl md:text-2xl font-bold font-mono tracking-tight text-[#f4f4f5]">
-                  Portfolio
+                  {language === 'id' ? 'Portofolio' : 'Portfolio'}
                 </h1>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#141418] text-[#a1a1aa] border border-[#222226] font-semibold uppercase">
-                  Institutional Multi-Asset Portfolio
+                  {language === 'id' ? 'Portofolio Multi-Aset Institusional' : 'Institutional Multi-Asset Portfolio'}
                 </span>
                 {isCloudSynced && (
                   <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-[#141418] text-emerald-400 border border-[#222226] font-semibold uppercase">
                     <Cloud className="h-3 w-3" />
-                    Cloud Synced
+                    {language === 'id' ? 'Tersinkron Cloud' : 'Cloud Synced'}
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-3 mt-2 text-xs font-mono">
-                <span className="text-[#71717a]">VIEW:</span>
+                <span className="text-[#71717a]">{language === 'id' ? 'TAMPILAN:' : 'VIEW:'}</span>
                 <span className="pb-0.5 text-[#f4f4f5] font-bold border-b-2 border-[#f4f4f5]">
-                  My portfolio
+                  {language === 'id' ? 'Portofolio saya' : 'My portfolio'}
                 </span>
                 <span className="pb-0.5 text-[#71717a] hover:text-[#f4f4f5] cursor-pointer">
-                  Group model
+                  {language === 'id' ? 'Model grup' : 'Group model'}
                 </span>
                 <span className="pb-0.5 text-[#71717a] hover:text-[#f4f4f5] cursor-pointer">
-                  Paper lab
+                  {language === 'id' ? 'Lab simulasi' : 'Paper lab'}
                 </span>
               </div>
             </div>
@@ -295,21 +296,17 @@ export default function PortfolioPage() {
               <div className="p-3.5 rounded-md bg-[#0f0f12] border border-[#222226]">
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717a]">
-                    VALUE
+                    {language === 'id' ? 'NILAI' : 'VALUE'}
                   </span>
                   <span className="text-emerald-400 text-[10px] font-bold font-mono">
                     ↗ +2.6% 1D
                   </span>
                 </div>
                 <p className="text-2xl font-bold font-mono text-[#f4f4f5]">
-                  {baseCurrency}{' '}
-                  {analysis.total_value_base.toLocaleString(undefined, {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0,
-                  })}
+                  {formatCurrency(analysis.total_value_base, baseCurrency)}
                 </p>
                 <div className="text-[10px] font-mono text-[#71717a] mt-1.5 pt-1.5 border-t border-[#222226]">
-                  {holdings.length} holdings · USD, SGD, XAU
+                  {holdings.length} {language === 'id' ? 'kepemilikan · USD, SGD, XAU' : 'holdings · USD, SGD, XAU'}
                 </div>
               </div>
 
@@ -317,7 +314,7 @@ export default function PortfolioPage() {
               <div className="p-3.5 rounded-md bg-[#0f0f12] border border-[#222226]">
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717a]">
-                    TOTAL RETURN
+                    {language === 'id' ? 'TOTAL IMBAL HASIL' : 'TOTAL RETURN'}
                   </span>
                   <span className="text-[#a1a1aa] text-[10px] font-medium font-mono">
                     +2.3 PTS
@@ -327,7 +324,7 @@ export default function PortfolioPage() {
                   {isProfit ? '+' : ''}{analysis.unrealized_pnl_percent.toFixed(1)}%
                 </p>
                 <div className="text-[10px] font-mono text-[#71717a] mt-1.5 pt-1.5 border-t border-[#222226]">
-                  Benchmark VWRA +6.1%
+                  {language === 'id' ? 'Acuan VWRA +6.1%' : 'Benchmark VWRA +6.1%'}
                 </div>
               </div>
 
@@ -335,15 +332,15 @@ export default function PortfolioPage() {
               <div className="p-3.5 rounded-md bg-[#0f0f12] border border-[#222226]">
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717a]">
-                    FROM STOCKS
+                    {language === 'id' ? 'DARI SAHAM' : 'FROM STOCKS'}
                   </span>
-                  <span className="text-[9px] font-mono text-[#a1a1aa] font-semibold">Attribution</span>
+                  <span className="text-[9px] font-mono text-[#a1a1aa] font-semibold">{language === 'id' ? 'Atribusi' : 'Attribution'}</span>
                 </div>
                 <p className="text-2xl font-bold font-mono text-emerald-400">
                   +{((analysis.total_stock_move_pnl_base / (analysis.total_cost_base || 1)) * 100).toFixed(1)}%
                 </p>
                 <div className="text-[10px] font-mono text-[#71717a] mt-1.5 pt-1.5 border-t border-[#222226] truncate">
-                  Performance Attribution · Stock alpha
+                  {language === 'id' ? 'Atribusi Kinerja · Alpha saham' : 'Performance Attribution · Stock alpha'}
                 </div>
               </div>
 
@@ -351,7 +348,7 @@ export default function PortfolioPage() {
               <div className="p-3.5 rounded-md bg-[#0f0f12] border border-[#222226]">
                 <div className="flex items-center justify-between text-xs mb-1">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717a]">
-                    FROM FX
+                    {language === 'id' ? 'DARI VALAS' : 'FROM FX'}
                   </span>
                   <span className="text-[9px] font-mono text-red-400 font-semibold">↘ FX</span>
                 </div>
@@ -360,7 +357,7 @@ export default function PortfolioPage() {
                   {((analysis.total_fx_move_pnl_base / (analysis.total_cost_base || 1)) * 100).toFixed(1)}%
                 </p>
                 <div className="text-[10px] font-mono text-[#71717a] mt-1.5 pt-1.5 border-t border-[#222226] truncate">
-                  USD/SGD impact over period
+                  {language === 'id' ? 'Dampak valas atas modal dasar' : 'USD/SGD impact over period'}
                 </div>
               </div>
             </section>
@@ -758,7 +755,7 @@ export default function PortfolioPage() {
                           </td>
 
                           <td className="py-3 px-4 text-right text-[#f4f4f5] font-bold">
-                            {baseCurrency} {p.current_value_base.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            {formatCurrency(p.current_value_base, baseCurrency)}
                           </td>
 
                           <td

@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { Calendar as CalendarIcon, Filter, Clock } from 'lucide-react'
+import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface CalendarEvent {
@@ -36,16 +35,20 @@ const EVENTS_90_DAYS: CalendarEvent[] = [
 
 export default function CalendarPage() {
   const [filter, setFilter] = useState('ALL')
+  const { language } = useUIStore()
+  const isId = language === 'id'
 
   return (
     <div className="space-y-4 font-mono text-[#f4f4f5] pb-16">
       {/* Top Header */}
       <div className="border-b border-[#222226] pb-3">
         <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-          CALENDAR / ALL TIMES SGT · TODAY TUE 24 NOV 2026
+          {isId
+            ? 'KALENDER / WAKTU DALAM SGT · HARI INI SEL 24 NOV 2026'
+            : 'CALENDAR / ALL TIMES SGT · TODAY TUE 24 NOV 2026'}
         </div>
         <h1 className="text-xl font-bold tracking-tight text-[#f4f4f5] mt-1">
-          Calendar
+          {isId ? 'Kalender' : 'Calendar'}
         </h1>
       </div>
 
@@ -53,8 +56,8 @@ export default function CalendarPage() {
       <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-3">
         <div className="flex items-center justify-between pb-2 border-b border-[#222226]">
           <div>
-            <div className="text-[10px] uppercase text-[#71717a]">CALENDAR QUARTERS</div>
-            <h2 className="text-sm font-bold text-[#f4f4f5]">Quarter tracker</h2>
+            <div className="text-[10px] uppercase text-[#71717a]">{isId ? 'KUARTAL KALENDER' : 'CALENDAR QUARTERS'}</div>
+            <h2 className="text-sm font-bold text-[#f4f4f5]">{isId ? 'Pelacak kuartal' : 'Quarter tracker'}</h2>
           </div>
           <span className="text-[11px] font-bold text-[#a1a1aa]">
             Q4 2026 · DAY 55 OF 92 · 37 DAYS LEFT

@@ -3,10 +3,18 @@ export type Language = 'en' | 'id'
 export const translations = {
   en: {
     // Navigation & Common
+    home: 'Home',
     dashboard: 'Dashboard',
     markets: 'Markets',
+    macro: 'Macro',
+    news: 'News',
+    calendar: 'Calendar',
+    map: 'Map',
+    screener: 'Screener',
+    models: 'Models',
     portfolio: 'Portfolio',
     watchlist: 'Watchlist',
+    watchlists: 'Watchlists',
     search: 'Search',
     account: 'Account',
     guide: 'Guide',
@@ -66,10 +74,18 @@ export const translations = {
   },
   id: {
     // Navigation & Common
+    home: 'Beranda',
     dashboard: 'Dasbor',
     markets: 'Pasar',
+    macro: 'Makro',
+    news: 'Berita',
+    calendar: 'Kalender',
+    map: 'Peta',
+    screener: 'Screener',
+    models: 'Model',
     portfolio: 'Portofolio',
     watchlist: 'Daftar Pantau',
+    watchlists: 'Pantauan',
     search: 'Cari',
     account: 'Akun',
     guide: 'Panduan',

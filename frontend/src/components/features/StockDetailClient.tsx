@@ -23,7 +23,8 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
   const [activeTab, setActiveTab] = useState<'desk' | 'chart' | 'simulator' | 'calculator'>('desk')
   const { data: quote, isLoading, error } = useStockData(ticker)
   const { data: history1y } = useStockHistory(ticker, '1y')
-  const { isInWatchlist, addToWatchlist, removeFromWatchlist, displayCurrency, fxRates } = useUIStore()
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist, displayCurrency, fxRates, language } = useUIStore()
+  const isId = language === 'id'
   const inWatchlist = isInWatchlist(ticker)
   const isIdx = isIdxTicker(ticker) || Boolean(quote?.is_idx)
   const stockCurrency = quote ? getStockCurrency(quote) : (isIdx ? 'IDR' : ticker.endsWith('.SI') ? 'SGD' : 'USD')
@@ -35,6 +36,11 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
   const convertedPriceStr = convertedAmount !== null && isConverted
     ? formatConvertedPrice(convertedAmount, displayCurrency)
     : null
+  const activeCurrency = displayCurrency === 'NATIVE' ? stockCurrency : displayCurrency
+  const toDisplay = (amt: number) =>
+    activeCurrency === stockCurrency
+      ? amt
+      : convertCurrency(amt, stockCurrency, activeCurrency, fxRates) ?? amt
 
   const handleWatchlistToggle = () => {
     if (inWatchlist) {
@@ -131,7 +137,9 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
             className={cn('text-xs font-mono', inWatchlist ? 'border-[#27272a] bg-[#141418] text-[#a1a1aa] hover:text-[#f4f4f5]' : 'bg-[#f4f4f5] hover:bg-white text-[#09090b] font-bold')}
             aria-label={inWatchlist ? `Remove ${ticker} from watchlist` : `Add ${ticker} to watchlist`}
           >
-            {inWatchlist ? <><Minus className="h-3.5 w-3.5 mr-1" /> Remove</> : <><Plus className="h-3.5 w-3.5 mr-1" /> Add to Watchlist</>}
+            {inWatchlist
+              ? <><Minus className="h-3.5 w-3.5 mr-1" /> {isId ? 'Hapus' : 'Remove'}</>
+              : <><Plus className="h-3.5 w-3.5 mr-1" /> {isId ? 'Tambah ke Pantauan' : 'Add to Watchlist'}</>}
           </Button>
         </div>
       </div>
@@ -140,33 +148,33 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-[#71717a] text-[10px] font-semibold">LAST</span>
+            <span className="text-[#71717a] text-[10px] font-semibold">{isId ? 'TERAKHIR' : 'LAST'}</span>
             <span className={cn('text-[10px] font-bold px-1.5 py-0.2 rounded', isPositive ? 'text-emerald-400' : 'text-red-400')}>
               {isPositive ? '↗ ' : '↘ '}{formatPercent(quote.change_percent)}
             </span>
           </div>
           <div className="text-2xl font-bold text-[#f4f4f5]">
-            {formatCurrency(quote.current_price, stockCurrency)}
+            {formatCurrency(toDisplay(quote.current_price), activeCurrency)}
           </div>
           <div className="text-[10px] text-[#71717a] mt-1">
-            Prev close {formatCurrency(quote.previous_close || (quote.current_price - quote.change), stockCurrency)}
+            {isId ? 'Tutup sblm' : 'Prev close'} {formatCurrency(toDisplay(quote.previous_close || (quote.current_price - quote.change)), activeCurrency)}
           </div>
         </div>
 
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3">
-          <div className="text-[#71717a] text-[10px] font-semibold mb-1">FROM 52W HIGH</div>
+          <div className="text-[#71717a] text-[10px] font-semibold mb-1">{isId ? 'DARI PUNCAK 52M' : 'FROM 52W HIGH'}</div>
           <div className="text-2xl font-bold text-red-400">
             {quote.distance_from_52w_high !== undefined && quote.distance_from_52w_high !== null ? `${quote.distance_from_52w_high}%` : '−31.5%'}
           </div>
           <div className="text-[10px] text-[#71717a] mt-1">
-            52W {formatCurrency(quote.fifty_two_week_low || 124.5, stockCurrency)} – {formatCurrency(quote.fifty_two_week_high || 243.37, stockCurrency)}
+            52W {formatCurrency(toDisplay(quote.fifty_two_week_low || 124.5), activeCurrency)} – {formatCurrency(toDisplay(quote.fifty_two_week_high || 243.37), activeCurrency)}
           </div>
         </div>
 
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3">
-          <div className="text-[#71717a] text-[10px] font-semibold mb-1">MARKET CAP</div>
+          <div className="text-[#71717a] text-[10px] font-semibold mb-1">{isId ? 'KAPITALISASI PASAR' : 'MARKET CAP'}</div>
           <div className="text-2xl font-bold text-[#f4f4f5]">
-            {formatMarketCap(quote.market_cap, stockCurrency)}
+            {formatMarketCap(quote.market_cap ? toDisplay(quote.market_cap) : undefined, activeCurrency)}
           </div>
           <div className="text-[10px] text-[#71717a] mt-1">
             Volume {quote.volume ? formatVolume(quote.volume) : '453M'}
@@ -175,14 +183,14 @@ export function StockDetailClient({ ticker }: { ticker: string }) {
 
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3">
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="text-[#71717a] text-[10px] font-semibold">NEXT EARNINGS</span>
+            <span className="text-[#71717a] text-[10px] font-semibold">{isId ? 'LABA BERIKUTNYA' : 'NEXT EARNINGS'}</span>
             <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">EST.</span>
           </div>
           <div className="text-2xl font-bold text-[#f4f4f5]">
             Late Feb
           </div>
           <div className="text-[10px] text-[#71717a] mt-1">
-            Q4 FY27 · date not confirmed
+            Q4 FY27 · {isId ? 'tanggal belum pasti' : 'date not confirmed'}
           </div>
         </div>
       </div>

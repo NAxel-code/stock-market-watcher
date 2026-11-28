@@ -4,13 +4,16 @@ import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBatchQuotes, fetchPortfolioAnalysis } from '@/lib/api'
-import { formatCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { formatCurrency, formatCompactCurrency, formatPercent, getStockCurrency } from '@/lib/formatters'
+import { convertCurrency } from '@/lib/currency'
 import { useUIStore } from '@/stores/useUIStore'
 import { cn } from '@/lib/utils'
 
 interface WatchlistRow {
   ticker: string
   name: string
+  nativePrice: number
+  nativeCurrency: string
   price: string
   change: string
   isPositive: boolean
@@ -21,6 +24,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'NVDA',
     name: 'NVIDIA Corporation',
+    nativePrice: 166.66,
+    nativeCurrency: 'USD',
     price: '$166.66',
     change: '+32.77%',
     isPositive: true,
@@ -29,6 +34,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'MSFT',
     name: 'Microsoft Corporation',
+    nativePrice: 499.59,
+    nativeCurrency: 'USD',
     price: '$499.59',
     change: '+3.11%',
     isPositive: true,
@@ -37,6 +44,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'AMZN',
     name: 'Amazon.com Inc',
+    nativePrice: 257.45,
+    nativeCurrency: 'USD',
     price: '$257.45',
     change: '+4.30%',
     isPositive: true,
@@ -45,6 +54,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'GOOGL',
     name: 'Alphabet Inc',
+    nativePrice: 282.46,
+    nativeCurrency: 'USD',
     price: '$282.46',
     change: '+6.47%',
     isPositive: true,
@@ -53,6 +64,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'META',
     name: 'Meta Platforms Inc',
+    nativePrice: 593.61,
+    nativeCurrency: 'USD',
     price: '$593.61',
     change: '+5.84%',
     isPositive: true,
@@ -61,6 +74,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'AAPL',
     name: 'Apple Inc',
+    nativePrice: 348.87,
+    nativeCurrency: 'USD',
     price: '$348.87',
     change: '+1.84%',
     isPositive: true,
@@ -69,6 +84,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'D05.SI',
     name: 'DBS Group Holdings',
+    nativePrice: 65.76,
+    nativeCurrency: 'SGD',
     price: 'S$65.76',
     change: '−0.53%',
     isPositive: false,
@@ -77,6 +94,8 @@ const SAMPLE_WATCHLIST: WatchlistRow[] = [
   {
     ticker: 'BBCA.JK',
     name: 'Bank Central Asia',
+    nativePrice: 5675,
+    nativeCurrency: 'IDR',
     price: 'Rp 5,675',
     change: '+2.25%',
     isPositive: true,
@@ -254,7 +273,9 @@ export function TerminalDashboard() {
   const [timeframe, setTimeframe] = useState<'1D' | '1W' | '1M' | 'YTD' | '1Y'>('1D')
   const [newsFilter, setNewsFilter] = useState<string>('ALL')
   const [scheduleFilter, setScheduleFilter] = useState<string>('ALL')
-  const { watchlist, streamStatus, triggeredAlerts } = useUIStore()
+  const { watchlist, streamStatus, triggeredAlerts, displayCurrency, fxRates, language } = useUIStore()
+  const baseCurrency = displayCurrency === 'NATIVE' ? 'SGD' : displayCurrency
+  const isId = language === 'id'
 
   const coreTickers = useMemo(
     () => (watchlist.length > 0 ? watchlist.slice(0, 8) : SAMPLE_WATCHLIST.map((r) => r.ticker)),
@@ -269,14 +290,28 @@ export function TerminalDashboard() {
   })
 
   const { data: portfolioSnap } = useQuery({
-    queryKey: ['portfolio', 'analyze', 'SGD'],
-    queryFn: () => fetchPortfolioAnalysis('SGD'),
+    queryKey: ['portfolio', 'analyze', baseCurrency],
+    queryFn: () => fetchPortfolioAnalysis(baseCurrency),
     staleTime: 60_000,
   })
 
   const watchlistRows = useMemo<WatchlistRow[]>(() => {
+    const formatPrice = (amount: number, fromCurr: string) => {
+      const targetCurr = displayCurrency === 'NATIVE' ? fromCurr : displayCurrency
+      const converted =
+        targetCurr === fromCurr
+          ? amount
+          : convertCurrency(amount, fromCurr, targetCurr, fxRates)
+      const finalAmount = converted !== null ? converted : amount
+      const finalCurrency = converted !== null ? targetCurr : fromCurr
+      return formatCurrency(finalAmount, finalCurrency)
+    }
+
     if (!liveBatchQuotes || liveBatchQuotes.length === 0) {
-      return SAMPLE_WATCHLIST
+      return SAMPLE_WATCHLIST.map((item) => ({
+        ...item,
+        price: formatPrice(item.nativePrice, item.nativeCurrency),
+      }))
     }
     return liveBatchQuotes.map((q) => {
       const curr = getStockCurrency(q)
@@ -287,13 +322,37 @@ export function TerminalDashboard() {
       return {
         ticker: q.ticker,
         name: q.company_name,
-        price: formatCurrency(q.current_price, curr),
+        nativePrice: q.current_price,
+        nativeCurrency: curr,
+        price: formatPrice(q.current_price, curr),
         change: formatPercent(q.change_percent),
         isPositive,
         sparkline: spark,
       }
     })
-  }, [liveBatchQuotes])
+  }, [liveBatchQuotes, displayCurrency, fxRates])
+
+  const convertSnapMetric = (amount: number, snapCurr?: string) => {
+    const fromCurr = snapCurr || 'SGD'
+    if (fromCurr === baseCurrency) return amount
+    return convertCurrency(amount, fromCurr, baseCurrency, fxRates) ?? amount
+  }
+
+  const totalPortfolioValue = portfolioSnap
+    ? convertSnapMetric(portfolioSnap.total_value_base, portfolioSnap.base_currency)
+    : convertSnapMetric(124800, 'SGD')
+  const unrealizedPnlValue = portfolioSnap
+    ? convertSnapMetric(portfolioSnap.unrealized_pnl_base, portfolioSnap.base_currency)
+    : convertSnapMetric(3150, 'SGD')
+  const stockMoveValue = portfolioSnap
+    ? convertSnapMetric(portfolioSnap.total_stock_move_pnl_base, portfolioSnap.base_currency)
+    : convertSnapMetric(1420, 'SGD')
+  const fxMoveValue = portfolioSnap
+    ? convertSnapMetric(portfolioSnap.total_fx_move_pnl_base, portfolioSnap.base_currency)
+    : null
+  const netDividendValue = portfolioSnap
+    ? convertSnapMetric(portfolioSnap.total_annual_dividend_net_base, portfolioSnap.base_currency)
+    : convertSnapMetric(1840, 'SGD')
 
   const filteredNews = SAMPLE_NEWS.filter((item) => {
     if (newsFilter === 'ALL') return true
@@ -320,10 +379,12 @@ export function TerminalDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
         <div>
           <div className="text-[10px] uppercase font-mono tracking-widest text-[#71717a]">
-            PORTFOLIO / SGD BASE / SAMPLE HOLDINGS
+            {isId
+              ? `PORTOFOLIO / BASIS ${baseCurrency} / CONTOH KEPEMILIKAN`
+              : `PORTFOLIO / ${baseCurrency} BASE / SAMPLE HOLDINGS`}
           </div>
           <h1 className="text-2xl font-sans font-bold tracking-tight text-[#f4f4f5] mt-0.5">
-            Dashboard
+            {isId ? 'Dasbor' : 'Dashboard'}
           </h1>
         </div>
 
@@ -352,7 +413,7 @@ export function TerminalDashboard() {
         {/* Card 1: Value */}
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] mb-1.5">
-            <span className="text-[#71717a] font-medium tracking-wider">VALUE</span>
+            <span className="text-[#71717a] font-medium tracking-wider">{isId ? 'NILAI' : 'VALUE'}</span>
             <span
               className={cn(
                 'text-[11px] font-medium',
@@ -363,24 +424,26 @@ export function TerminalDashboard() {
             </span>
           </div>
           <div className="text-2xl font-bold tracking-tight text-[#f4f4f5]">
-            {portfolioSnap
-              ? formatCurrency(portfolioSnap.total_value_base, portfolioSnap.base_currency)
-              : 'S$124,800'}
+            {formatCurrency(totalPortfolioValue, baseCurrency)}
           </div>
           <div className="text-[11px] text-[#71717a] mt-1 font-sans">
-            Total portfolio value
+            {isId ? 'Total nilai portofolio' : 'Total portfolio value'}
           </div>
           <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             {portfolioSnap
-              ? `${portfolioSnap.holdings.length} holdings · ${Object.keys(portfolioSnap.allocation.by_currency).length} currencies`
-              : '9 holdings · 3 currencies'}
+              ? isId
+                ? `${portfolioSnap.holdings.length} saham · ${Object.keys(portfolioSnap.allocation.by_currency).length} mata uang`
+                : `${portfolioSnap.holdings.length} holdings · ${Object.keys(portfolioSnap.allocation.by_currency).length} currencies`
+              : isId
+                ? '9 saham · 3 mata uang'
+                : '9 holdings · 3 currencies'}
           </div>
         </div>
 
         {/* Card 2: Today / P&L */}
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] mb-1.5">
-            <span className="text-[#71717a] font-medium tracking-wider">UNREALIZED P&amp;L</span>
+            <span className="text-[#71717a] font-medium tracking-wider">{isId ? 'L/R BELUM REALISASI' : 'UNREALIZED P&L'}</span>
             <span className="text-emerald-400 text-[10px] font-medium">
               {streamStatus === 'live' ? '● LIVE' : '↗ +2.6%'}
             </span>
@@ -388,27 +451,25 @@ export function TerminalDashboard() {
           <div
             className={cn(
               'text-2xl font-bold tracking-tight',
-              (portfolioSnap?.unrealized_pnl_base ?? 3150) >= 0 ? 'text-emerald-400' : 'text-red-400'
+              unrealizedPnlValue >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
-            {portfolioSnap
-              ? `${portfolioSnap.unrealized_pnl_base >= 0 ? '+' : ''}${formatCurrency(portfolioSnap.unrealized_pnl_base, portfolioSnap.base_currency)}`
-              : '+S$3,150'}
+            {`${unrealizedPnlValue >= 0 ? '+' : ''}${formatCurrency(unrealizedPnlValue, baseCurrency)}`}
           </div>
           <div className="text-[11px] text-[#71717a] mt-1 font-sans">
-            Stock alpha + FX net P&amp;L
+            {isId ? 'Alpha saham + L/R valas bersih' : 'Stock alpha + FX net P&L'}
           </div>
           <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             {portfolioSnap
-              ? `Stock: ${formatCurrency(portfolioSnap.total_stock_move_pnl_base, portfolioSnap.base_currency)}`
-              : 'NVDA +S$1,420 largest'}
+              ? `${isId ? 'Saham' : 'Stock'}: ${formatCurrency(stockMoveValue, baseCurrency)}`
+              : `NVDA +${formatCurrency(stockMoveValue, baseCurrency)}`}
           </div>
         </div>
 
         {/* Card 3: Total Return */}
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] mb-1.5">
-            <span className="text-[#71717a] font-medium tracking-wider">TOTAL RETURN</span>
+            <span className="text-[#71717a] font-medium tracking-wider">{isId ? 'TOTAL IMBAL HASIL' : 'TOTAL RETURN'}</span>
             <span className="text-emerald-400 text-[11px] font-medium">
               Sharpe {portfolioSnap?.risk.sharpe_ratio.toFixed(2) ?? '1.42'}
             </span>
@@ -417,7 +478,7 @@ export function TerminalDashboard() {
             {portfolioSnap ? formatPercent(portfolioSnap.unrealized_pnl_percent) : '+8.4%'}
           </div>
           <div className="text-[11px] text-[#71717a] mt-1 font-sans">
-            Since cost basis inception
+            {isId ? 'Sejak harga beli awal' : 'Since cost basis inception'}
           </div>
           <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
             Beta {portfolioSnap?.risk.portfolio_beta.toFixed(2) ?? '1.05'} · Vol {portfolioSnap?.risk.annualized_volatility.toFixed(1) ?? '14.2'}%
@@ -427,26 +488,26 @@ export function TerminalDashboard() {
         {/* Card 4: FX Effect */}
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col justify-between">
           <div className="flex items-center justify-between text-[11px] mb-1.5">
-            <span className="text-[#71717a] font-medium tracking-wider">FX EFFECT</span>
+            <span className="text-[#71717a] font-medium tracking-wider">{isId ? 'EFEK VALAS' : 'FX EFFECT'}</span>
             <span className="text-red-400 text-[11px] font-medium">
-              ↘ FX
+              ↘ {isId ? 'VALAS' : 'FX'}
             </span>
           </div>
           <div
             className={cn(
               'text-2xl font-bold tracking-tight',
-              (portfolioSnap?.total_fx_move_pnl_base ?? -1) >= 0 ? 'text-emerald-400' : 'text-red-400'
+              (fxMoveValue ?? -1) >= 0 ? 'text-emerald-400' : 'text-red-400'
             )}
           >
-            {portfolioSnap
-              ? formatCurrency(portfolioSnap.total_fx_move_pnl_base, portfolioSnap.base_currency)
+            {fxMoveValue !== null
+              ? formatCurrency(fxMoveValue, baseCurrency)
               : '−2.8%'}
           </div>
           <div className="text-[11px] text-[#71717a] mt-1 font-sans">
-            Cross-currency translation drag
+            {isId ? 'Selisih translasi lintas mata uang' : 'Cross-currency translation drag'}
           </div>
           <div className="text-[10px] text-[#71717a] mt-2.5 pt-2 border-t border-[#1c1c21]">
-            Net Dividend: {portfolioSnap ? formatCurrency(portfolioSnap.total_annual_dividend_net_base, portfolioSnap.base_currency) : 'S$1,840/yr'}
+            {isId ? 'Dividen Bersih' : 'Net Dividend'}: {formatCurrency(netDividendValue, baseCurrency)}
           </div>
         </div>
       </div>
@@ -457,14 +518,18 @@ export function TerminalDashboard() {
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col">
           <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
             <div>
-              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">WATCHLIST / CORE</div>
-              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Watchlist</h2>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
+                {isId ? 'PANTAUAN / INTI' : 'WATCHLIST / CORE'}
+              </div>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">
+                {isId ? 'Daftar Pantau' : 'Watchlist'}
+              </h2>
             </div>
             <Link
               href="/watchlist"
               className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
             >
-              ALL LISTS →
+              {isId ? 'SEMUA DAFTAR →' : 'ALL LISTS →'}
             </Link>
           </div>
 
@@ -472,10 +537,10 @@ export function TerminalDashboard() {
             <table className="w-full text-left text-xs font-mono">
               <thead>
                 <tr className="border-b border-[#1c1c21] text-[10px] uppercase text-[#71717a]">
-                  <th className="py-1.5 font-normal">TICKER</th>
-                  <th className="py-1.5 font-normal">7D</th>
-                  <th className="py-1.5 text-right font-normal">LAST</th>
-                  <th className="py-1.5 text-right font-normal">1D</th>
+                  <th className="py-1.5 font-normal">{isId ? 'EMITEN' : 'TICKER'}</th>
+                  <th className="py-1.5 font-normal">{isId ? '7H' : '7D'}</th>
+                  <th className="py-1.5 text-right font-normal">{isId ? 'HARGA' : 'LAST'}</th>
+                  <th className="py-1.5 text-right font-normal">{isId ? '1H' : '1D'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1c1c21]">
@@ -514,14 +579,18 @@ export function TerminalDashboard() {
           <div>
             <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
               <div>
-                <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">ALLOCATION / BY ASSET CLASS</div>
-                <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Overview</h2>
+                <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
+                  {isId ? 'ALOKASI / BERDASARKAN KELAS ASET' : 'ALLOCATION / BY ASSET CLASS'}
+                </div>
+                <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">
+                  {isId ? 'Ringkasan' : 'Overview'}
+                </h2>
               </div>
               <Link
                 href="/portfolio"
                 className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
               >
-                PORTFOLIO →
+                {isId ? 'PORTOFOLIO →' : 'PORTFOLIO →'}
               </Link>
             </div>
 
@@ -588,10 +657,10 @@ export function TerminalDashboard() {
                     strokeDashoffset="-83.6"
                   />
                 </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-2 text-center">
                   <div className="text-[10px] uppercase text-[#71717a]">TOTAL</div>
-                  <div className="text-sm font-bold text-[#f4f4f5]">
-                    {portfolioSnap ? `${portfolioSnap.base_currency} ${(portfolioSnap.total_value_base / 1000).toFixed(1)}k` : 'S$124.8k'}
+                  <div className="text-xs font-bold text-[#f4f4f5]">
+                    {formatCompactCurrency(totalPortfolioValue, baseCurrency)}
                   </div>
                 </div>
               </div>
@@ -601,35 +670,35 @@ export function TerminalDashboard() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-[#f4f4f5]" />
-                    <span className="text-[#a1a1aa]">US stocks</span>
+                    <span className="text-[#a1a1aa]">{isId ? 'Saham AS' : 'US stocks'}</span>
                   </div>
                   <span className="font-semibold text-[#f4f4f5]">46%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-[#a1a1aa]" />
-                    <span className="text-[#a1a1aa]">Global ETF (VWRA)</span>
+                    <span className="text-[#a1a1aa]">{isId ? 'ETF Global (VWRA)' : 'Global ETF (VWRA)'}</span>
                   </div>
                   <span className="font-semibold text-[#f4f4f5]">24%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-[#71717a]" />
-                    <span className="text-[#a1a1aa]">Singapore stocks</span>
+                    <span className="text-[#a1a1aa]">{isId ? 'Saham Singapura' : 'Singapore stocks'}</span>
                   </div>
                   <span className="font-semibold text-[#f4f4f5]">15%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-[#52525b]" />
-                    <span className="text-[#a1a1aa]">Gold</span>
+                    <span className="text-[#a1a1aa]">{isId ? 'Emas' : 'Gold'}</span>
                   </div>
                   <span className="font-semibold text-[#f4f4f5]">10%</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-[#27272a]" />
-                    <span className="text-[#a1a1aa]">Cash</span>
+                    <span className="text-[#a1a1aa]">{isId ? 'Kas' : 'Cash'}</span>
                   </div>
                   <span className="font-semibold text-[#f4f4f5]">5%</span>
                 </div>
@@ -640,7 +709,7 @@ export function TerminalDashboard() {
           {/* Rule Checks / Alerts Section */}
           <div className="pt-3 border-t border-[#1c1c21] mt-2 space-y-2">
             <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
-              RULE CHECKS
+              {isId ? 'PEMERIKSAAN ATURAN' : 'RULE CHECKS'}
             </div>
             {triggeredAlerts.slice(0, 2).map((alert) => (
               <div key={alert.id} className="py-1.5 border-b border-[#1c1c21] text-xs flex items-start justify-between gap-2">
@@ -648,7 +717,7 @@ export function TerminalDashboard() {
                   {alert.message ?? `${alert.ticker} ${alert.condition} ${alert.target_price}`}
                 </div>
                 <span className="text-[10px] font-medium text-emerald-400 shrink-0">
-                  TRIGGERED
+                  {isId ? 'TERPICU' : 'TRIGGERED'}
                 </span>
               </div>
             ))}
@@ -657,17 +726,17 @@ export function TerminalDashboard() {
                 {portfolioSnap?.risk.position_cap_warnings?.[0] ?? 'NVDA is 12.6% of the portfolio'}
               </div>
               <span className="text-[10px] font-medium text-amber-400 shrink-0">
-                WARNING · &gt;12% TRIM
+                {isId ? 'PERINGATAN · PANGKAS >12%' : 'WARNING · >12% TRIM'}
               </span>
             </div>
             <div className="py-1 text-xs flex items-start justify-between gap-2">
               <div className="font-sans text-[#e4e4e7]">
                 {portfolioSnap
-                  ? `US-situs exposure US$${Math.round(portfolioSnap.risk.us_estate_tax_exposure_usd / 1000)}k of US$60k`
+                  ? `${isId ? 'Eksposur aset AS' : 'US-situs exposure'} US$${Math.round(portfolioSnap.risk.us_estate_tax_exposure_usd / 1000)}k / US$60k`
                   : 'US-situs holdings US$44k of US$60k'}
               </div>
               <span className="text-[10px] font-medium text-[#71717a] shrink-0">
-                INFO · ESTATE LIMIT
+                {isId ? 'INFO · BATAS ESTATE' : 'INFO · ESTATE LIMIT'}
               </span>
             </div>
           </div>
@@ -677,32 +746,43 @@ export function TerminalDashboard() {
         <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 flex flex-col">
           <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#1c1c21]">
             <div>
-              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">NEWS / SORTED BY RELEVANCE</div>
-              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">News feed</h2>
+              <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
+                {isId ? 'BERITA / URUT RELEVANSI' : 'NEWS / SORTED BY RELEVANCE'}
+              </div>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">
+                {isId ? 'Berita Pasar' : 'News feed'}
+              </h2>
             </div>
             <Link
               href="/news"
               className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5"
             >
-              ALL NEWS →
+              {isId ? 'SEMUA BERITA →' : 'ALL NEWS →'}
             </Link>
           </div>
 
           {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-2 text-[10px] font-mono border-b border-[#1c1c21]">
-            {['ALL', 'HOLDINGS', 'FED', 'SG', 'ID', 'TECH'].map((tab) => (
+            {[
+              { id: 'ALL', label: isId ? 'SEMUA' : 'ALL' },
+              { id: 'HOLDINGS', label: isId ? 'PORTOFOLIO' : 'HOLDINGS' },
+              { id: 'FED', label: 'FED' },
+              { id: 'SG', label: 'SG' },
+              { id: 'ID', label: 'ID' },
+              { id: 'TECH', label: 'TECH' },
+            ].map((tab) => (
               <button
-                key={tab}
+                key={tab.id}
                 type="button"
-                onClick={() => setNewsFilter(tab)}
+                onClick={() => setNewsFilter(tab.id)}
                 className={cn(
                   'px-2 py-0.5 rounded transition-colors whitespace-nowrap',
-                  newsFilter === tab
+                  newsFilter === tab.id
                     ? 'bg-[#f4f4f5] text-[#09090b] font-semibold'
                     : 'text-[#71717a] hover:text-[#f4f4f5]'
                 )}
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -743,24 +823,34 @@ export function TerminalDashboard() {
       <div className="bg-[#0f0f12] border border-[#222226] rounded-md p-3.5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#1c1c21]">
           <div>
-            <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">SCHEDULE / TIMES IN SGT</div>
+            <div className="text-[10px] uppercase font-mono tracking-wider text-[#71717a]">
+              {isId ? 'JADWAL / ZONA WAKTU SGT' : 'SCHEDULE / TIMES IN SGT'}
+            </div>
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">Events</h2>
+              <h2 className="text-sm font-sans font-bold text-[#f4f4f5]">
+                {isId ? 'Kalender Acara' : 'Events'}
+              </h2>
               {/* Category Filters */}
               <div className="flex items-center gap-1 text-[10px] font-mono overflow-x-auto scrollbar-none">
-                {['ALL', 'CENTRAL BANKS', 'DATA', 'EARNINGS', 'HOLIDAYS'].map((cat) => (
+                {[
+                  { id: 'ALL', label: isId ? 'SEMUA' : 'ALL' },
+                  { id: 'CENTRAL BANKS', label: isId ? 'BANK SENTRAL' : 'CENTRAL BANKS' },
+                  { id: 'DATA', label: 'DATA' },
+                  { id: 'EARNINGS', label: 'EARNINGS' },
+                  { id: 'HOLIDAYS', label: isId ? 'LIBUR BURSA' : 'HOLIDAYS' },
+                ].map((cat) => (
                   <button
-                    key={cat}
+                    key={cat.id}
                     type="button"
-                    onClick={() => setScheduleFilter(cat)}
+                    onClick={() => setScheduleFilter(cat.id)}
                     className={cn(
                       'px-2 py-0.5 rounded transition-colors whitespace-nowrap',
-                      scheduleFilter === cat
+                      scheduleFilter === cat.id
                         ? 'bg-[#f4f4f5] text-[#09090b] font-semibold'
                         : 'text-[#71717a] hover:text-[#f4f4f5]'
                     )}
                   >
-                    {cat}
+                    {cat.label}
                   </button>
                 ))}
               </div>
@@ -771,7 +861,7 @@ export function TerminalDashboard() {
             href="/calendar"
             className="text-[11px] font-mono text-[#a1a1aa] hover:text-[#f4f4f5] transition-colors flex items-center gap-0.5 shrink-0"
           >
-            FULL CALENDAR →
+            {isId ? 'KALENDER PENUH →' : 'FULL CALENDAR →'}
           </Link>
         </div>
 
@@ -784,7 +874,7 @@ export function TerminalDashboard() {
                 <span className="text-[10px] text-[#71717a]">2026</span>
               </div>
               <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
-              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">{isId ? 'SELESAI' : 'DONE'}</div>
             </div>
             <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
               <div className="flex items-center justify-between">
@@ -792,7 +882,7 @@ export function TerminalDashboard() {
                 <span className="text-[10px] text-[#71717a]">2026</span>
               </div>
               <div className="text-[10px] text-[#71717a]">APR – JUN</div>
-              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">{isId ? 'SELESAI' : 'DONE'}</div>
             </div>
             <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
               <div className="flex items-center justify-between">
@@ -800,15 +890,15 @@ export function TerminalDashboard() {
                 <span className="text-[10px] text-[#71717a]">2026</span>
               </div>
               <div className="text-[10px] text-[#71717a]">JUL – SEP</div>
-              <div className="mt-2 text-[10px] text-[#71717a] font-medium">DONE · REPORTING ENDED</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">{isId ? 'SELESAI · LAPORAN TUTUP' : 'DONE · REPORTING ENDED'}</div>
             </div>
             <div className="bg-[#f4f4f5] border border-[#f4f4f5] p-2.5 rounded text-[#09090b]">
               <div className="flex items-center justify-between">
                 <span className="font-bold">Q4</span>
                 <span className="text-[10px] text-zinc-600">2026</span>
               </div>
-              <div className="text-[10px] text-zinc-600">OCT – DEC</div>
-              <div className="mt-2 text-[10px] font-bold text-[#09090b]">NOW · DAY 55 OF 92</div>
+              <div className="text-[10px] text-zinc-600">OKT – DES</div>
+              <div className="mt-2 text-[10px] font-bold text-[#09090b]">{isId ? 'SAAT INI · HARI 55 DARI 92' : 'NOW · DAY 55 OF 92'}</div>
             </div>
             <div className="bg-[#141418] border border-[#222226] p-2.5 rounded">
               <div className="flex items-center justify-between">
@@ -816,11 +906,13 @@ export function TerminalDashboard() {
                 <span className="text-[10px] text-[#71717a]">2027</span>
               </div>
               <div className="text-[10px] text-[#71717a]">JAN – MAR</div>
-              <div className="mt-2 text-[10px] text-[#71717a] font-medium">STARTS 1 JAN · IN 38D</div>
+              <div className="mt-2 text-[10px] text-[#71717a] font-medium">{isId ? 'MULAI 1 JAN · 38 HARI LAGI' : 'STARTS 1 JAN · IN 38D'}</div>
             </div>
           </div>
           <div className="text-[11px] text-[#71717a] font-sans">
-            EARNINGS SEASON · Q3 reports done (NVDA reported 17 Nov) · Q4 reports start mid-Jan (est.)
+            {isId
+              ? 'MUSIM LAPORAN LABA · Q3 selesai (NVDA rilis 17 Nov) · Q4 mulai pertengahan Jan (est.)'
+              : 'EARNINGS SEASON · Q3 reports done (NVDA reported 17 Nov) · Q4 reports start mid-Jan (est.)'}
           </div>
         </div>
 
@@ -829,10 +921,10 @@ export function TerminalDashboard() {
           <table className="w-full text-left text-xs font-mono">
             <thead>
               <tr className="border-b border-[#1c1c21] text-[10px] uppercase text-[#71717a]">
-                <th className="py-2 font-normal">DATE</th>
-                <th className="py-2 font-normal">IN</th>
-                <th className="py-2 font-normal">TYPE</th>
-                <th className="py-2 font-normal">EVENT</th>
+                <th className="py-2 font-normal">{isId ? 'TANGGAL' : 'DATE'}</th>
+                <th className="py-2 font-normal">{isId ? 'DLN' : 'IN'}</th>
+                <th className="py-2 font-normal">{isId ? 'TIPE' : 'TYPE'}</th>
+                <th className="py-2 font-normal">{isId ? 'ACARA' : 'EVENT'}</th>
                 <th className="py-2 font-normal">DETAIL</th>
                 <th className="py-2 text-right font-normal">STATUS</th>
               </tr>
@@ -879,7 +971,9 @@ export function TerminalDashboard() {
 
         {/* Footer Attribution Note */}
         <div className="pt-2 border-t border-[#1c1c21] text-[10px] text-[#71717a]">
-          Prices: StockPulse API snapshot. Dates: Federal Reserve, BLS, Bank Indonesia, MAS and NVIDIA releases. Portfolio values are live &amp; sample reference data.
+          {isId
+            ? 'Harga: Snapshot API StockPulse. Tanggal: Federal Reserve, BLS, Bank Indonesia, MAS, dan rilis NVIDIA. Nilai portofolio adalah data live & contoh.'
+            : 'Prices: StockPulse API snapshot. Dates: Federal Reserve, BLS, Bank Indonesia, MAS and NVIDIA releases. Portfolio values are live & sample reference data.'}
         </div>
       </div>
     </div>
