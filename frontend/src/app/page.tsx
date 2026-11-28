@@ -1,48 +1,28 @@
 import { Suspense } from 'react'
-import { MarketSummary } from '@/components/features/MarketSummary'
-import { WatchlistGrid } from '@/components/features/WatchlistGrid'
-import { OnboardingBanner } from '@/components/features/OnboardingBanner'
-import { Skeleton } from '@/components/ui/skeleton'
+import { TerminalDashboard } from '@/components/features/TerminalDashboard'
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
-      {/* Onboarding / Tutorial Banner */}
-      <OnboardingBanner />
-
-      {/* Market Summary Section */}
-      <section id="tour-market-summary">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-zinc-200">Major Market Overview</h2>
-          <span className="text-xs font-mono text-zinc-400 hidden sm:inline">Global & IDX Indices</span>
-        </div>
-        <Suspense fallback={
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 rounded-xl bg-zinc-800" />
-            ))}
+    <div className="space-y-4">
+      <Suspense
+        fallback={
+          <div className="space-y-4 animate-pulse">
+            <div className="h-10 bg-[#0f0f12] rounded border border-[#222226]" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-28 bg-[#0f0f12] rounded border border-[#222226]" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-72 bg-[#0f0f12] rounded border border-[#222226]" />
+              ))}
+            </div>
           </div>
-        }>
-          <MarketSummary />
-        </Suspense>
-      </section>
-
-      {/* Watchlist Section */}
-      <section id="tour-watchlist-grid">
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold text-zinc-200">Featured Watchlist</h2>
-          <p className="text-xs text-zinc-400 mt-0.5">Top active and highest market cap equities across US & Indonesia (IDX)</p>
-        </div>
-        <Suspense fallback={
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-36 rounded-xl bg-zinc-800" />
-            ))}
-          </div>
-        }>
-          <WatchlistGrid />
-        </Suspense>
-      </section>
+        }
+      >
+        <TerminalDashboard />
+      </Suspense>
     </div>
   )
 }

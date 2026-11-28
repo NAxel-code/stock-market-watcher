@@ -10,18 +10,26 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: 'StockPulse — Real-Time Stock Market Watcher',
-  description: 'Monitor US and Indonesian (IDX) stock markets in real-time. Free, fast, and beautiful.',
+  title: 'StockPulse — Real-Time Equity & Quant Intelligence Terminal',
+  description: 'Institutional-grade real-time market telemetry, Almgren-Chriss execution simulator, and RMT portfolio analytics for US & Indonesian (IDX) equities.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-zinc-950 text-zinc-50`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased bg-[#09090b] text-[#f4f4f5] selection:bg-zinc-700 selection:text-white`}>
         <Providers>
           <div className="min-h-screen flex flex-col">
             <Navbar />
-            <main className="flex-1 container mx-auto px-4 py-6 max-w-7xl">
+            <main className="flex-1 container mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-20 sm:pb-8 max-w-7xl">
               {children}
             </main>
           </div>

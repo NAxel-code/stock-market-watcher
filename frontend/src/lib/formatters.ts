@@ -1,6 +1,7 @@
 export function formatCurrency(value: number, currency = 'USD'): string {
-  // For IDR-denominated stocks (Indonesian market), format as Rp without decimals
-  if (currency === 'IDR') {
+  const curr = currency.toUpperCase()
+  // Indonesian Rupiah: formatted without decimals in ID locale
+  if (curr === 'IDR') {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
@@ -8,16 +9,50 @@ export function formatCurrency(value: number, currency = 'USD'): string {
       maximumFractionDigits: 0,
     }).format(value)
   }
+  // Singapore Dollar: explicit S$ prefix so it never collapses into ambiguous "$"
+  if (curr === 'SGD') {
+    const absFormatted = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Math.abs(value))
+    return value < 0 ? `-S$${absFormatted}` : `S$${absFormatted}`
+  }
+  // Japanese Yen: ¥
+  if (curr === 'JPY') {
+    return new Intl.NumberFormat('ja-JP', {
+      style: 'currency',
+      currency: 'JPY',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value)
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency,
+    currency: curr,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value)
 }
 
+export function formatCompactCurrency(value: number, currency = 'USD'): string {
+  const curr = currency.toUpperCase()
+  const sign = value < 0 ? '-' : ''
+  const abs = Math.abs(value)
+  if (curr === 'IDR') {
+    if (abs >= 1e9) return `${sign}Rp ${(abs / 1e9).toFixed(2)}B`
+    if (abs >= 1e6) return `${sign}Rp ${(abs / 1e6).toFixed(1)}M`
+    if (abs >= 1e3) return `${sign}Rp ${(abs / 1e3).toFixed(0)}k`
+    return `${sign}Rp ${Math.round(abs).toLocaleString('id-ID')}`
+  }
+  const prefix = curr === 'SGD' ? 'S$' : curr === 'JPY' ? '¥' : '$'
+  if (abs >= 1e9) return `${sign}${prefix}${(abs / 1e9).toFixed(2)}B`
+  if (abs >= 1e6) return `${sign}${prefix}${(abs / 1e6).toFixed(1)}M`
+  if (abs >= 1e3) return `${sign}${prefix}${(abs / 1e3).toFixed(1)}k`
+  return `${sign}${prefix}${abs.toFixed(0)}`
+}
+
 /**
- * Format market index points (e.g. S&P 500, NASDAQ, Dow Jones, IHSG).
+ * Format market index points (e.g. S&P 500, NASDAQ, Dow Jones, IHSG, STI).
  * Indices are NOT currency amounts and must not display $ or Rp symbols.
  */
 export function formatIndexPoints(value: number): string {
@@ -29,18 +64,33 @@ export function formatIndexPoints(value: number): string {
 
 /**
  * Robust currency resolver for stock items.
- * Guaranteed to return 'IDR' for Indonesian stocks (*.JK) and 'USD' for US stocks.
+ * Uses the API's currency field directly; falls back to market suffix only if missing.
  */
 export function getStockCurrency(
   item?: { ticker?: string; currency?: string; is_idx?: boolean } | string | null
-): 'IDR' | 'USD' {
+): string {
   if (!item) return 'USD'
+  if (typeof item === 'object') {
+    if (item.currency) {
+      return item.currency.toUpperCase()
+    }
+    if (item.is_idx) {
+      return 'IDR'
+    }
+  }
   const ticker = typeof item === 'string' ? item : item.ticker || ''
-  if (isIdxTicker(ticker) || (typeof item === 'object' && item.is_idx)) {
+  const tUpper = ticker.toUpperCase()
+  if (isIdxTicker(tUpper)) {
     return 'IDR'
   }
-  if (typeof item === 'object' && item.currency === 'IDR') {
-    return 'IDR'
+  if (tUpper.endsWith('.SI')) {
+    return 'SGD'
+  }
+  if (tUpper.endsWith('.T')) {
+    return 'JPY'
+  }
+  if (tUpper.endsWith('.L')) {
+    return 'GBP'
   }
   return 'USD'
 }
@@ -59,11 +109,18 @@ export function formatVolume(value: number): string {
 
 export function formatMarketCap(value?: number, currency = 'USD'): string {
   if (!value) return 'N/A'
-  if (currency === 'IDR') {
+  const curr = currency.toUpperCase()
+  if (curr === 'IDR') {
     if (value >= 1e12) return `Rp ${(value / 1e12).toFixed(2)} T`
     if (value >= 1e9) return `Rp ${(value / 1e9).toFixed(2)} M`
     if (value >= 1e6) return `Rp ${(value / 1e6).toFixed(2)} Jt`
     return `Rp ${value.toLocaleString('id-ID')}`
+  }
+  if (curr === 'SGD') {
+    if (value >= 1e12) return `S$${(value / 1e12).toFixed(2)}T`
+    if (value >= 1e9) return `S$${(value / 1e9).toFixed(2)}B`
+    if (value >= 1e6) return `S$${(value / 1e6).toFixed(2)}M`
+    return `S$${value.toFixed(2)}`
   }
   if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`
   if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`
@@ -90,6 +147,57 @@ export function isIdxTicker(ticker: string): boolean {
 /** Calculate total stock value for Indonesian lot size (1 lot = 100 shares) */
 export function calculateLotValue(pricePerShare: number, lots: number): number {
   return pricePerShare * lots * 100
+}
+
+/**
+ * Official IDX (Bursa Efek Indonesia / BEI) Fraksi Harga (Tick Size) rules:
+ * - Price < Rp 200: Tick Size Rp 1
+ * - Rp 200 <= Price < Rp 500: Tick Size Rp 2
+ * - Rp 500 <= Price < Rp 2,000: Tick Size Rp 5
+ * - Rp 2,000 <= Price < Rp 5,000: Tick Size Rp 10
+ * - Price >= Rp 5,000: Tick Size Rp 25
+ */
+export function getIdxTickSize(price: number): number {
+  if (price <= 0) return 1
+  if (price < 200) return 1
+  if (price < 500) return 2
+  if (price < 2000) return 5
+  if (price < 5000) return 10
+  return 25
+}
+
+/**
+ * Snaps a given price to the nearest valid IDX tick according to BEI rules.
+ */
+export function snapToIdxTick(price: number, roundUp = false): number {
+  if (price <= 0) return 0
+  const tick = getIdxTickSize(price)
+  if (roundUp) {
+    return Math.ceil(price / tick) * tick
+  }
+  return Math.round(price / tick) * tick
+}
+
+/**
+ * Increment or decrement an IDX price by a given number of ticks,
+ * dynamically adjusting tick boundaries as price crosses thresholds.
+ * When stepping down, uses the tick size of the range below (e.g. 5000 -> 4990).
+ */
+export function stepIdxPrice(currentPrice: number, steps: number): number {
+  let price = snapToIdxTick(currentPrice)
+  const dir = steps > 0 ? 1 : -1
+  const count = Math.abs(steps)
+
+  for (let i = 0; i < count; i++) {
+    const tick = dir > 0 ? getIdxTickSize(price) : getIdxTickSize(price - 1)
+    price = price + dir * tick
+    if (price < 1) {
+      price = 1
+      break
+    }
+  }
+
+  return price
 }
 
 /** Calculate estimated broker fee for Indonesia (standard 0.15% buy, 0.25% sell) */

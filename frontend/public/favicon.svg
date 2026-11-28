@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Obsidian Vault Base with Hairline Frame -->
+  <rect width="32" height="32" rx="7" fill="#07080A"/>
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" stroke="#1D232C" stroke-width="1"/>
+  
+  <!-- Geometric Pulse Grid Sub-lines -->
+  <line x1="6" y1="16" x2="26" y2="16" stroke="#11161F" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="16" y1="6" x2="16" y2="26" stroke="#11161F" stroke-width="1" stroke-dasharray="2 2"/>
+
+  <!-- Dynamic Aperture Vector Wave (High-Frequency Ascent) -->
+  <path d="M5 22L11 11L16 18L21 9L27 22" stroke="#00E599" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Cyan Precision Aperture Node -->
+  <circle cx="21" cy="9" r="2.2" fill="#00B2FF"/>
+  <circle cx="21" cy="9" r="3.6" stroke="#00B2FF" stroke-width="0.8" stroke-opacity="0.4"/>
+
+  <!-- Amber Delta Catalyst Vertex -->
+  <path d="M10 9L11 6.5L12 9" stroke="#FFB800" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

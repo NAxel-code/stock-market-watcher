@@ -299,3 +299,35 @@ def test_watchlist_correlation_endpoint(client: TestClient) -> None:
     assert "signal_count" in data
     assert data["lambda_plus"] > 0
 
+
+def test_market_fx_endpoint(client: TestClient) -> None:
+    """FX cross rates endpoint returns live pairs with caching header."""
+    response = client.get("/api/v1/market/fx")
+    assert response.status_code == 200
+    data = response.json()
+    assert "rates" in data
+    assert "as_of" in data
+    assert len(data["rates"]) >= 4
+    pairs = [r["pair"] for r in data["rates"]]
+    assert "USD/SGD" in pairs
+    assert "USD/IDR" in pairs
+    assert "public, max-age=" in response.headers.get("Cache-Control", "")
+
+
+def test_cache_control_headers_on_quotes_and_history(client: TestClient) -> None:
+    """Quotes and history endpoints return proper Cache-Control headers."""
+    mock_quote = StockQuoteResponse(
+        ticker="D05.SI",
+        company_name="DBS Group Holdings Ltd",
+        current_price=66.5,
+        previous_close=65.5,
+        change=1.0,
+        change_percent=1.52,
+        currency="SGD",
+    )
+    with patch("app.api.v1.stocks.yf_service.get_quote", return_value=mock_quote):
+        res = client.get("/api/v1/stocks/D05.SI/quote")
+        assert res.status_code == 200
+        assert res.json()["currency"] == "SGD"
+        assert "max-age=30" in res.headers.get("Cache-Control", "")
+

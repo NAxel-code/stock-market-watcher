@@ -2,6 +2,13 @@
 # StockPulse Monorepo .gitignore
 # ==============================
 
+# --- Local Runtime Databases ---
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
 # --- Environment Variables ---
 .env
 .env.local

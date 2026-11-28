@@ -39,7 +39,7 @@ describe('StockCard component', () => {
   it('renders positive change with green styling', () => {
     render(<StockCard quote={mockPositiveQuote} />)
     const changeEl = screen.getByText('+1.69%')
-    expect(changeEl).toHaveClass('text-green-400')
+    expect(changeEl).toHaveClass('text-emerald-400')
   })
 
   it('renders negative change with red styling', () => {

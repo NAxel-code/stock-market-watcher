@@ -8,6 +8,11 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_service_role_key: str = ""
+    jwt_secret_key: str = ""
+    database_path: str = ""
+    enable_alert_worker: bool = True
+    alert_eval_interval_s: int = 15
+    stream_tick_interval_s: float = 4.0
     cors_origins: str | list[str] = ["http://localhost:3000"]
     api_rate_limit: str = "60/minute"
 

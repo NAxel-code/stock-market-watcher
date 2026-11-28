@@ -40,7 +40,8 @@ export function SectorFilterBar({
 
     // Market segments
     const idxQuotes = quotes.filter((q) => isIdxTicker(q.ticker) || Boolean(q.is_idx))
-    const usQuotes = quotes.filter((q) => !isIdxTicker(q.ticker) && !q.is_idx)
+    const sgxQuotes = quotes.filter((q) => q.ticker.toUpperCase().endsWith('.SI') || q.currency === 'SGD')
+    const usQuotes = quotes.filter((q) => !isIdxTicker(q.ticker) && !q.is_idx && !q.ticker.toUpperCase().endsWith('.SI') && q.currency !== 'SGD')
 
     // Sector mapping
     const sectorMap = new Map<string, StockQuote[]>()
@@ -64,13 +65,23 @@ export function SectorFilterBar({
         count: idxQuotes.length,
         avgChange: calcAvg(idxQuotes),
       },
-      {
-        id: 'US',
-        label: 'US Market',
-        count: usQuotes.length,
-        avgChange: calcAvg(usQuotes),
-      },
     ]
+
+    if (sgxQuotes.length > 0) {
+      result.push({
+        id: 'SGX',
+        label: 'SGX',
+        count: sgxQuotes.length,
+        avgChange: calcAvg(sgxQuotes),
+      })
+    }
+
+    result.push({
+      id: 'US',
+      label: 'US Market',
+      count: usQuotes.length,
+      avgChange: calcAvg(usQuotes),
+    })
 
     // Sort individual sectors by stock count descending
     Array.from(sectorMap.entries())
@@ -108,20 +119,20 @@ export function SectorFilterBar({
             data-testid={`filter-tab-${tab.id}`}
             onClick={() => onSelectFilter(tab.id)}
             className={cn(
-              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border active:scale-[0.98]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:ring-offset-zinc-950',
+              'group flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono font-medium transition-all duration-150 border active:scale-[0.98]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f4f4f5]',
               isActive
-                ? 'bg-zinc-100 text-zinc-950 border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950 dark:border-zinc-100 font-semibold shadow-xs'
-                : 'bg-zinc-900/90 text-zinc-300 border-zinc-800/90 hover:text-zinc-100 hover:border-zinc-700 hover:bg-zinc-800/70'
+                ? 'bg-[#f4f4f5] text-[#09090b] border-[#f4f4f5] font-bold'
+                : 'bg-[#0f0f12] text-[#a1a1aa] border-[#222226] hover:text-[#f4f4f5] hover:bg-[#141418]'
             )}
           >
             <span>{tab.label}</span>
             <span
               className={cn(
-                'text-[10px] px-1.5 py-0.5 rounded-full font-mono tabular-nums transition-colors',
+                'text-[9px] px-1 py-0.2 rounded font-mono tabular-nums transition-colors',
                 isActive
-                  ? 'bg-zinc-300 text-zinc-900 font-bold'
-                  : 'bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700 group-hover:text-zinc-200'
+                  ? 'bg-[#09090b]/10 text-[#09090b] font-bold'
+                  : 'bg-[#141418] text-[#71717a] group-hover:text-[#a1a1aa] border border-[#222226]'
               )}
             >
               {tab.count}
@@ -131,12 +142,8 @@ export function SectorFilterBar({
                 className={cn(
                   'text-[10px] font-mono tabular-nums font-semibold ml-0.5',
                   isActive
-                    ? isPos
-                      ? 'text-emerald-700 dark:text-emerald-800'
-                      : 'text-rose-700 dark:text-rose-800'
-                    : isPos
-                    ? 'text-emerald-400'
-                    : 'text-rose-400'
+                    ? (isPos ? 'text-emerald-700' : 'text-red-700')
+                    : (isPos ? 'text-emerald-400' : 'text-red-400')
                 )}
               >
                 {`${isPos ? '+' : ''}${tab.avgChange}%`}

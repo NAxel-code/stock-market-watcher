@@ -32,9 +32,11 @@ export function WatchlistGrid({ showRemove = false }: { showRemove?: boolean }) 
     return watchlist.filter((ticker) => {
       const quote = quotes?.find((q) => q.ticker.toUpperCase() === ticker.toUpperCase())
       const isIdx = isIdxTicker(ticker) || Boolean(quote?.is_idx)
+      const isSgx = ticker.toUpperCase().endsWith('.SI') || quote?.currency === 'SGD'
 
       if (activeFilter === 'IDX') return isIdx
-      if (activeFilter === 'US') return !isIdx
+      if (activeFilter === 'SGX') return isSgx
+      if (activeFilter === 'US') return !isIdx && !isSgx
 
       if (activeFilter.startsWith('SEC:')) {
         const targetSector = activeFilter.slice(4).trim().toLowerCase()

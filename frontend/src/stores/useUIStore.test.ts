@@ -77,4 +77,13 @@ describe('useUIStore zustand store', () => {
     useUIStore.getState().closeTutorial()
     expect(useUIStore.getState().isTutorialOpen).toBe(false)
   })
+
+  it('manages display currency and fx rates', () => {
+    expect(useUIStore.getState().displayCurrency).toBe('NATIVE')
+    useUIStore.getState().setDisplayCurrency('SGD')
+    expect(useUIStore.getState().displayCurrency).toBe('SGD')
+
+    useUIStore.getState().setFXRates({ 'USD/SGD': 1.348 })
+    expect(useUIStore.getState().fxRates['USD/SGD']).toBe(1.348)
+  })
 })

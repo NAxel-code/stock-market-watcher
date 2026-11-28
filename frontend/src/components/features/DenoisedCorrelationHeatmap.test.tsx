@@ -46,7 +46,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: true,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
     expect(screen.getByText(/Computing Marchenko-Pastur spectral decomposition/i)).toBeInTheDocument()
@@ -59,7 +59,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 
@@ -73,8 +73,8 @@ describe('DenoisedCorrelationHeatmap component', () => {
     expect(screen.getAllByText('AAPL').length).toBeGreaterThan(0)
     expect(screen.getAllByText('NVDA').length).toBeGreaterThan(0)
 
-    // Cell value in denoised mode (symmetric matrix has 2 cells with +0.65)
-    expect(screen.getAllByText('+0.65').length).toBe(2)
+    // Cell value in raw mode (symmetric matrix has 2 cells with +0.72)
+    expect(screen.getAllByText('+0.72').length).toBe(2)
   })
 
   it('switches between Denoised and Raw Empirical view', () => {
@@ -84,20 +84,20 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 
-    // In denoised mode: +0.65 is present (2 symmetric cells), +0.72 is not
-    expect(screen.getAllByText('+0.65').length).toBe(2)
-    expect(screen.queryByText('+0.72')).not.toBeInTheDocument()
-
-    // Click Raw Empirical toggle
-    const rawBtn = screen.getByRole('button', { name: /Raw Empirical/i })
-    fireEvent.click(rawBtn)
-
-    // In raw mode: +0.72 is present (2 symmetric cells)
+    // In raw mode by default: +0.72 is present (2 symmetric cells), +0.65 is not
     expect(screen.getAllByText('+0.72').length).toBe(2)
+    expect(screen.queryByText('+0.65')).not.toBeInTheDocument()
+
+    // Click Denoised RMT toggle
+    const denoisedBtn = screen.getByRole('button', { name: /Denoised/i })
+    fireEvent.click(denoisedBtn)
+
+    // In denoised mode: +0.65 is present (2 symmetric cells)
+    expect(screen.getAllByText('+0.65').length).toBe(2)
   })
 
   it('allows collapsing and expanding the matrix', () => {
@@ -107,7 +107,7 @@ describe('DenoisedCorrelationHeatmap component', () => {
       isError: false,
       refetch: vi.fn(),
       isFetching: false,
-    } as any)
+    } as unknown as ReturnType<typeof useWatchlistCorrelation>)
 
     render(<DenoisedCorrelationHeatmap />)
 

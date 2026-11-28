@@ -48,6 +48,22 @@ export interface StockSearchResult {
   name: string
   exchange: string
   type: string
+  currency?: string
+  is_primary?: boolean
+}
+
+export interface FXRateItem {
+  pair: string
+  from_currency: string
+  to_currency: string
+  rate: number
+  change: number
+  change_percent: number
+}
+
+export interface FXRatesResponse {
+  rates: FXRateItem[]
+  as_of: string
 }
 
 export interface MarketIndex {
@@ -84,6 +100,7 @@ export interface MarketSessionInfo {
 export interface MarketStatusResponse {
   idx: MarketSessionInfo
   us: MarketSessionInfo
+  sgx?: MarketSessionInfo
 }
 
 export interface PriceAlert {
@@ -93,6 +110,9 @@ export interface PriceAlert {
   condition: 'ABOVE' | 'BELOW'
   is_active: boolean
   created_at: string
+  triggered_at?: string | null
+  triggered_price?: number | null
+  message?: string | null
 }
 
 export type Period = '1d' | '1w' | '1m' | '3m' | '1y'
@@ -206,4 +226,189 @@ export interface StockDeskResponse {
   relative_strength: RelativeStrengthMetrics
   mindset_guardrail: string
 }
+
+// ==========================================
+// Markets Screen Telemetry Types
+// ==========================================
+export interface MarketInstrument {
+  ticker: string
+  name: string
+  category: 'INDEX' | 'ETF' | 'FX' | 'RATE' | 'COMMODITY' | string
+  current_price: number
+  change: number
+  change_percent: number
+  unit: string
+  as_of: string
+  source: string
+  is_stale: boolean
+}
+
+export interface YieldCurvePoint {
+  tenor: string
+  yield_rate: number
+  change_bps: number
+  country: 'US' | 'SG' | 'ID' | string
+  source: string
+}
+
+export interface UnusualMover {
+  ticker: string
+  name: string
+  exchange: string
+  current_price: number
+  change_percent: number
+  daily_volatility_1y: number
+  z_score_shock: number
+  direction: 'SURGE' | 'DUMP' | string
+}
+
+export interface MarketsOverviewResponse {
+  as_of: string
+  indices: MarketInstrument[]
+  etfs: MarketInstrument[]
+  fx_rates: MarketInstrument[]
+  sovereign_rates: YieldCurvePoint[]
+  commodities: MarketInstrument[]
+  unusual_moves: UnusualMover[]
+}
+
+// ==========================================
+// Portfolio Tracker Types
+// ==========================================
+export interface PortfolioHoldingItem {
+  id: string
+  ticker: string
+  company_name: string
+  exchange: string
+  asset_type: string
+  shares: number
+  lot_size: number
+  cost_basis: number
+  currency: string
+  purchase_date?: string | null
+  sector?: string | null
+  country?: string | null
+  fees: number
+  notes?: string | null
+}
+
+export interface HoldingPerformance {
+  holding: PortfolioHoldingItem
+  current_price: number
+  current_value_native: number
+  current_value_base: number
+  cost_value_base: number
+  unrealized_pnl_base: number
+  unrealized_pnl_percent: number
+  weight_percent: number
+  stock_return_pct: number
+  fx_return_pct: number
+  stock_alpha_contribution_base: number
+  fx_contribution_base: number
+  est_annual_dividend_gross: number
+  est_annual_dividend_net: number
+  us_withholding_tax_applied: boolean
+  is_us_situs: boolean
+  is_above_8pct_cap: boolean
+  is_above_12pct_trim: boolean
+}
+
+export interface PortfolioAllocationBreakdown {
+  by_sector: Record<string, number>
+  by_country: Record<string, number>
+  by_currency: Record<string, number>
+}
+
+export interface PortfolioRiskMetrics {
+  portfolio_beta: number
+  annualized_volatility: number
+  max_drawdown: number
+  sharpe_ratio: number
+  position_cap_warnings: string[]
+  us_estate_tax_exposure_usd: number
+  us_estate_tax_limit_usd: number
+  us_estate_tax_alert: boolean
+  us_estate_tax_message: string
+}
+
+export interface PortfolioAnalysisResponse {
+  base_currency: string
+  as_of: string
+  total_cost_base: number
+  total_value_base: number
+  unrealized_pnl_base: number
+  unrealized_pnl_percent: number
+  total_stock_move_pnl_base: number
+  total_fx_move_pnl_base: number
+  total_annual_dividend_gross_base: number
+  total_annual_dividend_net_base: number
+  holdings: HoldingPerformance[]
+  allocation: PortfolioAllocationBreakdown
+  risk: PortfolioRiskMetrics
+  benchmark_comparison: Record<string, number>
+}
+
+export interface AuthUserProfile {
+  id: string
+  email: string
+  display_name?: string | null
+  created_at: string
+}
+
+export interface AuthTokenResponse {
+  access_token: string
+  token_type: string
+  user: AuthUserProfile
+}
+
+export interface WatchlistStateResponse {
+  owner_id: string
+  tickers: string[]
+  items: Array<{ ticker: string; added_at: string }>
+}
+
+export interface CloudPaperPosition {
+  id: string
+  ticker: string
+  side: 'LONG' | 'SHORT'
+  shares: number
+  entry_price: number
+  current_price: number
+  currency: string
+  take_profit?: number | null
+  stop_loss?: number | null
+  opened_at: string
+}
+
+export interface CloudPaperTrade {
+  id: string
+  ticker: string
+  side: string
+  shares: number
+  price: number
+  currency: string
+  fee: number
+  realized_pnl?: number | null
+  executed_at: string
+}
+
+export interface CloudPaperState {
+  cash_balance_usd: number
+  initial_capital_usd: number
+  positions: CloudPaperPosition[]
+  trades: CloudPaperTrade[]
+  updated_at?: string | null
+}
+
+export interface TriggeredAlertEvent {
+  alert_id: string
+  ticker: string
+  condition: 'ABOVE' | 'BELOW'
+  target_price: number
+  current_price: number
+  triggered_at: string
+  message: string
+}
+
+
 

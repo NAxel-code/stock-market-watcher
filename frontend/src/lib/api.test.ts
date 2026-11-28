@@ -7,6 +7,7 @@ import {
   fetchMarketSummary,
   fetchDefaultWatchlist,
   validateTickerPost,
+  fetchFXRates,
 } from './api'
 
 describe('api client', () => {
@@ -154,6 +155,27 @@ describe('api client', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({ ticker: 'AAPL' }),
+      })
+    )
+  })
+
+  it('fetchFXRates fetches foreign exchange rates', async () => {
+    const mockFX = {
+      rates: [{ pair: 'USD/SGD', from_currency: 'USD', to_currency: 'SGD', rate: 1.345, change: 0.001, change_percent: 0.07 }],
+      as_of: '2026-11-24T00:00:00Z',
+    }
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockFX,
+    })
+
+    const result = await fetchFXRates()
+    expect(result.rates).toHaveLength(1)
+    expect(result.rates[0].pair).toBe('USD/SGD')
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/market/fx',
+      expect.objectContaining({
+        headers: { 'Content-Type': 'application/json' },
       })
     )
   })

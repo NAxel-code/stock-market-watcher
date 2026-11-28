@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import {
@@ -140,17 +140,15 @@ const TICKER_CHEAT_SHEET = [
   },
 ]
 
+const emptySubscribe = () => () => {}
+
 export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: TutorialModalProps) {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
   const [activeTab, setActiveTab] = useState<'tour' | 'cheatSheet'>('tour')
   const [currentStep, setCurrentStep] = useState(0)
   const [dontShowAgain, setDontShowAgain] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Safely scroll target into view once when step or tab changes
   const scrollToTarget = useCallback(() => {
@@ -185,18 +183,19 @@ export function TutorialModal({ isOpen, onClose, onStartSpotlightTour }: Tutoria
   useEffect(() => {
     if (isOpen && activeTab === 'tour') {
       scrollToTarget()
-      updateRectOnly()
+      const raf = requestAnimationFrame(updateRectOnly)
       const timer = setTimeout(updateRectOnly, 350)
       window.addEventListener('resize', updateRectOnly)
       window.addEventListener('scroll', updateRectOnly)
       return () => {
+        cancelAnimationFrame(raf)
         clearTimeout(timer)
         window.removeEventListener('resize', updateRectOnly)
         window.removeEventListener('scroll', updateRectOnly)
       }
-    } else {
-      setTargetRect(null)
     }
+    const rafReset = requestAnimationFrame(() => setTargetRect(null))
+    return () => cancelAnimationFrame(rafReset)
   }, [isOpen, activeTab, currentStep, scrollToTarget, updateRectOnly])
 
   useEffect(() => {
